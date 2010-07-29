@@ -1,0 +1,20 @@
+## Interface: 30300
+
+## Title: Hydra
+## Notes: Multibox leveling helper.
+## Author: Phanx
+
+## DefaultState: disabled
+## SavedVariables: HydraDB
+
+Core.lua
+
+Automation.lua
+Chat.lua
+Follow.lua
+Mount.lua
+Party.lua
+Quest.lua
+Taxi.lua
+
+Options.lua
