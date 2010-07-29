@@ -1,11 +1,17 @@
 ## Interface: 30300
+## Version: 3.3.5.wowi:revision
 
 ## Title: Hydra
 ## Notes: Multibox leveling helper.
 ## Author: Phanx
+## X-Website: http://www.wowinterface.com/downloads/info-Hydra.html
+## X-Curse-ProjectName: hydra
+## X-WoWI-ID:
 
 ## DefaultState: disabled
 ## SavedVariables: HydraDB
+
+Trust.lua
 
 Core.lua
 
