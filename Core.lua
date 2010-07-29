@@ -6,17 +6,11 @@
 	http://wow.curseforge.com/projects/hydra/
 ----------------------------------------------------------------------]]
 
-local TRUSTED_NAMES = {
-	Blackrock = {
-		Draj = true, Kiscica = true, Lirrel = true, Mauaji = true, Batanya = true, Harbuu = true, Pryrates = true,
-		Akkorian = true, Clovache = true, Karohn = true, Tazjan = true,
-	}
-}
-
-------------------------------------------------------------------------
-
 local _, core = ...
 core.modules = { }
+core.trusted = core.trusted or { }
+
+------------------------------------------------------------------------
 
 local trusted, throttle, realmName, playerName = nil, 0, GetRealmName(), UnitName("player")
 local SOLO, INSECURE, SECURE, LEADER = 0, 1, 2, 3
@@ -29,7 +23,7 @@ function core:Debug(...)
 end
 
 function core:Print(...)
-	print(...)
+	print("|cffffcc00Hydra:|r", ...)
 end
 
 function core:Alert(message, flash, r, g, b)
@@ -64,8 +58,8 @@ f:RegisterEvent("PLAYER_LOGIN")
 function f:PLAYER_LOGIN()
 	core:Debug("Loading...")
 
-	trusted = TRUSTED_NAMES and TRUSTED_NAMES[realmName]
-	TRUSTED_NAMES = nil
+	trusted = core.trusted[realmName]
+	core.trusted = nil
 	if not trusted then return core:Debug("No trusted names for this server.") end
 
 	f:UnregisterEvent("PLAYER_LOGIN")
