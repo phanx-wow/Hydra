@@ -29,18 +29,19 @@ module.debug = true
 ------------------------------------------------------------------------
 
 function module:CheckState()
-	if core.state == SOLO then
-		self:Debug("Disable module: Quest")
-		self:UnregisterAllEvents()
-	else
-		self:Debug("Enable module: Quest")
+	self:UnregisterAllEvents()
+	-- self:Debug("Enable module: Quest")
+
+	self:RegisterEvent("GOSSIP_SHOW")
+	self:RegisterEvent("QUEST_COMPLETE")
+	self:RegisterEvent("QUEST_DETAIL")
+	self:RegisterEvent("QUEST_GREETING")
+	self:RegisterEvent("QUEST_PROGRESS")
+
+	if core.state > SOLO then
 		self:RegisterEvent("CHAT_MSG_ADDON")
 		self:RegisterEvent("QUEST_ACCEPT_CONFIRM")
-		self:RegisterEvent("QUEST_COMPLETE")
-		self:RegisterEvent("QUEST_DETAIL")
-		self:RegisterEvent("QUEST_GREETING")
 		self:RegisterEvent("QUEST_LOG_UPDATE")
-		self:RegisterEvent("QUEST_PROGRESS")
 	end
 end
 
@@ -52,7 +53,6 @@ local function strip(text)
 	text = text:gsub("|c%x%x%x%x%x%x%x%x(.+)|r","%1")
 	text = text:gsub("(.+) %(.+%)", "%1")
 	text = text:trim()
-	text = text:lower()
 	return text
 end
 
@@ -60,7 +60,7 @@ end
 
 function module:QUEST_ACCEPT_CONFIRM(name, qname)
 	if not UnitInParty(name) or not self.db.accept then return end
-	self:Debug("Accepting quest", qname, "started by", name)
+	-- self:Debug("Accepting quest", qname, "started by", name)
 	ConfirmAcceptQuest()
 	StaticPopup_Hide("QUEST_ACCEPT")
 end
@@ -74,7 +74,10 @@ function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 
 	if prefix == "AcceptQuest" then
 		self:Print(sender, "accepted quest", message)
-		accept[message:match("%[(.-)%]"):lower()] = message
+		local qname = message:match("%[(.-)%]"):lower()
+		if not accepted[qname] then
+			accept[qname] = message
+		end
 
 	elseif prefix == "AbandonQuest" and self.db.abandon then
 		for i = 1, GetNumQuestLogEntries() do
@@ -94,30 +97,30 @@ end
 ------------------------------------------------------------------------
 
 local function IsQuestComplete(text)
-	module:Debug("Checking for complete quest:", text)
+	-- module:Debug("IsQuestComplete", text)
 	for i = 1, GetNumQuestLogEntries() do
 		local qname, _, _, _, _, _, complete = GetQuestLogTitle(i)
-		if text == strip(qname) then
+		if text == strip(qname):lower() then
 			if (complete and complete > 0) or GetNumQuestLeaderBoards(i) == 0 then
-				module:Debug("Quest complete.")
+				-- module:Debug("true")
 				return true
 			end
 		end
 	end
-	module:Debug("Quest not complete.")
+	-- module:Debug("false")
 end
 
 function module:GOSSIP_SHOW()
+	-- self:Debug("GOSSIP_SHOW")
 	if not GossipFrame.buttonIndex or IsShiftKeyDown() then return end
-	self:Debug("GOSSIP_SHOW")
 
 	for i = 1, 32 do
 		local button = _G["GossipTitleButton" .. i]
 		if button and button:IsVisible() then
-			local text = strip(button:GetText())
-			self:Debug(i, button.type, "=", button:GetText(), "->", text)
+			local text = strip(button:GetText()):lower()
+			-- self:Debug(i, button.type, "=", button:GetText(), "->", text)
 			if (button.type == "Available" and accept[text] and self.db.accept) or (button.type == "Active" and IsQuestComplete(text) and self.db.turnin) then
-				print(button.type == "Active" and "Completing quest" or "Accepting quest", button:GetText())
+				self:Debug(button.type == "Active" and "Completing quest" or "Accepting quest", strip(button:GetText()))
 				button:Click()
 			end
 		end
@@ -125,32 +128,34 @@ function module:GOSSIP_SHOW()
 end
 
 function module:QUEST_GREETING()
+	-- self:Debug("QUEST_GREETING")
 	if not IsShiftKeyDown() then return end
 
 	for i = 1, 32 do
 		local button = _G["QuestTitleButton" .. i]
 		if button and button:IsVisible() then
-			local text = strip(button:GetText())
+			local text = strip(button:GetText()):lower()
+			-- self:Debug(i, button:GetText(), "->", text)
 			if (IsQuestComplete(text) and self.db.turnin) or (accept[text] and self.db.accept) then
-				self:Debug(IsQuestComplete(text) and "Completing quest" or "Accepting quest", button:GetText())
+				self:Debug(IsQuestComplete(text) and "Completing quest" or "Accepting quest", strip(button:GetText()))
 				button:Click()
 			end
 		end
 	end
-
 end
 
 function module:QUEST_DETAIL()
+	-- self:Debug("QUEST_DETAIL")
 	if IsShiftKeyDown() then return end
 
-	local qname = strip(GetTitleText())
+	local qname = strip(GetTitleText()):lower()
 	if not accept[qname] and not UnitInParty("questnpc") then return end
 
 	if UnitInParty("questnpc") then
 		accepted[qname] = true
 	end
 
-	self:Debug("Accepting quest", GetTitleText(), "from", UnitName("questnpc"))
+	self:Debug("Accepting quest", strip(GetTitleText()), "from", (UnitName("questnpc")))
 	AcceptQuest()
 end
 
@@ -203,9 +208,14 @@ function module:QUEST_LOG_UPDATE()
 	end
 
 	for id, link in pairs(oldquests) do
-		if not currentquests[id] and abandoning then
-			self:Debug("Abandoned quest", link)
-			SendAddonMessage("AbandonQuest", link, "PARTY")
+		if not currentquests[id] then
+			if abandoning then
+				self:Debug("Abandoned quest", link)
+				SendAddonMessage("AbandonQuest", link, "PARTY")
+			else
+				self:Debug("Turned in quest", link)
+				SendAddonMessage("TurninQuest", link, "PARTY")
+			end
 		end
 	end
 
@@ -213,23 +223,11 @@ function module:QUEST_LOG_UPDATE()
 
 	for id, link in pairs(currentquests) do
 		if not oldquests[id] then
-			local qname = link:match("%[(.-)%]"):lower()
-			if accepted[qname] then
-				self:Debug("Quest accepted from a player; not sharing.")
-				accepted[qname] = nil
-				return
-			end
-
 			self:Debug("Accepted quest", link)
-
-			if accept[qname] then
-				accept[qname] = nil
-				return
-			end
-
 			SendAddonMessage("AcceptQuest", link, "PARTY")
 
-			if self.db.share then
+			local qname = link:match("%[(.-)%]"):lower()
+			if self.db.share and not accept[qname] and not accepted[qname] then
 				for i = 1, GetNumQuestLogEntries() do
 					if link == GetQuestLink(i) then
 						SelectQuestLogEntry(i)
@@ -237,7 +235,6 @@ function module:QUEST_LOG_UPDATE()
 							self:Debug("Sharing quest...")
 							QuestLogPushQuest()
 						else
-							self:Debug("Quest not sharable!")
 							core:Print("That quest cannot be shared.")
 						end
 					end
