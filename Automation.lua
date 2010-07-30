@@ -15,8 +15,6 @@ local _, core = ...
 local module = core:RegisterModule("Automation", CreateFrame("Frame"))
 module:SetScript("OnEvent", function(f, e, ...) return f[e] and f[e](f, ...) end)
 
-module.debug = true
-
 module.defaults = {
 	acceptResurrections = true,
 	acceptResurrectionsInCombat = true,
@@ -98,26 +96,14 @@ end
 
 ------------------------------------------------------------------------
 
-local formatMoney
-do
-	local G, S, C
-	if GetLocale() == "zhTW" then
-		G, S, C = "金", "銀", "銅"
-	elseif GetLocale() == "zhCN" then
-		G, S, C = "金", "银", "铜"
-	elseif GetLocale() == "ruRU" then
-		G, S, C = "з", "с", "м"
+local function formatMoney(value)
+	-- coin icons with _AMOUNT_TEXTURE
+	if value >= 10000 then
+		return format("|cffffd700%d|r%s |cffc7c7cf%d|r%s |cffeda55f%d|r%s", abs(value / 10000), GOLD_AMOUNT_SYMBOL, abs(mod(value / 100, 100)), SILVER_AMOUNT_SYMBOL, abs(mod(value, 100)), COPPER_AMOUNT_SYMBOL)
+	elseif value >= 100 then
+		return format("|cffc7c7cf%d|r%s |cffeda55f%d|r%s", abs(mod(value / 100, 100)), SILVER_AMOUNT_SYMBOL, abs(mod(value, 100)), COPPER_AMOUNT_SYMBOL)
 	else
-		G, S, C = GOLD:sub(1, 1):lower(), SILVER:sub(1, 1):lower(), COPPER:sub(1, 1):lower()
-	end
-	function formatMoney(value)
-		if value >= 10000 then
-			return format("|cffffd700%d|r%s |cffc7c7cf%d|r%s |cffeda55f%d|r%s", abs(value / 10000), G, abs(mod(value / 100, 100)), S, abs(mod(value, 100)), C)
-		elseif value >= 100 then
-			return format("|cffc7c7cf%d|r%s |cffeda55f%d|r%s", abs(mod(value / 100, 100)), S, abs(mod(value, 100)), C)
-		else
-			return format("|cffeda55f%d|r%s", abs(mod(value, 100)), C)
-		end
+		return format("|cffeda55f%d|r%s", abs(mod(value, 100)), COPPER_AMOUNT_SYMBOL)
 	end
 end
 

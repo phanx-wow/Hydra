@@ -15,24 +15,29 @@ function module:CheckState()
 	self:Debug("Loading options...")
 
 	local L = setmetatable({ }, { __index = function(t, k)
-		if not k then return end
+		if not k then return "" end
 		local v = tostring(k)
 		t[k] = v
 		return v
 	end })
 
 	local options = {
-		type = "group", inline = true, args = {
+		type = "group", args = {
+			help = {
+				name = L["Hydra is a multibox leveling helper that aims to minimize the need to actively control secondary characters."],
+				type = "description",
+				order = 1,
+			},
 			Automation = {
 				name = L["Automation"],
 				type = "group", dialogInline = true,
 				get = function(t)
-					return self.db["Automation"][t.key]
+					return core.db["Automation"][t.arg]
 				end,
 				set = function(t, v)
-					self.db["Automation"][t.key] = v
+					core.db["Automation"][t.arg] = v
 					if t[#t] ~= "verbose" then
-						self.modules["Automation"]:CheckState()
+						core.modules["Automation"]:CheckState()
 					end
 				end,
 				args = {
@@ -45,70 +50,72 @@ function module:CheckState()
 						name = L["Decline duels"],
 						type = "toggle",
 						order = 20,
-						key = "declineDuels",
+						arg = "declineDuels",
 					},
 					arena = {
 						name = L["Decline arena teams"],
 						type = "toggle",
 						order = 30,
-						key = "declineArenaTeams",
+						arg = "declineArenaTeams",
 					},
 					guild = {
 						name = L["Decline guilds"],
 						type = "toggle",
 						order = 40,
-						key = "declineGuilds",
+						arg = "declineGuilds",
 					},
 					summon = {
 						name = L["Accept summons"],
 						type = "toggle",
 						order = 50,
-						key = "acceptSummons",
+						arg = "acceptSummons",
 					},
 					res = {
 						name = L["Accept resurrections"],
 						type = "toggle",
 						order = 60,
-						key = "acceptResurrections",
+						arg = "acceptResurrections",
 					},
 					combatres = {
 						name = L["Accept resurrections in combat"],
 						type = "toggle",
 						order = 65,
-						key = "acceptResurrectionsInCombat",
+						arg = "acceptResurrectionsInCombat",
 					},
+		--[[
 					corpse = {
 						name = L["Accept corpse"],
 						desc = L["Accept resurrection to your corpse if another party member is alive and nearby."],
 						type = "toggle",
 						order = 70,
-						key = "acceptCorpseResurrections",
+						arg = "acceptCorpseResurrections",
 					},
 					release = {
 						name = L["Release spirit"],
 						desc = L["Release your spirit when you die."],
 						type = "toggle",
 						order = 80,
-						key = "releaseSpirit",
+						arg = "releaseSpirit",
 					},
+		--]]
 					repair = {
 						name = L["Repair equipment"],
 						type = "toggle",
 						order = 90,
-						key = "repairEquipment",
+						arg = "repairEquipment",
 					},
 					sell = {
 						name = L["Sell junk"],
 						type = "toggle",
 						order = 100,
-						key = "sellJunk",
+						arg = "sellJunk",
 					},
 					verbose = {
 						name = L["Verbose mode"],
 						desc = L["Print messages to the chat frame when performing any action."],
 						type = "toggle",
 						order = 200,
-						key = "verbose",
+						arg = "verbose",
 					},
 				},
 			},
@@ -124,11 +131,39 @@ function module:CheckState()
 						name = L["Enable"],
 						type = "toggle",
 						order = 20,
+						get = function()
+							return core.db["Chat"].enable
+						end,
+						set = function(_, v)
+							core.db["Chat"].enable = v
+							core.modules["Chat"]:CheckState()
+						end,
+					},
+					mode = {
+						name = L["Mode"],
+						order = 30,
+						type = "select", values = {
+							appfocus = L["Application Focus"],
+							leader = L["Party Leader"],
+						},
+						get = function()
+							return core.db["Chat"].mode
+						end,
+						set = function(_, v)
+							core.db["Chat"].mode = v
+							core.modules["Chat"]:CheckState()
+						end,
 					},
 					timeout = {
 						name = L["Timeout"],
 						type = "range", min = 30, max = 600, step = 30,
-						order = 20,
+						order = 40,
+						get = function()
+							return core.db["Chat"].timeout
+						end,
+						set = function(_, v)
+							core.db["Chat"].timeout = v
+						end,
 					},
 				},
 			},
@@ -144,8 +179,12 @@ function module:CheckState()
 						name = L["Enable"],
 						type = "toggle",
 						order = 20,
-						get = function() return self.db["Follow"].enable end,
-						get = function(_, v) self.db["Follow"].enable = v end,
+						get = function()
+							return core.db["Follow"].enable
+						end,
+						set = function(_, v)
+							core.db["Follow"].enable = v
+						end,
 					},
 				},
 			},
@@ -161,8 +200,13 @@ function module:CheckState()
 						name = L["Enable"],
 						type = "toggle",
 						order = 20,
-						get = function() return self.db["Mount"].enable end,
-						get = function(_, v) self.db["Mount"].enable = v end,
+						get = function()
+							return core.db["Mount"].enable
+						end,
+						set = function(_, v)
+							core.db["Mount"].enable = v
+							core.modules["Mount"]:CheckState()
+						end,
 					},
 				},
 			},
@@ -178,40 +222,54 @@ function module:CheckState()
 						name = L["Enable"],
 						type = "toggle",
 						order = 20,
+						get = function()
+							return core.db["Party"].enable
+						end,
+						set = function(_, v)
+							core.db["Party"].enable = v
+							core.modules["Party"]:CheckState()
+						end,
 					},
 				},
 			},
 			Quest = {
 				name = L["Quest"],
-				type = "group", dialogInline = true, args = {
+				type = "group", dialogInline = true,
+				get = function(t)
+					return core.db["Quest"][t[#t]]
+				end,
+				set = function(t, v)
+					core.db["Quest"][t[#t]] = v
+				end,
+				args = {
 					help = {
 						name = L["Helps keep party members' quests in sync."],
 						type = "description",
 						order = 10,
 					},
+					turnin = {
+						name = L["Turn in quests"],
+						desc = L["Turn in complete quests."],
+						type = "toggle",
+						order = 20,
+					},
+					accept = {
+						name = L["Accept quests"],
+						desc = L["Accept quests shared by party members, quests from NPCs that other party members have already accepted, and escort-type quests started by another party member."],
+						type = "toggle",
+						order = 30,
+					},
 					share = {
 						name = L["Share quests"],
-						desc = L["Share quests you accept from NPCs, accept quests shared by party members, and accept quests from NPCs that another party member already accepted."],
+						desc = L["Share quests you accept from NPCs."],
 						type = "toggle",
-						order = 20,
-					},
-					start = {
-						name = L["Start escort quests"],
-						desc = L["Start escort quests started by another party member."],
-						type = "toggle",
-						order = 20,
-					},
-					turnin = {
-						name = L["Turn in complete quests"],
-						desc = L["Turn in complete quests"],
-						type = "toggle",
-						order = 20,
+						order = 40,
 					},
 					abandon = {
 						name = L["Abandon quests"],
 						desc = L["Abandon quests abandoned by a trusted party member."],
 						type = "toggle",
-						order = 20,
+						order = 50,
 					},
 				},
 			},
@@ -227,12 +285,25 @@ function module:CheckState()
 						name = L["Enable"],
 						type = "toggle",
 						order = 20,
+						get = function()
+							return core.db["Taxi"].enable
+						end,
+						set = function(_, v)
+							core.db["Chat"].enable = v
+							core.modules["Taxi"]:CheckState()
+						end,
 					},
 					timeout = {
 						name = L["Timeout"],
 						desc = L["Clear the taxi selection after this many seconds."],
 						type = "range", min = 30, max = 600, step = 30,
-						order = 20,
+						order = 30,
+						get = function()
+							return core.db["Taxi"].timeout
+						end,
+						set = function(_, v)
+							core.db["Taxi"].timeout = v
+						end,
 					},
 				},
 			},
@@ -240,8 +311,16 @@ function module:CheckState()
 	}
 
 	AceConfigRegistry:RegisterOptionsTable("Hydra", options)
-	AceConfigDialog:AddToBlizOptions("Hydra")
+
+	local panel = AceConfigDialog:AddToBlizOptions("Hydra")
+	local about = LibStub("LibAboutPanel", true) and LibStub("LibAboutPanel").new("Hydra", "Hydra")
+
+	SlashCmdList.HYDRA = function()
+		if about then InterfaceOptionsFrame_OpenToCategory(about) end -- expand!
+		InterfaceOptionsFrame_OpenToCategory(panel)
+	end
+	SLASH_HYDRA1 = "/hydra"
 
 	core.modules["Options"] = nil
-	module.CheckState, module, AceConfigRegistry, AceConfigDialog = nil, nil, nil, nil
+	module, AceConfigRegistry, AceConfigDialog = nil, nil, nil
 end

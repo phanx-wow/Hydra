@@ -22,6 +22,10 @@ local accept, accepted = {}, {}
 local module = core:RegisterModule("Quest", CreateFrame("Frame"))
 module:SetScript("OnEvent", function(f, e, ...) return f[e] and f[e](f, ...) end)
 
+module.defaults = { share = true, accept = true, turnin = true, abandon = true }
+
+module.debug = true
+
 ------------------------------------------------------------------------
 
 function module:CheckState()
@@ -55,7 +59,7 @@ end
 ------------------------------------------------------------------------
 
 function module:QUEST_ACCEPT_CONFIRM(name, qname)
-	if not UnitInParty(name) then return end
+	if not UnitInParty(name) or not self.db.accept then return end
 	self:Debug("Accepting quest", qname, "started by", name)
 	ConfirmAcceptQuest()
 	StaticPopup_Hide("QUEST_ACCEPT")
@@ -69,15 +73,14 @@ function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 	if sender == playerName or channel ~= "PARTY" or not core:IsTrusted(sender) then return end
 
 	if prefix == "AcceptQuest" then
-		local name = message:match("%[(.-)%]"):lower()
-		self:Debug(sender, "accepted quest", message, name)
-		accept[name] = message
+		self:Print(sender, "accepted quest", message)
+		accept[message:match("%[(.-)%]"):lower()] = message
 
-	elseif prefix == "AbandonQuest" then
+	elseif prefix == "AbandonQuest" and self.db.abandon then
 		for i = 1, GetNumQuestLogEntries() do
 			local link = GetQuestLink(i)
 			if link == message then
-				self:Debug(sender, "abandoned quest", message)
+				self:Print(sender, "abandoned quest", message)
 				SelectQuestLogEntry(i)
 				SetAbandonQuest()
 				return AbandonQuest()
@@ -112,8 +115,8 @@ function module:GOSSIP_SHOW()
 		local button = _G["GossipTitleButton" .. i]
 		if button and button:IsVisible() then
 			local text = strip(button:GetText())
-			self:Debug(i, button.type, "::", button:GetText(), "->", text)
-			if (button.type == "Available" and accept[text]) or (button.type == "Active" and IsQuestComplete(text)) then
+			self:Debug(i, button.type, "=", button:GetText(), "->", text)
+			if (button.type == "Available" and accept[text] and self.db.accept) or (button.type == "Active" and IsQuestComplete(text) and self.db.turnin) then
 				print(button.type == "Active" and "Completing quest" or "Accepting quest", button:GetText())
 				button:Click()
 			end
@@ -128,7 +131,7 @@ function module:QUEST_GREETING()
 		local button = _G["QuestTitleButton" .. i]
 		if button and button:IsVisible() then
 			local text = strip(button:GetText())
-			if IsQuestComplete(text) or accept[text] then
+			if (IsQuestComplete(text) and self.db.turnin) or (accept[text] and self.db.accept) then
 				self:Debug(IsQuestComplete(text) and "Completing quest" or "Accepting quest", button:GetText())
 				button:Click()
 			end
@@ -226,15 +229,17 @@ function module:QUEST_LOG_UPDATE()
 
 			SendAddonMessage("AcceptQuest", link, "PARTY")
 
-			for i = 1, GetNumQuestLogEntries() do
-				if link == GetQuestLink(i) then
-					SelectQuestLogEntry(i)
-					if GetQuestLogPushable() then
-						self:Debug("Sharing quest...")
-						QuestLogPushQuest()
-					else
-						self:Debug("Quest not sharable!")
-						core:Print("That quest cannot be shared.")
+			if self.db.share then
+				for i = 1, GetNumQuestLogEntries() do
+					if link == GetQuestLink(i) then
+						SelectQuestLogEntry(i)
+						if GetQuestLogPushable() then
+							self:Debug("Sharing quest...")
+							QuestLogPushQuest()
+						else
+							self:Debug("Quest not sharable!")
+							core:Print("That quest cannot be shared.")
+						end
 					end
 				end
 			end

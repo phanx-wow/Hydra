@@ -16,15 +16,19 @@ local remote
 local module = core:RegisterModule("Party", CreateFrame("Frame"))
 module:SetScript("OnEvent", function(f, e, ...) return f[e] and f[e](f, ...) end)
 
-module.debug = true
+module.defaults = { enable = true }
 
 ------------------------------------------------------------------------
 
 function module:CheckState()
-	self:Debug("Enable module: Party")
-
-	self:RegisterEvent("CHAT_MSG_ADDON")
-	self:RegisterEvent("PARTY_INVITE_REQUEST")
+	if self.db.enable then
+		self:Debug("Enable module: Party")
+		self:RegisterEvent("CHAT_MSG_ADDON")
+		self:RegisterEvent("PARTY_INVITE_REQUEST")
+	else
+		self:Debug("Disable module: Party")
+		self:UnregisterAllEvents()
+	end
 end
 
 ------------------------------------------------------------------------

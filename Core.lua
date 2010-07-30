@@ -8,7 +8,8 @@
 
 local _, core = ...
 core.modules = { }
-core.trusted = core.trusted or { }
+
+core.debug = true
 
 ------------------------------------------------------------------------
 
@@ -61,6 +62,7 @@ local function copyTable(a, b)
 			b[k] = v
 		end
 	end
+	return b
 end
 
 local f = CreateFrame("Frame")
@@ -69,24 +71,30 @@ f:RegisterEvent("PLAYER_LOGIN")
 
 function f:PLAYER_LOGIN()
 	core:Debug("Loading...")
+	f:UnregisterEvent("PLAYER_LOGIN")
 
-	if not HydraDB then HydraDB = { } end
-	if not HydraDB.trusted then HydraDB.trusted = { } end
-	if not HydraDB.trusted[realmName] then HydraDB.trusted[realmName] = { } end
-	self.db = HydraDB
-
-	for name, module in pairs(self.modules) do
-		if module.defaults then
-			self.db[name] = copyTable(module.defaults, self.db[name])
+	if core.trusted then
+		if core.trusted[realmName] then
+			trusted = copyTable(core.trusted[realmName])
+		else
+			return core:Print("No trust list for this server.")
 		end
-		module.db = self.db[name]
+		core.trusted = nil
+	else
+		return core:Print("Trust list not found.")
 	end
 
-	trusted = core.trusted[realmName]
-	core.trusted = nil
-	if not trusted then return core:Debug("No trusted names for this server.") end
+	HydraDB = copyTable({ trusted = { [realmName] = { [playerName] = true } } }, HydraDB)
+	core.db = HydraDB
 
-	f:UnregisterEvent("PLAYER_LOGIN")
+	for name, module in pairs(core.modules) do
+		if module.defaults then
+			core:Debug("Initializing settings for module", name)
+			core.db[name] = copyTable(module.defaults, core.db[name])
+			module.db = core.db[name]
+			for k, v in pairs(module.db) do core:Debug(k, "=", v) end
+		end
+	end
 
 	f:RegisterEvent("PARTY_LEADER_CHANGED")
 	f:RegisterEvent("PARTY_MEMBERS_CHANGED")
