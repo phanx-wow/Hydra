@@ -13,6 +13,8 @@ local followers, following = { }
 local module = core:RegisterModule("Follow", CreateFrame("Frame"))
 module:SetScript("OnEvent", function(f, e, ...) return f[e] and f[e](f, ...) end)
 
+module.defaults = { enable = true }
+
 ------------------------------------------------------------------------
 
 function module:CheckState()
@@ -32,27 +34,26 @@ end
 
 function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 	if prefix ~= "HydraFollow" or sender == playerName then return end
-	self:Debug("CHAT_MSG_ADDON ::", prefix, "::", message, "::", channel, "::", sender)
 
 	if message == playerName then -- sender is following me
-		core:Print(sender, "is now following you.")
+		self:Print(sender, "is now following you.")
 		followers[sender] = GetTime()
 
 	elseif message == "END" and followers[sender] then -- sender stopped following me
 		if GetTime() - followers[sender] > 2 then
-			print(sender, "is no longer following you.")
-			if not CheckInteractDistance(sender, 4) and not UnitOnTaxi("player") then
-				core:Alert(sender .. " is no longer following you!")
+			self:Print(sender, "is no longer following you.")
+			if not CheckInteractDistance(sender, 2) and not UnitOnTaxi("player") then
+				self:Alert(sender .. " is no longer following you!")
 			end
 		end
 		followers[sender] = nil
 
-	elseif message == "ME" and core:IsTrusted(sender) then -- sender wants me to follow them
+	elseif message == "ME" and core:IsTrusted(sender) and self.db.enable then -- sender wants me to follow them
 		if CheckInteractDistance(sender, 4) then
-			self:Debug("Attempting to follow", sender)
+			self:Debug(sender, "has sent a follow request.")
 			FollowUnit(sender)
 		else
-			self:Debug("Can't follow", sender, "due to range.")
+			self:Print(sender, "is too far away to follow!")
 		end
 	end
 end

@@ -36,20 +36,32 @@ function core:IsTrusted(name, realm)
 end
 
 local noop = function() end
-function core:RegisterModule(name, object)
+function core:RegisterModule(name, module)
 	assert(not self.modules[name], "Module %s is already registered!", name)
-	if not object then object = { } end
+	if not module then module = { } end
 
-	object.name = name
-	object.CheckState = noop
-	object.Alert, object.Debug, object.Print = self.Alert, self.Debug, self.Print
+	module.name = name
+	module.CheckState = noop
+	module.Alert, module.Debug, module.Print = self.Alert, self.Debug, self.Print
 
-	self.modules[name] = object
+	self.modules[name] = module
 
-	return object
+	return module
 end
 
 ------------------------------------------------------------------------
+
+local function copyTable(a, b)
+	if not a then return { } end
+	if not b then b = { } end
+	for k, v in pairs(a) do
+		if type(v) == "table" then
+			b[k] = copyTable(v, b[k])
+		elseif type(v) ~= type(b[k]) then
+			b[k] = v
+		end
+	end
+end
 
 local f = CreateFrame("Frame")
 f:SetScript("OnEvent", function(f, e, ...) return f[e] and f[e](f, ...) end)
@@ -57,6 +69,18 @@ f:RegisterEvent("PLAYER_LOGIN")
 
 function f:PLAYER_LOGIN()
 	core:Debug("Loading...")
+
+	if not HydraDB then HydraDB = { } end
+	if not HydraDB.trusted then HydraDB.trusted = { } end
+	if not HydraDB.trusted[realmName] then HydraDB.trusted[realmName] = { } end
+	self.db = HydraDB
+
+	for name, module in pairs(self.modules) do
+		if module.defaults then
+			self.db[name] = copyTable(module.defaults, self.db[name])
+		end
+		module.db = self.db[name]
+	end
 
 	trusted = core.trusted[realmName]
 	core.trusted = nil
