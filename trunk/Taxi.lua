@@ -3,10 +3,6 @@
 	* Autoselect the last taxi node selected by anyone in the party
 ----------------------------------------------------------------------]]
 
-local TIMEOUT = 60
-
-------------------------------------------------------------------------
-
 local _, core = ...
 local SOLO, PARTY, TRUSTED, LEADER = 0, 1, 2, 3
 local playerName = UnitName("player")
@@ -16,10 +12,12 @@ local taxiTime, taxiNode, taxiNodeName = 0
 local module = core:RegisterModule("Taxi", CreateFrame("Frame"))
 module:SetScript("OnEvent", function(f, e, ...) return f[e] and f[e](f, ...) end)
 
+module.defaults = { enable = true, timeout = 60 }
+
 ------------------------------------------------------------------------
 
 function module:CheckState()
-	if core.state == SOLO then
+	if core.state == SOLO or not self.db.enable then
 		self:Debug("Disable module: Taxi")
 		self:UnregisterAllEvents()
 	else
@@ -53,7 +51,7 @@ function module:TAXIMAP_OPENED()
 	if not taxiNode then return end -- we're picking the taxi
 	if IsShiftKeyDown() then return end -- we're doing something else
 
-	if GetTime() - taxiTime > TIMEOUT then
+	if GetTime() - taxiTime > self.db.timeout then
 		taxiNode, taxiNodeName, taxiTime = nil, nil, 0
 		return SendAddonMessage("HydraTaxi", "TIMEOUT", "PARTY")
 	end

@@ -17,13 +17,13 @@ module.defaults = { enable = true }
 ------------------------------------------------------------------------
 
 function module:CheckState()
-	if core.state == SOLO or not self.db.enable then
-		self:Debug("Disable module: Mount")
-		self:UnregisterAllEvents()
-	else
+	if core.state > SOLO and self.db.enable then
 		self:Debug("Enable module: Mount")
 		self:RegisterEvent("CHAT_MSG_ADDON")
 		self:RegisterEvent("UNIT_SPELLCAST_SENT")
+	else
+		self:Debug("Disable module: Mount")
+		self:UnregisterAllEvents()
 	end
 end
 

@@ -12,12 +12,6 @@
 	  "name" is the target of the message
 ----------------------------------------------------------------------]]
 
-local TIMEOUT = 300
-
-HYDRA_CHAT_MODE = "leader" -- appfocus | leader
-
-------------------------------------------------------------------------
-
 local _, core = ...
 local SOLO, PARTY, TRUSTED, LEADER = 0, 1, 2, 3
 local realmName, playerName = GetRealmName(), UnitName("player")
@@ -31,18 +25,24 @@ module:SetScript("OnEvent", function(f, e, ...) return f[e] and f[e](f, ...) end
 module:SetScript("OnUpdate", function() frametime = GetTime() end)
 module:Hide()
 
+module.defaults = {
+	enable = true,
+	mode = "leader", -- appfocus | leader
+	timeout = 300,
+}
+
 module.debug = true
 
 ------------------------------------------------------------------------
 
 function module:CheckState()
-	if core.state < TRUSTED then
+	if core.state < TRUSTED or not self.db.enable then
 		self:Debug("Disable module: Chat")
 		self:UnregisterAllEvents()
 		self:Hide()
 	else
 		self:Debug("Enable module: Chat")
-		if HYDRA_CHAT_MODE == "appfocus" then self:Show() end
+		if self.db.mode == "appfocus" then self:Show() end
 		self:RegisterEvent("CHAT_MSG_ADDON")
 		self:RegisterEvent("CHAT_MSG_PARTY")
 		self:RegisterEvent("CHAT_MSG_PARTY_LEADER")
@@ -66,7 +66,7 @@ function module:CHAT_MSG_PARTY(message, sender)
 	elseif hasActiveConversation and not message:match("^[!@]") then
 		-- someone responding to our last forwarded whisper
 		self:Debug("hasActiveConversation")
-		if GetTime() - partyForwardTime > TIMEOUT then
+		if GetTime() - partyForwardTime > self.db.timeout then
 			-- it's been a while
 			hasActiveConversation = nil
 			SendChatMessage("!ERROR: Party timeout reached.", "PARTY")
@@ -105,7 +105,7 @@ function module:CHAT_MSG_WHISPER(message, sender, _, _, _, flag)
 			SendChatMessage(text, "WHISPER", nil, target)
 
 		elseif whisperForwardTo then
-			if GetTime() - whisperForwardTime > TIMEOUT then -- it's been a while since our last forward to whisper
+			if GetTime() - whisperForwardTime > self.db.timeout then -- it's been a while since our last forward to whisper
 				whisperForwardTo = nil
 				SendChatMessage("!ERROR: Whisper timeout reached.", "WHISPER", nil, sender)
 
@@ -116,7 +116,7 @@ function module:CHAT_MSG_WHISPER(message, sender, _, _, _, flag)
 		end
 	else
 		local active
-		if HYDRA_CHAT_MODE == "appfocus" then
+		if self.db.mode == "appfocus" then
 			self:Debug("Checking for application focus")
 			local elapsed = GetTime() - frametime
 			if hasfocus and elapsed > 0.5 then -- a frame hasn't been drawn in the last half second, this client is not active
@@ -127,9 +127,8 @@ function module:CHAT_MSG_WHISPER(message, sender, _, _, _, flag)
 				hasfocus = true
 				active = true
 			end
-		elseif IsPartyLeader() then
-			self:Debug("IsPartyLeader")
-			active = true
+		else
+			active = IsPartyLeader()
 		end
 		self:Debug(active and "Active" or "Not active")
 		if not active then -- someone outside the party whispered me
