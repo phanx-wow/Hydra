@@ -9,8 +9,6 @@
 local _, core = ...
 core.modules = { }
 
-core.debug = true
-
 ------------------------------------------------------------------------
 
 local trusted, throttle, realmName, playerName = nil, 0, GetRealmName(), UnitName("player")
@@ -20,7 +18,7 @@ local SOLO, INSECURE, SECURE, LEADER = 0, 1, 2, 3
 
 function core:Debug(...)
 	if not self.debug then return end
-	print("|cffffcc00Hydra:|r", ...)
+	print("|cffff9999Hydra:|r", ...)
 end
 
 function core:Print(...)
