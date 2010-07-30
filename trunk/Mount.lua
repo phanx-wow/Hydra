@@ -12,10 +12,12 @@ local responding
 local module = core:RegisterModule("Mount", CreateFrame("Frame"))
 module:SetScript("OnEvent", function(f, e, ...) return f[e] and f[e](f, ...) end)
 
+module.defaults = { enable = true }
+
 ------------------------------------------------------------------------
 
 function module:CheckState()
-	if core.state == SOLO then
+	if core.state == SOLO or not self.db.enable then
 		self:Debug("Disable module: Mount")
 		self:UnregisterAllEvents()
 	else

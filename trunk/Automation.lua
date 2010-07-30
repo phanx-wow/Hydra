@@ -11,30 +11,59 @@
 	* Sells junk
 ----------------------------------------------------------------------]]
 
-local ACCEPT_BATTLE_RES = false
-local USE_GUILD_REPAIR = false
-
-------------------------------------------------------------------------
-
 local _, core = ...
 local module = core:RegisterModule("Automation", CreateFrame("Frame"))
 module:SetScript("OnEvent", function(f, e, ...) return f[e] and f[e](f, ...) end)
 
 module.debug = true
 
+module.defaults = {
+	acceptResurrections = true,
+	acceptResurrectionsInCombat = true,
+	acceptSummons = true,
+	declineArenaTeams = true,
+	declineDuels = true,
+	declineGuilds = true,
+	repairEquipment = true,
+	repairWithGuildFunds = false,
+	sellJunk = true,
+}
+
 ------------------------------------------------------------------------
 
 function module:CheckState()
+	self:UnregisterAllEvents()
+
 	self:Debug("Enable module: Automation")
 
-	self:RegisterEvent("ARENA_TEAM_INVITE_REQUEST")
-	self:RegisterEvent("CONFIRM_SUMMON")
-	self:RegisterEvent("DUEL_REQUESTED")
-	self:RegisterEvent("GUILD_INVITE_REQUEST")
-	self:RegisterEvent("MERCHANT_SHOW")
-	self:RegisterEvent("PETITION_SHOW")
-	self:RegisterEvent("RESURRECT_REQUEST")
+	if self.db.declineArenaTeams then
+		self:RegisterEvent("ARENA_TEAM_INVITE_REQUEST")
+	end
+	if self.db.acceptSummons then
+		self:RegisterEvent("CONFIRM_SUMMON")
+	end
+	if self.db.declineDuels then
+		self:RegisterEvent("DUEL_REQUESTED")
+	end
+	if self.db.declineGuilds then
+		self:RegisterEvent("GUILD_INVITE_REQUEST")
+	end
+	if self.db.repairEquipment or self.db.sellJunk then
+		self:RegisterEvent("MERCHANT_SHOW")
+	end
+	if self.db.declineArenaTeams or self.db.declineGuilds then
+		self:RegisterEvent("PETITION_SHOW")
+	end
+	if self.db.acceptResurrections then
+		self:RegisterEvent("RESURRECT_REQUEST")
+	end
 	self:RegisterEvent("TRAINER_SHOW")
+end
+
+function module:Print(...)
+	if self.db.verbose then
+		core:Print(...)
+	end
 end
 
 ------------------------------------------------------------------------
@@ -42,79 +71,118 @@ end
 function module:PETITION_SHOW()
 	local type, _, _, _, sender, mine = GetPetitionInfo()
 	if not mine and not UnitInParty(sender) then
-		self:Debug("Declined", type, "petition from", sender)
-		ClosePetition()
+		if (type == "arena" and self.db.declineArenaTeams) or (type == "guild" and self.db.declineGuilds) then
+			self:Print("Declined", type, "petition from", sender)
+			ClosePetition()
+		end
 	end
 end
 
 function module:ARENA_TEAM_INVITE_REQUEST(sender)
-	self:Debug("Declined arena team invite from", sender)
+	self:Print("Declined arena team invite from", sender)
 	DeclineArenaTeam()
 	StaticPopup_Hide("ARENA_TEAM_INVITE")
 end
 
 function module:DUEL_REQUESTED(sender)
-	self:Debug("Declined duel request from", sender)
+	self:Print("Declined duel request from", sender)
 	CancelDuel()
 	StaticPopup_Hide("DUEL_REQUESTED")
 end
 
 function module:GUILD_INVITE_REQUEST(sender)
-	self:Debug("Declined guild invite from", sender)
+	self:Print("Declined guild invite from", sender)
 	DeclineGuild()
 	StaticPopup_Hide("GUILD_INVITE")
+end
+
+------------------------------------------------------------------------
+
+local formatMoney
+do
+	local G, S, C
+	if GetLocale() == "zhTW" then
+		G, S, C = "金", "銀", "銅"
+	elseif GetLocale() == "zhCN" then
+		G, S, C = "金", "银", "铜"
+	elseif GetLocale() == "ruRU" then
+		G, S, C = "з", "с", "м"
+	else
+		G, S, C = GOLD:sub(1, 1):lower(), SILVER:sub(1, 1):lower(), COPPER:sub(1, 1):lower()
+	end
+	function formatMoney(value)
+		if value >= 10000 then
+			return format("|cffffd700%d|r%s |cffc7c7cf%d|r%s |cffeda55f%d|r%s", abs(value / 10000), G, abs(mod(value / 100, 100)), S, abs(mod(value, 100)), C)
+		elseif value >= 100 then
+			return format("|cffc7c7cf%d|r%s |cffeda55f%d|r%s", abs(mod(value / 100, 100)), S, abs(mod(value, 100)), C)
+		else
+			return format("|cffeda55f%d|r%s", abs(mod(value, 100)), C)
+		end
+	end
 end
 
 function module:MERCHANT_SHOW()
 	if IsShiftKeyDown() then return end
 
-	local i = 0
-	for bag = 0, 4 do
-		for slot = 0, GetContainerNumSlots(bag) do
-			local link = GetContainerItemLink(bag, slot)
-			if link then
-				local _, _, q = GetItemInfo(link)
-				if q == 0 then
-					i = i + 1
-					UseContainerItem(bag, slot)
+	if self.db.sellJunk then
+		local num, value = 0, 0
+		for bag = 0, 4 do
+			for slot = 0, GetContainerNumSlots(bag) do
+				local link = GetContainerItemLink(bag, slot)
+				if link then
+					local _, _, q, _, _, _, _, _, _, _, v = GetItemInfo(link)
+					if q == ITEM_QUALITY_POOR then
+						local _, n = GetContainerItemInfo(bag, slot)
+						num = num + n
+						value = value + v
+						UseContainerItem(bag, slot)
+					end
 				end
 			end
 		end
-	end
-	if i > 0 then
-		self:Debug("Sold", i, "junk items")
+		if num > 0 then
+			self:Print("Sold", num, "junk |4item:items; for", formatMoney(value))
+		end
 	end
 
-	local cost = GetRepairAllCost()
-	if cost > 0 then
-		local money = GetMoney()
-	--	local guildmoney = GetGuildBankWithdrawMoney()
-	--	if guildmoney == -1 then
-	--		guildmoney = GetGuildBankMoney()
-	--	end
+	if self.db.repairEquipment then
+		local cost = GetRepairAllCost()
+		if cost > 0 then
+			local money = GetMoney()
+			local guildmoney = GetGuildBankWithdrawMoney()
+			if guildmoney == -1 then
+				guildmoney = GetGuildBankMoney()
+			end
 
-	--	if USE_GUILD_REPAIR and guildmoney >= cost and IsInGuild() then
-	--		RepairAllItems(1)
-	--		self:Debug("Repaired all items for %s from guild bank funds.", FormatMoney(cost))
-	--	elseif db.repairFromGuild and IsInGuild() then
-	--		self:Debug("Insufficient guild bank funds to repair! Hold Shift to repair anyway.")
-		if money > cost then
-			RepairAllItems()
-			self:Debug("Repaired all items.")
-		else
-			self:Debug("Insufficient funds to repair!")
+			if self.db.repairWithGuildFunds and guildmoney >= cost and IsInGuild() then
+				RepairAllItems(1)
+				self:Print("Repaired all items from guild bank funds for", formatMoney(cost))
+			elseif db.repairFromGuild and IsInGuild() then
+				self:Print("Insufficient guild bank funds to repair!")
+			elseif money > cost then
+				RepairAllItems()
+				self:Print("Repaired all items for", formatMoney(cost))
+			else
+				self:Print("Insufficient funds to repair!")
+			end
 		end
 	end
 end
 
-function module:RESURRECT_REQUEST(sender)
-	local _, class = UnitClass(sender)
-	if class == "DRUID" and not ACCEPT_BATTLE_RES and UnitAffectingCombat(sender) then return end
+------------------------------------------------------------------------
 
-	self:Debug("Accepted resurrection from", sender)
+function module:RESURRECT_REQUEST(sender)
+	if not UnitInParty(sender) then return end
+
+	local _, class = UnitClass(sender)
+	if class == "DRUID" and not self.db.acceptResurrectionsInCombat and UnitAffectingCombat(sender) then return end
+
+	self:Print("Accepted resurrection from", sender)
 	AcceptResurrect()
 	StaticPopup_Hide("RESURRECT_NO_SICKNESS")
 end
+
+------------------------------------------------------------------------
 
 function module:PLAYER_REGEN_ENABLED()
 	self:UnregisterEvent("PLAYER_REGEN_ENABLED")
@@ -126,14 +194,18 @@ function module:CONFIRM_SUMMON()
 	if not sender or not location then return end
 
 	if UnitAffectingCombat("player") or not PlayerCanTeleport() then
-		self:Debug("Will try to accept summon when combat ends.")
+		self:Print("Accepting summon when combat ends...")
 		self:RegisterEvent("PLAYER_REGEN_ENABLED")
 	elseif GetSummonConfirmTimeLeft() > 0 then
-		self:Debug("Accepting summon to", location, "from", sender)
+		self:Print("Accepting summon from", sender, "to", location)
 		ConfirmSummon()
 		StaticPopup_Hide("CONFIRM_SUMMON")
+	else
+		self:Print("Summon expired!")
 	end
 end
+
+------------------------------------------------------------------------
 
 function module:TRAINER_SHOW()
 	SetTrainerServiceTypeFilter("unavailable", 0)
