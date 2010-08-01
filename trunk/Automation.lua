@@ -140,10 +140,10 @@ function module:MERCHANT_SHOW()
 				guildmoney = GetGuildBankMoney()
 			end
 
-			if self.db.repairWithGuildFunds and guildmoney >= cost and IsInGuild() then
+			if guildmoney >= cost and self.db.repairWithGuildFunds and IsInGuild() then
 				RepairAllItems(1)
-				self:Print("Repaired all items from guild bank funds for", formatMoney(cost))
-			elseif db.repairFromGuild and IsInGuild() then
+				self:Print("Repaired all items with guild bank funds for", formatMoney(cost))
+			elseif self.db.repairWithGuildFunds and IsInGuild() then
 				self:Print("Insufficient guild bank funds to repair!")
 			elseif money > cost then
 				RepairAllItems()

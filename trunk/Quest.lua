@@ -24,8 +24,6 @@ module:SetScript("OnEvent", function(f, e, ...) return f[e] and f[e](f, ...) end
 
 module.defaults = { share = true, accept = true, turnin = true, abandon = true }
 
-module.debug = true
-
 ------------------------------------------------------------------------
 
 function module:CheckState()
@@ -72,21 +70,24 @@ end
 function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 	if sender == playerName or channel ~= "PARTY" or not core:IsTrusted(sender) then return end
 
-	if prefix == "AcceptQuest" then
-		self:Print(sender, "accepted quest", message)
+	if prefix == "HydraQuest_Accept" then
 		local qname = message:match("%[(.-)%]"):lower()
 		if not accepted[qname] then
 			accept[qname] = message
 		end
+		return self:Print(sender, "accepted", message)
 
-	elseif prefix == "AbandonQuest" and self.db.abandon then
+	elseif prefix == "HydraQuest_TurnIn" then
+		return self:Print(sender, "turned in", message)
+
+	elseif prefix == "HydraQuest_Abandon" and self.db.abandon then
 		for i = 1, GetNumQuestLogEntries() do
 			local link = GetQuestLink(i)
 			if link == message then
-				self:Print(sender, "abandoned quest", message)
 				SelectQuestLogEntry(i)
 				SetAbandonQuest()
-				return AbandonQuest()
+				AbandonQuest()
+				return self:Print(sender, "abandoned", message)
 			end
 		end
 	end
@@ -211,10 +212,10 @@ function module:QUEST_LOG_UPDATE()
 		if not currentquests[id] then
 			if abandoning then
 				self:Debug("Abandoned quest", link)
-				SendAddonMessage("AbandonQuest", link, "PARTY")
+				SendAddonMessage("HydraQuest_Abandon", link, "PARTY")
 			else
 				self:Debug("Turned in quest", link)
-				SendAddonMessage("TurninQuest", link, "PARTY")
+				SendAddonMessage("HydraQuest_TurnIn", link, "PARTY")
 			end
 		end
 	end
@@ -224,7 +225,7 @@ function module:QUEST_LOG_UPDATE()
 	for id, link in pairs(currentquests) do
 		if not oldquests[id] then
 			self:Debug("Accepted quest", link)
-			SendAddonMessage("AcceptQuest", link, "PARTY")
+			SendAddonMessage("HydraQuest_Accept", link, "PARTY")
 
 			local qname = link:match("%[(.-)%]"):lower()
 			if self.db.share and not accept[qname] and not accepted[qname] then
