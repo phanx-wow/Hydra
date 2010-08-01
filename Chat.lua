@@ -53,17 +53,20 @@ end
 
 ------------------------------------------------------------------------
 
+local playerToken = "@" .. playerName
+
 function module:CHAT_MSG_PARTY(message, sender)
 	if sender == playerName then return end
-	self:Debug("Received party message from", sender, ": ", message)
+	if message:match("^!") then return end -- command or error response
 
-	local target, text = message:match("^([^!]%S+) >> (.*)$")
-	if target and text then
+	self:Debug("CHAT_MSG_PARTY", sender, message)
+
+	if message:match("^>> .-: .+$") then
 		-- someone else forwarded a whisper, our conversation is no longer the active one
 		self:Debug("Someone else forwarded a whisper.")
 		hasActiveConversation = nil
 
-	elseif hasActiveConversation and not message:match("^[!@]") then
+	elseif hasActiveConversation and not message:match("^@") then
 		-- someone responding to our last forwarded whisper
 		self:Debug("hasActiveConversation")
 		if GetTime() - partyForwardTime > self.db.timeout then
@@ -77,12 +80,12 @@ function module:CHAT_MSG_PARTY(message, sender)
 		end
 
 	elseif partyForwardFrom then
-		self:Debug("partyForwardFrom")
-		local text = message:match("^%s*@" .. playerName .. " (.+)$")
+		-- we forwarded something earlier
+		local text = message:match(playerToken .. " (.+)$")
 		if text then
-			-- someone responding to a previous forward
+			-- someone responding to our last forward
 			self:Debug("Detected response to old forward.")
-			SendChatMessage(message:gsub("@" .. playerName, ""), "WHISPER", nil, partyForwardFrom)
+			SendChatMessage(text, "WHISPER", nil, partyForwardFrom)
 		end
 	end
 end
@@ -91,54 +94,44 @@ module.CHAT_MSG_PARTY_LEADER = module.CHAT_MSG_PARTY
 
 ------------------------------------------------------------------------
 
-function module:CHAT_MSG_WHISPER(message, sender, _, _, _, flag)
-	self:Debug("CHAT_MSG_WHISPER", sender, ">", message, flag)
+function module:CHAT_MSG_WHISPER(message, sender, _, _, _, flag, _, _, _, _, _, _, guid)
+	self:Debug("CHAT_MSG_WHISPER", guid, flag, sender, message)
 
 	if UnitInParty(sender) then
-		self:Debug("Party member", sender, "whispered me:", message)
+		self:Debug("UnitInParty")
 
 		-- a party member whispered me "@Someone Hello!"
-		local target, text = message:match("@(%S+) (.+)")
+		local target, text = message:match("^@(.-) (.+)$")
 
-		if target and text then -- whisper "Someone" with "Hello!"
+		if target and text then
+			-- sender wants us to whisper target with text
 			whisperForwardTo, whisperForwardTime = target, GetTime()
 			SendChatMessage(text, "WHISPER", nil, target)
 
 		elseif whisperForwardTo then
-			if GetTime() - whisperForwardTime > self.db.timeout then -- it's been a while since our last forward to whisper
+			-- we've forwarded to whisper recently
+			if GetTime() - whisperForwardTime > self.db.timeout then
+				-- it's been a while since our last forward to whisper
 				whisperForwardTo = nil
 				SendChatMessage("!ERROR: Whisper timeout reached.", "WHISPER", nil, sender)
-
-			else -- whisper last forward target
+			else
+				-- whisper last forward target
 				whisperForwardTime = GetTime()
 				SendChatMessage(message, "WHISPER", nil, whisperForwardTo)
 			end
 		end
 	else
-		local active
-		if self.db.mode == "appfocus" then
-			self:Debug("Checking for application focus")
-			local elapsed = GetTime() - frametime
-			if hasfocus and elapsed > 0.5 then -- a frame hasn't been drawn in the last half second, this client is not active
-				self:Debug("Client lost focus")
-				hasfocus = nil
-			elseif elapsed < 0.5 and not hasfocus then -- client gained focus
-				self:Debug("Client gained focus")
-				hasfocus = true
-				active = true
-			end
-		else
-			active = IsPartyLeader()
-		end
+		local active = self.db.mode == "appfocus" and GetTime() - frametime < 0.25 or IsPartyLeader()
 		self:Debug(active and "Active" or "Not active")
 		if not active then -- someone outside the party whispered me
 			hasActiveConversation, partyForwardFrom, partyForwardTime = true, sender, GetTime()
 			if flag == "GM" then
-				SendChatMessage("GM " .. sender .. " >> " .. message, "PARTY")
-				SendAddonMessage("HydraChat", "GM " .. sender .. " " .. message, "PARTY")
+				SendAddonMessage("HydraChat", format("GM |cff00ccff%s|r %s", sender, message), "PARTY")
+				SendChatMessage(format(">> GM %s: %s", sender, message), "PARTY")
 			else
-				SendChatMessage(sender .. " >> " .. message, "PARTY")
-				SendAddonMessage("HydraChat", "W " .. sender .. " " .. message, "PARTY")
+				local color = class and (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[(guid and guid ~= "" and select(2, GetPlayerInfoByGUID(arg12))) or "UNKNOWN"]
+				SendAddonMessage("HydraChat", format("W %s %s", (color and format("\124cff%02x%02x%02x%s\124r", color.r * 255, color.g * 255, color.b * 255, sender) or sender), message), "PARTY")
+				SendChatMessage(format(">> %s: %s", sender, message), "PARTY")
 			end
 		end
 	end
