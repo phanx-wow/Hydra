@@ -34,7 +34,9 @@ end
 ------------------------------------------------------------------------
 
 function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
-	if channel == "WHISPER" and prefix == "HydraInvite" then
+	if sender == playerName then return end
+
+	if prefix == "HydraInvite" and channel == "WHISPER" then
 		if not core:IsTrusted(sender) then
 			return SendChatMessage("I cannot invite you, because you are not on my trusted list.", "WHISPER", nil, sender)
 		end
