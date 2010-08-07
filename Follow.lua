@@ -33,27 +33,34 @@ end
 ------------------------------------------------------------------------
 
 function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
-	if prefix ~= "HydraFollow" or sender == playerName then return end
+	if sender == playerName then return end
 
-	if message == playerName then -- sender is following me
-		self:Print(sender, "is now following you.")
-		followers[sender] = GetTime()
-
-	elseif message == "END" and followers[sender] then -- sender stopped following me
-		if GetTime() - followers[sender] > 2 then
-			self:Print(sender, "is no longer following you.")
-			if not CheckInteractDistance(sender, 2) and not UnitOnTaxi("player") then
-				self:Alert(sender .. " is no longer following you!")
+	if prefix == "HydraFollow" then
+		if message == playerName then -- sender is following me
+			self:Print(sender, "is now following you.")
+			followers[sender] = GetTime()
+		elseif message == "END" and followers[sender] then -- sender stopped following me
+			if GetTime() - followers[sender] > 2 then
+				self:Print(sender, "is no longer following you.")
+				if not CheckInteractDistance(sender, 2) and not UnitOnTaxi("player") then
+					self:Alert(sender .. " is no longer following you!")
+				end
+			end
+			followers[sender] = nil
+		elseif message == "ME" and core:IsTrusted(sender) and self.db.enable then -- sender wants me to follow them
+			if CheckInteractDistance(sender, 4) then
+				self:Debug(sender, "has sent a follow request.")
+				FollowUnit(sender)
+			else
+				self:Print(sender, "is too far away to follow!")
 			end
 		end
-		followers[sender] = nil
-
-	elseif message == "ME" and core:IsTrusted(sender) and self.db.enable then -- sender wants me to follow them
-		if CheckInteractDistance(sender, 4) then
-			self:Debug(sender, "has sent a follow request.")
-			FollowUnit(sender)
-		else
-			self:Print(sender, "is too far away to follow!")
+		return
+	elseif prefix == "HydraCorpse" then
+		if message == "release" and UnitIsDead("player") and not UnitIsGhost("player") and core:IsTrusted(sender) then
+			RepopMe()
+		elseif message == "accept" and UnitIsGhost("player") and core:IsTrusted(sender) then
+			-- #TODO!
 		end
 	end
 end
@@ -80,6 +87,20 @@ function SlashCmdList.FOLLOWME()
 	if core.state == SOLO then return end
 	module:Debug("Sending follow command")
 	SendAddonMessage("HydraFollow", "ME", "PARTY")
+end
+
+------------------------------------------------------------------------
+
+SLASH_HYDRACORPSE1 = "/corpse"
+
+function SlashCmdList.HYDRACORPSE(command)
+	if core.state == SOLO then return end
+	command = command and command:trim()
+	if command == "release" then
+		SendChatMessage("HydraCorpse", "release", "PARTY")
+	elseif command == "accept" then
+		SendChatMessage("HydraCorpse", "accept", "PARTY")
+	end
 end
 
 ------------------------------------------------------------------------
