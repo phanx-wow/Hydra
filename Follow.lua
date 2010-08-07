@@ -97,9 +97,9 @@ function SlashCmdList.HYDRACORPSE(command)
 	if core.state == SOLO then return end
 	command = command and command:trim()
 	if command == "release" then
-		SendChatMessage("HydraCorpse", "release", "PARTY")
+		SendAddonMessage("HydraCorpse", "release", "PARTY")
 	elseif command == "accept" then
-		SendChatMessage("HydraCorpse", "accept", "PARTY")
+		SendAddonMessage("HydraCorpse", "accept", "PARTY")
 	end
 end
 
