@@ -31,8 +31,6 @@ module.defaults = {
 	timeout = 300,
 }
 
-module.debug = true
-
 ------------------------------------------------------------------------
 
 function module:CheckState()
