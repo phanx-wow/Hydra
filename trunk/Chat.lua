@@ -92,6 +92,57 @@ module.CHAT_MSG_PARTY_LEADER = module.CHAT_MSG_PARTY
 
 ------------------------------------------------------------------------
 
+local ignorewords = {
+	"account",
+	"battle",
+	"bonus",
+	"buy",
+	"blizz",
+	"cheap",
+	"complain",
+	"coupon",
+	"customer",
+	"dear",
+	"deliver",
+	"detect",
+	"discount",
+	"extra",
+	"free",
+	"gift",
+	"gold",
+	"illegal",
+	"interest",
+	"login",
+	"lowest",
+	"order",
+	"powerle?ve?l",
+	"price",
+	"promoti[on][gn]",
+	"reduced",
+	"safe",
+	"secure",
+	"server",
+	"service",
+	"scan",
+	"stock",
+	"suspend",
+	"validat[ei]",
+	"verif[iy]",
+	"violat[ei]",
+	"visit",
+	"welcome",
+	"www",
+	"%d+%.?%d*eur",
+	"%d+%.?%d*dollars",
+	"[\226\130\172$\194\163]%d+",
+}
+
+function module:CHAT_MSG_BN_WHISPER(message, sender)
+	self:Debug("CHAT_MSG_WHISPER", sender, message)
+
+	SendAddonMessage("HydraChat", format("BN %s %s", sender, message))
+end
+
 function module:CHAT_MSG_WHISPER(message, sender, _, _, _, flag, _, _, _, _, _, _, guid)
 	self:Debug("CHAT_MSG_WHISPER", guid, flag, sender, message)
 
@@ -119,10 +170,23 @@ function module:CHAT_MSG_WHISPER(message, sender, _, _, _, flag, _, _, _, _, _, 
 			end
 		end
 	else
+		local spamwords = 0
+		local searchstring = message:lower():gsub("%W", "")
+		for _, word in ipairs(ignorewords) do
+			if searchstring:find(word) then
+				spamwords = spamwords + 1
+			end
+		end
+		if spamwords > 3 then
+			message = "POSSIBLE SPAM"
+		end
+
 		local active = self.db.mode == "appfocus" and GetTime() - frametime < 0.25 or IsPartyLeader()
 		self:Debug(active and "Active" or "Not active")
 		if not active then -- someone outside the party whispered me
-			hasActiveConversation, partyForwardFrom, partyForwardTime = true, sender, GetTime()
+			if message ~= "POSSIBLE SPAM" then
+				hasActiveConversation, partyForwardFrom, partyForwardTime = true, sender, GetTime()
+			end
 			if flag == "GM" then
 				SendAddonMessage("HydraChat", format("GM |cff00ccff%s|r %s", sender, message), "PARTY")
 				SendChatMessage(format(">> GM %s: %s", sender, message), "PARTY")
