@@ -60,10 +60,11 @@ function module:CHAT_MSG_PARTY(message, sender)
 	self:Debug("CHAT_MSG_PARTY", sender, message)
 
 	if message:match("^>> .-: .+$") then
-		-- someone else forwarded a whisper, our conversation is no longer the active one
-		self:Debug("Someone else forwarded a whisper.")
-		hasActiveConversation = nil
-
+		if not message:match("POSSIBLE SPAM") then
+			-- someone else forwarded a whisper, our conversation is no longer the active one
+			self:Debug("Someone else forwarded a whisper.")
+			hasActiveConversation = nil
+		end
 	elseif hasActiveConversation and not message:match("^@") then
 		-- someone responding to our last forwarded whisper
 		self:Debug("hasActiveConversation")
@@ -76,7 +77,6 @@ function module:CHAT_MSG_PARTY(message, sender)
 			SendChatMessage(message, "WHISPER", nil, partyForwardFrom)
 			partyForwardTime = GetTime()
 		end
-
 	elseif partyForwardFrom then
 		-- we forwarded something earlier
 		local text = message:match(playerToken .. " (.+)$")
