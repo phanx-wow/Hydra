@@ -28,7 +28,7 @@ module.defaults = { share = true, accept = true, turnin = true, abandon = true }
 
 function module:CheckState()
 	self:UnregisterAllEvents()
-	-- self:Debug("Enable module: Quest")
+	self:Debug("Enable module: Quest")
 
 	self:RegisterEvent("GOSSIP_SHOW")
 	self:RegisterEvent("QUEST_COMPLETE")
@@ -98,28 +98,28 @@ end
 ------------------------------------------------------------------------
 
 local function IsQuestComplete(text)
-	-- module:Debug("IsQuestComplete", text)
+	module:Debug("IsQuestComplete", text)
 	for i = 1, GetNumQuestLogEntries() do
 		local qname, _, _, _, _, _, complete = GetQuestLogTitle(i)
 		if text == strip(qname):lower() then
 			if (complete and complete > 0) or GetNumQuestLeaderBoards(i) == 0 then
-				-- module:Debug("true")
+				module:Debug("true")
 				return true
 			end
 		end
 	end
-	-- module:Debug("false")
+	module:Debug("false")
 end
 
 function module:GOSSIP_SHOW()
-	-- self:Debug("GOSSIP_SHOW")
+	self:Debug("GOSSIP_SHOW")
 	if not GossipFrame.buttonIndex or IsShiftKeyDown() then return end
 
 	for i = 1, 32 do
 		local button = _G["GossipTitleButton" .. i]
 		if button and button:IsVisible() then
 			local text = strip(button:GetText()):lower()
-			-- self:Debug(i, button.type, "=", button:GetText(), "->", text)
+			self:Debug(i, button.type, "=", button:GetText(), "->", text)
 			if (button.type == "Available" and accept[text] and self.db.accept) or (button.type == "Active" and IsQuestComplete(text) and self.db.turnin) then
 				self:Debug(button.type == "Active" and "Completing quest" or "Accepting quest", strip(button:GetText()))
 				button:Click()
@@ -129,14 +129,14 @@ function module:GOSSIP_SHOW()
 end
 
 function module:QUEST_GREETING()
-	-- self:Debug("QUEST_GREETING")
-	if not IsShiftKeyDown() then return end
+	self:Debug("QUEST_GREETING")
+	if IsShiftKeyDown() then return end
 
 	for i = 1, 32 do
 		local button = _G["QuestTitleButton" .. i]
 		if button and button:IsVisible() then
 			local text = strip(button:GetText()):lower()
-			-- self:Debug(i, button:GetText(), "->", text)
+			self:Debug(i, button:GetText(), "->", text)
 			if (IsQuestComplete(text) and self.db.turnin) or (accept[text] and self.db.accept) then
 				self:Debug(IsQuestComplete(text) and "Completing quest" or "Accepting quest", strip(button:GetText()))
 				button:Click()
@@ -146,7 +146,7 @@ function module:QUEST_GREETING()
 end
 
 function module:QUEST_DETAIL()
-	-- self:Debug("QUEST_DETAIL")
+	self:Debug("QUEST_DETAIL")
 	if IsShiftKeyDown() then return end
 
 	local qname = strip(GetTitleText()):lower()
@@ -165,6 +165,7 @@ end
 ------------------------------------------------------------------------
 
 function module:QUEST_PROGRESS()
+	self:Debug("QUEST_PROGRESS")
 	if IsShiftKeyDown() then return end
 
 	if IsQuestCompletable() then
@@ -173,6 +174,7 @@ function module:QUEST_PROGRESS()
 end
 
 function module:QUEST_COMPLETE()
+	self:Debug("QUEST_COMPLETE")
 	if IsShiftKeyDown() then return end
 
 	if GetNumQuestChoices() <= 1 then
