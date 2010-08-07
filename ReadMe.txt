@@ -1,60 +1,155 @@
 
-= Hydra
+Hydra - a World of Warcraft user interface addon
 
-Hydra is a multibox leveling helper that aims to minimize the number of times you need to actively control secondary characters. The goal is that you only need to do so when it is necessary to interact with an NPC (eg. loot a quest item, turn in a quest, or take a taxi flight).
+	by Phanx < addons@phanx.net > and GoatEye
+	http://www.wowinterface.com/downloads/info17572-Hydra.html
+	http://wow.curse.com/downloads/wow-addons/details/hydra.aspx
 
-**Hydra should currently be considered beta-quality software.** It works, but some of the modules are fairly rough. I don't plan to add any major features that aren't listed here, but if you have an awesome idea, let me know, and if it's something I think I'd use, I'll probably add it.
+Description
 
-== Core
+	Hydra is a multibox leveling helper that aims to minimize the number
+	of times you need to actively control secondary characters.
 
-Maintains a list of characters who are "trusted", and activates or deactivates modules depending on whether or not everyone in the party is on the trusted list. For example, whisper forwarding to party chat is deactivated if someone joins the party who isn't on the trusted list. Other modules remain active, but ignore the actions of party members who aren't on the trusted list.
+Usage
 
-== Options
+	Type "/hydra" for options, or browse to the Hydra panel in the
+	standard Interface Options window.
 
-Type "/hydra" to open the options panel, or browse to it in the Interface Options window.
+	In order for Hydra to do anything, you must first define a list of
+	trusted characters. To do this, create a new file in the Hydra
+	addon folder named "Trust.lua". Open this file in any plaintext
+	editor and add the following contents:
 
-//Currently the options panel requires you to download and install the Ace3 library package separately. If the necessary libraries are not available, you will not get an options panel.//
+	--------------------------------------------------------------------
+	local _, core = ...
+	core.trusted = {
+		["My Server Name"] = {
+			Someguy = true,
+			Otherguy = true,
+			Randomdude = true,
+		},
+	}
+	--------------------------------------------------------------------
 
-== Automation
+	Change "My Server Name" to the name of your server, and change
+	"Someguy", "Otherguy", and "Randomdude" to the names of your
+	characters. Add or remove characters as needed.
 
-Declines duels, guilds, and arena teams. Accepts summons and resurrections. Repairs equipment and sells junk to vendors.
+Features
 
-Will eventually accept corpse resurrections if another party member is alive and within range, and release spirit upon death if all party members are dead. Alternatively, I may simply add commands to tell other party members to take their corpse or release their spirit.
+	Core:
 
-== Chat
+	* Automatically enables or disables features depending on whether or
+	  not the current party consists of trusted characters.
 
-Forwards whispers sent to characters without application focus to party chat, and forwards responses in party chat back to the original sender as a whisper from the character they whispered.
+	Automation:
 
-Respond to a message forwarded by a character other than the last by typing "@name message" in party chat, where "name" is the name of the character that forwarded the message.
+	* Accepts resurrections and summons.
+	* Declines duels, guilds, and arena teams.
+	* Repairs equipment and sells junk to vendors.
+	* Hold Shift to bypass repairing and selling.
+	* Type "/release" to have all dead party members release spirit. [NYI]
+	* Type "/corpse" to have all ghost party members accept corpse. [NYI]
 
-Respond to a message other than the last forwarded by a character by whispering the character with "@name message", where "name" is the name of the person to send the message to. This also works to send whispers to arbitrary recipients.
+	Chat:
 
-//Known Issues//
+	* Forwards whispers to secondary characters to party chat.
+	* Forwards responses from party chat back to the original whisperer
+	  as a whisper from the character they messaged.
+	* Messages in party chat that do not being with "@" or "!" are
+	  assumed to be a response to the last forwarded whisper.
+	* Type "@partymember message here" in party chat to respond to the
+	  last message forwarded to party chat by "partymember".
+	* Type "@target message here" in a whisper to a trusted character to
+	  have that character whisper "message here" to the player "target".
 
-The module deactivates in non-trusted parties, and there is currently no notification if someone whispers a secondary character in this situation. I may just abandon the party chat idea entirely, and create a custom chat type.
+	Follow:
 
-== Follow
+	* Notifies you when a party member starts or stops following you.
+	* Type "/followme" to have all party members follow you.
 
-Notifies you when a party member starts or stops following you. Type "/followme" or "/fme" to command all party members to follow you.
+	Mount:
 
-== Mount
+	* Mounts other party members when you mount.
 
-Causes other characters in the party (and in range) to mount when you mount.
+	Party:
 
-== Party
+	* Accepts party invitations from trusted characters.
+	* Type "/inviteme" to request a party invitation from your target.
+	* Type "/inviteme name" to request a party invitation from "name".
+	* Type "/promoteme" to request a promotion to party leader.
 
-Accepts party invitations from trusted characters.
+	Quest:
 
-Request a party invitation by typing "/inviteme name", where "name" is the target. If no target is specified, your current target unit will be used.
+	* Shares quests accepted from NPCs and objects.
+	* Accepts quests shared by players.
+	* Accepts start confirmations for escort-type quests.
+	* Abandons quests abandoned by trusted party members.
+	* Accepts quests from NPCs that another party member accepted.
+	* Turns in completed quests that don't have reward choices.
 
-Request a party promotion by typing "/promoteme".
+	Taxi:
 
-== Quest
+	* Selects the last taxi node selected by another party member in the
+	  last 60 seconds.
+	* Type "/cleartaxi" to clear the taxi selection for the character.
+	* Hold Shift when speaking to a flight master to bypass autoselect.
 
-Attempts to keep quests in sync between party members, by sharing quests accepted from NPCs, accepting quests shared from players, accepting escort type quest starts, and abandoning quests that a trusted party member abandoned.
+Localization
 
-When manual interaction with an NPC is required, the module automatically turns in complete quests (you still need to choose a reward if there's a choice) and accepts quests that another party member already accepted.
+	Hydra has full support for localization, but has not yet been
+	translated into any languages but English. However, it should still
+	be compatible with all locales.
 
-== Taxi
+	If you can provide translations for any locale, please contact us.
 
-Autoselects the last taxi node selected by anyone in the party in the last 60 seconds. You can manually clear the selection by typing "/cleartaxi". Hold the Shift key when interacting with the flight master to bypass this module.
+Feedback
+
+	Please report bugs using the ticket tracker:
+
+	* http://www.wowinterface.com/portal.php?uid=28751&a=listbugs
+	* http://wow.curseforge.com/addons/hydra/tickets/?status=+&type=d
+
+	Please request features using the ticket tracker:
+
+	* http://www.wowinterface.com/portal.php?uid=28751&a=listfeatures
+	* http://wow.curseforge.com/addons/hydra/tickets/?status=+&type=e
+
+	General questions and comments can be posted on the WoWI download
+	page or in the WowAce forum thread:
+
+	* http://www.wowinterface.com/downloads/info17572-Hydra.html
+	* http://forums.wowace.com/showthread.php?t=18382
+
+Contact
+
+	If you need to contact us privately, you can do so by sending email
+	to addons@phanx.net or sending a private message on either download
+	site to Phanx or to goat_eye.
+
+	Please DO NOT use email or private messaging to report bugs, request
+	features, or ask for help with addons.
+
+License
+
+	Copyright © 2010 Phanx and GoatEye
+
+	The contents of this addon, excluding third-party resources, are
+	copyrighted to its authors with all rights reserved, under United
+	States copyright law and various international treaties.
+
+	In particular, please note that you may not distribute this addon in
+	any form, with or without modifications, including as part of a
+	compilation, without prior written permission from its authors.
+
+	The authors of this addon hereby grant you the following rights:
+
+	1. You may make modifications to this addon for private use only.
+
+	2. You may use source code from this addon for any purpose, provided
+	that the names of this addon and its authors are not used to promote
+	your project, and do not appear in the title, source code, or file
+	names of your project, outside of an optional credits notation.
+
+	All rights not explicitly addressed in this license are reserved by
+	the copyright holders.
