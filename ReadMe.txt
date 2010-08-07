@@ -1,13 +1,19 @@
 
 = Hydra
 
-Hydra is a multibox leveling helper that aims to minimize the number of times you need to actively control secondary characters. The goal is that you only need to control a secondary character when it is necessary to interact with an NPC (eg. loot a quest item, turn in a quest, or take a taxi flight).
+Hydra is a multibox leveling helper that aims to minimize the number of times you need to actively control secondary characters. The goal is that you only need to do so when it is necessary to interact with an NPC (eg. loot a quest item, turn in a quest, or take a taxi flight).
 
-This release should be considered a stable alpha, or a rough beta. It works, but some of the modules are fairly unpolished, and there are no options yet. I don't plan to add any major features that aren't listed here, but if you have an awesome idea, let me know, and if it's something I think I'd use, I'll probably add it.
+**Hydra should currently be considered beta-quality software.** It works, but some of the modules are fairly rough. I don't plan to add any major features that aren't listed here, but if you have an awesome idea, let me know, and if it's something I think I'd use, I'll probably add it.
 
 == Core
 
 Maintains a list of characters who are "trusted", and activates or deactivates modules depending on whether or not everyone in the party is on the trusted list. For example, whisper forwarding to party chat is deactivated if someone joins the party who isn't on the trusted list. Other modules remain active, but ignore the actions of party members who aren't on the trusted list.
+
+== Options
+
+Type "/hydra" to open the options panel, or browse to it in the Interface Options window.
+
+//Currently the options panel requires you to download and install the Ace3 library package separately. If the necessary libraries are not available, you will not get an options panel.//
 
 == Automation
 
