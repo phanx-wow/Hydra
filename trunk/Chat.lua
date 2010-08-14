@@ -46,6 +46,7 @@ function module:CheckState()
 		self:RegisterEvent("CHAT_MSG_PARTY_LEADER")
 		self:RegisterEvent("CHAT_MSG_SYSTEM")
 		self:RegisterEvent("CHAT_MSG_WHISPER")
+		self:RegisterEvent("CHAT_MSG_BN_WHISPER")
 	end
 end
 
@@ -92,6 +93,14 @@ module.CHAT_MSG_PARTY_LEADER = module.CHAT_MSG_PARTY
 
 ------------------------------------------------------------------------
 
+function module:CHAT_MSG_BN_WHISPER(message, sender)
+	self:Debug("CHAT_MSG_WHISPER", sender, message)
+
+	SendAddonMessage("HydraChat", format("BN %s %s", sender, message))
+end
+
+------------------------------------------------------------------------
+
 local ignorewords = {
 	"account",
 	"battle",
@@ -100,6 +109,7 @@ local ignorewords = {
 	"blizz",
 	"cheap",
 	"complain",
+	"contest",
 	"coupon",
 	"customer",
 	"dear",
@@ -114,6 +124,7 @@ local ignorewords = {
 	"interest",
 	"login",
 	"lowest",
+	"lucky",
 	"order",
 	"powerle?ve?l",
 	"price",
@@ -135,13 +146,8 @@ local ignorewords = {
 	"%d+%.?%d*eur",
 	"%d+%.?%d*dollars",
 	"[\226\130\172$\194\163]%d+",
+	(UnitName("player")),
 }
-
-function module:CHAT_MSG_BN_WHISPER(message, sender)
-	self:Debug("CHAT_MSG_WHISPER", sender, message)
-
-	SendAddonMessage("HydraChat", format("BN %s %s", sender, message))
-end
 
 function module:CHAT_MSG_WHISPER(message, sender, _, _, _, flag, _, _, _, _, _, _, guid)
 	self:Debug("CHAT_MSG_WHISPER", guid, flag, sender, message)
@@ -219,6 +225,8 @@ function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 		self:Debug(sender, "received a whisper from GM", fsender)
 		self:Alert("|TInterface\\ChatFrame\\UI-ChatIcon-Blizz.blp:0:2:0:-3|t " .. sender .. " has received a whisper from a GM!", true)
 		self:Print("|TInterface\\ChatFrame\\UI-ChatIcon-Blizz.blp:0:2:0:-3|t", sender, "has received a whisper from a GM!")
+	elseif type == "BN" then
+		self:Print(sender, "received a Battle.net whisper from", fsender)
 	elseif type == "W" then
 		self:Debug(sender, "received a whisper from", fsender)
 	end

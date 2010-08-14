@@ -11,7 +11,7 @@ core.modules = { }
 
 ------------------------------------------------------------------------
 
-local trusted, throttle, realmName, playerName = nil, 0, GetRealmName(), UnitName("player")
+local throttle, realmName, playerName = 0, GetRealmName(), UnitName("player")
 local SOLO, INSECURE, SECURE, LEADER = 0, 1, 2, 3
 
 ------------------------------------------------------------------------
@@ -31,7 +31,7 @@ end
 
 function core:IsTrusted(name, realm)
 	if (realm and realm ~= "" and realm ~= realmName) or name:match("%-") then return end
-	return trusted[name]
+	return core.trusted[name]
 end
 
 local noop = function() end
@@ -70,7 +70,7 @@ f:RegisterEvent("PLAYER_LOGIN")
 function f:PLAYER_LOGIN()
 	core:Debug("Loading...")
 	f:UnregisterEvent("PLAYER_LOGIN")
-
+--[[
 	if core.trusted then
 		if core.trusted[realmName] then
 			trusted = copyTable(core.trusted[realmName])
@@ -81,9 +81,12 @@ function f:PLAYER_LOGIN()
 	else
 		return core:Print("Trust list not found.")
 	end
+--]]
+	HydraTrustList = copyTable({ [realmName] = { [playerName] = true } }, HydraTrustList)
+	core.trusted = copyTable(HydraTrustList[realmName])
 
-	HydraDB = copyTable({ trusted = { [realmName] = { [playerName] = true } } }, HydraDB)
-	core.db = HydraDB
+	HydraSettings = copyTable({ }, HydraSettings)
+	core.db = HydraSettings
 
 	for name, module in pairs(core.modules) do
 		if module.defaults then
