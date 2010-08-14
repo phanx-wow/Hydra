@@ -58,9 +58,27 @@ function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 		return
 	elseif prefix == "HydraCorpse" then
 		if message == "release" and UnitIsDead("player") and not UnitIsGhost("player") and core:IsTrusted(sender) then
-			RepopMe()
-		elseif message == "accept" and UnitIsGhost("player") and core:IsTrusted(sender) then
-			-- #TODO!
+			local ss = HasSoulstone()
+			if ss then
+				if ss == "Use Soulstone" then
+					SendChatMessage("I have a soulstone.", "PARTY") -- #TODO: use comms
+				elseif ss == "Reincarnate" then
+					SendChatMessage("I can reincarnate.", "PARTY") -- #TODO: use comms
+				else -- probably "Twisting Nether"
+					SendChatMessage("I can self-resurrect.", "PARTY") -- #TODO: use comms
+				end
+			else
+				RepopMe()
+			end
+		elseif message == "accept" and core:IsTrusted(sender) then
+			if UnitIsGhost("player") then
+				RetrieveCorpse()
+			elseif HasSoulstone() then
+				UseSoulstone()
+			end
+			if CannotBeResurrected() then
+				SendChatMessage("I cannot resurrect!", "PARTY") -- #TODO: use comms
+			end
 		end
 	end
 end

@@ -28,6 +28,22 @@ function module:CheckState()
 				type = "description",
 				order = 1,
 			},
+	--[[
+			TrustList = {
+				name = L["Trust List"],
+				type = "group", dialogInline = true,
+				order = 2,
+				args = {
+					add = {
+						name = L["Add Name"],
+						desc = L["Add a name to your trusted list."],
+					},
+					list = {
+						name = L["Current
+					},
+				},
+			},
+		--]]
 			Automation = {
 				name = L["Automation"],
 				type = "group", dialogInline = true,
