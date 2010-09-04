@@ -15,25 +15,10 @@ Usage
 	Type "/hydra" for options, or browse to the Hydra panel in the
 	standard Interface Options window.
 
-	In order for Hydra to do anything, you must first define a list of
-	trusted characters. To do this, create a new file in the Hydra
-	addon folder named "Trust.lua". Open this file in any plaintext
-	editor and add the following contents:
-
-	--------------------------------------------------------------------
-	local _, core = ...
-	core.trusted = {
-		["My Server Name"] = {
-			Someguy = true,
-			Otherguy = true,
-			Randomdude = true,
-		},
-	}
-	--------------------------------------------------------------------
-
-	Change "My Server Name" to the name of your server, and change
-	"Someguy", "Otherguy", and "Randomdude" to the names of your
-	characters. Add or remove characters as needed.
+	Many of Hydra's features are only active in parties consisting of
+	characters on your "trusted" list, or only respond to characters on
+	this list. The first time you run Hydra, you will need to define
+	this list in the options panel.
 
 Features
 
