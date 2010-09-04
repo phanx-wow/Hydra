@@ -13,8 +13,6 @@
 ## SavedVariables: HydraTrustList
 ## SavedVariablesPerCharacter: HydraSettings
 
-Trust.lua
-
 Core.lua
 
 Automation.lua
