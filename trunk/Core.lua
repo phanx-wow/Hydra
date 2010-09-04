@@ -7,6 +7,11 @@
 ----------------------------------------------------------------------]]
 
 local _, core = ...
+if not core then -- 3.2 compat for China
+	core = { }
+	_G.Hydra = core
+end
+
 core.modules = { }
 
 ------------------------------------------------------------------------
@@ -70,18 +75,7 @@ f:RegisterEvent("PLAYER_LOGIN")
 function f:PLAYER_LOGIN()
 	core:Debug("Loading...")
 	f:UnregisterEvent("PLAYER_LOGIN")
---[[
-	if core.trusted then
-		if core.trusted[realmName] then
-			trusted = copyTable(core.trusted[realmName])
-		else
-			return core:Print("No trust list for this server.")
-		end
-		core.trusted = nil
-	else
-		return core:Print("Trust list not found.")
-	end
---]]
+
 	HydraTrustList = copyTable({ [realmName] = { [playerName] = true } }, HydraTrustList)
 	core.trusted = copyTable(HydraTrustList[realmName])
 

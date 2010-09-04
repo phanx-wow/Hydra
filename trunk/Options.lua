@@ -7,6 +7,8 @@ local AceConfigDialog = LibStub("AceConfigDialog-3.0", true)
 if not AceConfigRegistry or not AceConfigDialog then return end
 
 local _, core = ...
+if not core then core = _G.Hydra end
+
 local module = core:RegisterModule("Options")
 
 ------------------------------------------------------------------------

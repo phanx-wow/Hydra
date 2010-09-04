@@ -8,6 +8,8 @@
 ----------------------------------------------------------------------]]
 
 local _, core = ...
+if not core then core = _G.Hydra end
+
 local SOLO, PARTY, TRUSTED, LEADER = 0, 1, 2, 3
 local realmName, playerName = GetRealmName(), UnitName("player")
 
@@ -91,7 +93,7 @@ SLASH_INVITEME2 = "/inviteme"
 
 SlashCmdList.INVITEME = function(target)
 	if GetNumPartyMembers() > 0 or GetNumRaidMembers() > 0 then return end
-	input = string.trim(input or "")
+	target = string.trim(target or ""):lower()
 
 	local nopromote
 
@@ -105,15 +107,13 @@ SlashCmdList.INVITEME = function(target)
 		if realm and realm ~= "" and realm ~= realmName then return end
 		if not UnitCanCooperate("player", "target") then return end
 		target = name
-	else
-		target = target:gsub("%a", string.upper, 1)
 	end
 
 	if not core:IsTrusted(target) then return end
 
 	module:Debug("INVITEME", target, nopromote)
 
-	SendAddonMessage("HydraInvite", nopromote and "NOPROMOTE" or "ME", "WHISPER", name)
+	SendAddonMessage("HydraInvite", nopromote and "NOPROMOTE" or "ME", "WHISPER", target)
 end
 
 ------------------------------------------------------------------------
