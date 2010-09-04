@@ -23,6 +23,8 @@ function module:CheckState()
 		return v
 	end })
 
+	local tlist, pname = { }, UnitName("player")
+
 	local options = {
 		type = "group", args = {
 			help = {
@@ -30,7 +32,6 @@ function module:CheckState()
 				type = "description",
 				order = 1,
 			},
-	--[[
 			TrustList = {
 				name = L["Trust List"],
 				type = "group", dialogInline = true,
@@ -39,13 +40,48 @@ function module:CheckState()
 					add = {
 						name = L["Add Name"],
 						desc = L["Add a name to your trusted list."],
+						type = "input",
+						order = 20,
+						get = false,
+						set = function(t, v)
+							core.trusted[v] = true
+							core:TriggerEvent("PARTY_MEMBERS_CHANGED")
+						end,
 					},
-					list = {
-						name = L["Current
+					remove = {
+						name = L["Remove Name"],
+						desc = L["Remove a name from your trusted list."],
+						type = "select",
+						order = 30,
+						values = function()
+							for k, v in pairs(tlist) do
+								tlist[k] = nil
+							end
+							for k in pairs(core.trusted) do
+								if k ~= pname then
+									tlist[k] = k
+								end
+							end
+							return k
+						end,
+						get = false,
+						set = function(t, v)
+							core.trusted[v] = nil
+						end,
+					},
+					group = {
+						name = L["Add Current Party"],
+						desc = L["Adds all the characters in your current party group to your trusted list."],
+						type = "execute",
+						func = function()
+							for i = 1, GetNumPartyMembers() do
+								core.trusted[UnitName("party" .. i)] = true
+							end
+							core:TriggerEvent("PARTY_MEMBERS_CHANGED")
+						end,
 					},
 				},
 			},
-		--]]
 			Automation = {
 				name = L["Automation"],
 				type = "group", dialogInline = true,

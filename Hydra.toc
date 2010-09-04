@@ -10,6 +10,7 @@
 ## X-WoWI-ID: 17572
 
 ## DefaultState: disabled
+## OptionalDependencies: Ace3
 ## SavedVariables: HydraTrustList
 ## SavedVariablesPerCharacter: HydraSettings
 

@@ -142,3 +142,11 @@ end
 
 f.PARTY_MEMBERS_CHANGED = f.PARTY_LEADER_CHANGED
 f.UNIT_NAME_UPDATE = f.PARTY_LEADER_CHANGED
+
+------------------------------------------------------------------------
+
+function core:TriggerEvent(event, ...)
+	if f:IsEventRegistered(event) then
+		f:GetScript("OnEvent")(f, event, ...)
+	end
+end
