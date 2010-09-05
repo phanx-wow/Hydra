@@ -3,8 +3,8 @@
 
 ## Title: Hydra
 ## Notes: Multibox leveling helper.
-## Author: Phanx, GoatEye
-## X-Copyright: Copyright © 2010 Phanx and GoatEye. All rights reserved.
+## Author: Phanx
+## X-Copyright: Copyright © 2010 Phanx. All rights reserved.
 ## X-Website: http://www.wowinterface.com/downloads/info17572-Hydra.html
 ## X-Curse-ProjectName: hydra
 ## X-WoWI-ID: 17572
