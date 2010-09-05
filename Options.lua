@@ -44,7 +44,8 @@ function module:CheckState()
 						order = 20,
 						get = false,
 						set = function(t, v)
-							core.trusted[v] = true
+							v = v:trim():gsub("%a", string.upper, 1)
+							core.trusted[v] = v
 							core:TriggerEvent("PARTY_MEMBERS_CHANGED")
 						end,
 					},
@@ -53,20 +54,11 @@ function module:CheckState()
 						desc = L["Remove a name from your trusted list."],
 						type = "select",
 						order = 30,
-						values = function()
-							for k, v in pairs(tlist) do
-								tlist[k] = nil
-							end
-							for k in pairs(core.trusted) do
-								if k ~= pname then
-									tlist[k] = k
-								end
-							end
-							return k
-						end,
+						values = core.trusted,
 						get = false,
 						set = function(t, v)
 							core.trusted[v] = nil
+							core:TriggerEvent("PARTY_MEMBERS_CHANGED")
 						end,
 					},
 					group = {
