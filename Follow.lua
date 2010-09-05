@@ -2,6 +2,8 @@
 	HYDRA FOLLOW
 	* Alerts when someone who is following you falls off
 	* /followme or /fme commands all party members to follow you
+	* /corpse r[elease] causes all dead party members to release their spirit
+	* /corpse a[ccept] causes all ghost party members to accept their corpse
 ----------------------------------------------------------------------]]
 
 local _, core = ...
@@ -39,11 +41,15 @@ function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 
 	if prefix == "HydraFollow" then
 		if message == playerName then -- sender is following me
-			self:Print(sender, "is now following you.")
+			if self.db.verbose then
+				self:Print(sender, "is now following you.")
+			end
 			followers[sender] = GetTime()
 		elseif message == "END" and followers[sender] then -- sender stopped following me
 			if GetTime() - followers[sender] > 2 then
-				self:Print(sender, "is no longer following you.")
+				if self.db.verbose then
+					self:Print(sender, "is no longer following you.")
+				end
 				if not CheckInteractDistance(sender, 2) and not UnitOnTaxi("player") then
 					self:Alert(sender .. " is no longer following you!")
 				end
@@ -54,7 +60,9 @@ function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 				self:Debug(sender, "has sent a follow request.")
 				FollowUnit(sender)
 			else
-				self:Print(sender, "is too far away to follow!")
+				if self.db.verbose then
+					self:Print(sender, "is too far away to follow!")
+				end
 			end
 		end
 		return
@@ -115,10 +123,10 @@ SLASH_HYDRACORPSE1 = "/corpse"
 
 function SlashCmdList.HYDRACORPSE(command)
 	if core.state == SOLO then return end
-	command = command and command:trim()
-	if command == "release" then
+	command = command and command:trim() or ""
+	if command:match("^r") then
 		SendAddonMessage("HydraCorpse", "release", "PARTY")
-	elseif command == "accept" then
+	elseif command:match("^a") then
 		SendAddonMessage("HydraCorpse", "accept", "PARTY")
 	end
 end

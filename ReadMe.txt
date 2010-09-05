@@ -1,7 +1,7 @@
 
 Hydra - a World of Warcraft user interface addon
 
-	by Phanx < addons@phanx.net > and GoatEye
+	by Phanx < addons@phanx.net >
 	http://www.wowinterface.com/downloads/info17572-Hydra.html
 	http://wow.curse.com/downloads/wow-addons/details/hydra.aspx
 
@@ -51,7 +51,9 @@ Features
 	Follow:
 
 	* Notifies you when a party member starts or stops following you.
-	* Type "/followme" to have all party members follow you.
+	* Type "/f[ollow]me" to have all party members follow you.
+	* Type "/corpse r[elease]" to have all dead party members release their spirit
+	* Type "/corpse a[ccept]" to have all ghost party members accept resurrection to their corpse
 
 	Mount:
 
@@ -60,8 +62,8 @@ Features
 	Party:
 
 	* Accepts party invitations from trusted characters.
-	* Type "/inviteme" to request a party invitation from your target.
-	* Type "/inviteme name" to request a party invitation from "name".
+	* Type "/i[nvite]me" to request a party invitation from your target.
+	* Type "/i[nvite]me name" to request a party invitation from "name".
 	* Type "/promoteme" to request a promotion to party leader.
 
 	Quest:
@@ -117,24 +119,24 @@ Contact
 
 License
 
-	Copyright © 2010 Phanx and GoatEye
+	Copyright © 2010 Phanx
 
 	The contents of this addon, excluding third-party resources, are
-	copyrighted to its authors with all rights reserved, under United
+	copyrighted to its author with all rights reserved, under United
 	States copyright law and various international treaties.
 
 	In particular, please note that you may not distribute this addon in
 	any form, with or without modifications, including as part of a
-	compilation, without prior written permission from its authors.
+	compilation, without prior written permission from its author.
 
-	The authors of this addon hereby grant you the following rights:
+	The author of this addon hereby grants you the following rights:
 
 	1. You may make modifications to this addon for private use only.
 
 	2. You may use source code from this addon for any purpose, provided
-	that the names of this addon and its authors are not used to promote
+	that the names of this addon and its author are not used to promote
 	your project, and do not appear in the title, source code, or file
 	names of your project, outside of an optional credits notation.
 
 	All rights not explicitly addressed in this license are reserved by
-	the copyright holders.
+	the copyright holder.

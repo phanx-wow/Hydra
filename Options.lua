@@ -240,6 +240,17 @@ function module:CheckState()
 							core.db["Follow"].enable = v
 						end,
 					},
+					verbose = {
+						name = L["Verbose"],
+						type = "toggle",
+						order = 30,
+						get = function()
+							return core.db["Follow"].verbose
+						end,
+						set = function(_, v)
+							core.db["Follow"].verbose = v
+						end,
+					},
 				},
 			},
 			Mount = {
