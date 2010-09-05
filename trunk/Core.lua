@@ -76,7 +76,7 @@ function f:PLAYER_LOGIN()
 	core:Debug("Loading...")
 	f:UnregisterEvent("PLAYER_LOGIN")
 
-	HydraTrustList = copyTable({ [realmName] = { [playerName] = true } }, HydraTrustList)
+	HydraTrustList = copyTable({ [realmName] = { [playerName] = playerName } }, HydraTrustList)
 	core.trusted = copyTable(HydraTrustList[realmName])
 
 	HydraSettings = copyTable({ }, HydraSettings)

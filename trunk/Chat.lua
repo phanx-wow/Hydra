@@ -138,6 +138,7 @@ local ignorewords = {
 	"service",
 	"scan",
 	"stock",
+	"suspecte?d?",
 	"suspend",
 	"validat[ei]",
 	"verif[iy]",
@@ -148,7 +149,7 @@ local ignorewords = {
 	"%d+%.?%d*eur",
 	"%d+%.?%d*dollars",
 	"[\226\130\172$\194\163]%d+",
-	(UnitName("player")),
+	(UnitName("player")), -- spammers seem to think addressing you by your character's name adds a personal touch...
 }
 
 function module:CHAT_MSG_WHISPER(message, sender, _, _, _, flag, _, _, _, _, _, _, guid)
