@@ -11,6 +11,8 @@ if not core then core = _G.Hydra end
 
 local module = core:RegisterModule("Options")
 
+local realmName, playerName = GetRealmName(), UnitName("player")
+
 ------------------------------------------------------------------------
 
 function module:CheckState()
@@ -47,6 +49,7 @@ function module:CheckState()
 							v = v:trim():gsub("%a", string.upper, 1)
 							core:Print("Added", v, "to the trusted list.")
 							core.trusted[v] = v
+							HydraTrustList[realmName][v] = v
 							core:TriggerEvent("PARTY_MEMBERS_CHANGED")
 						end,
 					},
@@ -60,6 +63,7 @@ function module:CheckState()
 						set = function(t, v)
 							core:Print("Removed", v, "from the trusted list.")
 							core.trusted[v] = nil
+							HydraTrustList[realmName][v] = nil
 							core:TriggerEvent("PARTY_MEMBERS_CHANGED")
 						end,
 					},
@@ -72,6 +76,7 @@ function module:CheckState()
 								local v = UnitName("party" .. i)
 								core:Print("Added", v, "to the trusted list.")
 								core.trusted[v] = v
+								HydraTrustList[realmName][v] = v
 							end
 							core:TriggerEvent("PARTY_MEMBERS_CHANGED")
 						end,

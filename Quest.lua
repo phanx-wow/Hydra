@@ -124,7 +124,7 @@ function module:GOSSIP_SHOW()
 			self:Debug(i, button.type, "=", button:GetText(), "->", text)
 			if (button.type == "Available" and accept[text] and self.db.accept) or (button.type == "Active" and IsQuestComplete(text) and self.db.turnin) then
 				self:Debug(button.type == "Active" and "Completing quest" or "Accepting quest", strip(button:GetText()))
-				button:Click()
+				return button:Click()
 			end
 		end
 	end
@@ -141,7 +141,7 @@ function module:QUEST_GREETING()
 			self:Debug(i, button:GetText(), "->", text)
 			if (IsQuestComplete(text) and self.db.turnin) or (accept[text] and self.db.accept) then
 				self:Debug(IsQuestComplete(text) and "Completing quest" or "Accepting quest", strip(button:GetText()))
-				button:Click()
+				return button:Click()
 			end
 		end
 	end
