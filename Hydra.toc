@@ -1,5 +1,5 @@
-## Interface: 30300
-## Version: 3.3.5.wowi:revision
+## Interface: 40000
+## Version: 4.0.1.wowi:revision
 
 ## Title: Hydra
 ## Notes: Multibox leveling helper.
