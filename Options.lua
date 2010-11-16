@@ -6,7 +6,7 @@ local AceConfigRegistry = LibStub("AceConfigRegistry-3.0", true)
 local AceConfigDialog = LibStub("AceConfigDialog-3.0", true)
 if not AceConfigRegistry or not AceConfigDialog then return end
 
-local _, core = ...
+local HYDRA, core = ...
 if not core then core = _G.Hydra end
 
 local module = core:RegisterModule("Options")
@@ -376,16 +376,25 @@ function module:CheckState()
 		}
 	}
 
-	AceConfigRegistry:RegisterOptionsTable("Hydra", options)
+	AceConfigRegistry:RegisterOptionsTable(HYDRA, options)
 
-	local panel = AceConfigDialog:AddToBlizOptions("Hydra")
-	local about = LibStub("LibAboutPanel", true) and LibStub("LibAboutPanel").new("Hydra", "Hydra")
+	local panel = AceConfigDialog:AddToBlizOptions(HYDRA)
+	local about = LibStub("LibAboutPanel", true) and LibStub("LibAboutPanel").new(HYDRA, HYDRA)
 
 	SlashCmdList.HYDRA = function()
 		if about then InterfaceOptionsFrame_OpenToCategory(about) end -- expand!
 		InterfaceOptionsFrame_OpenToCategory(panel)
 	end
 	SLASH_HYDRA1 = "/hydra"
+
+	if LibStub("LibDataBroker-1.1", true) then
+		LibStub("LibDataBroker-1.1"):NewDataObject(HYDRA, {
+			type = "launcher",
+			icon = "Interface\\Icons\\Achievement_Boss_Bazil_Akumai",
+			label = HYDRA,
+			OnClick = SlashCmdList.HYDRA,
+		})
+	end
 
 	core.modules["Options"] = nil
 	module, AceConfigRegistry, AceConfigDialog = nil, nil, nil

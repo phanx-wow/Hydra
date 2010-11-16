@@ -24,4 +24,11 @@ Party.lua
 Quest.lua
 Taxi.lua
 
+
+Libs\LibStub\LibStub.lua
+Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
+Libs\AceGUI-3.0\AceGUI-3.0.xml
+Libs\AceConfigRegistry-3.0\AceConfigRegistry-3.0.lua
+Libs\AceConfigDialog-3.0\AceConfigDialog-3.0.lua
+
 Options.lua
