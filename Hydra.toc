@@ -1,5 +1,5 @@
 ## Interface: 40000
-## Version: 4.0.1.wowi:revision
+## Version: 4.0.3.wowi:revision
 
 ## Title: Hydra
 ## Notes: Multibox leveling helper.
@@ -10,9 +10,16 @@
 ## X-WoWI-ID: 17572
 
 ## DefaultState: disabled
-## OptionalDependencies: Ace3
+## OptionalDependencies: Ace3, LibMounts-1.0
 ## SavedVariables: HydraTrustList
 ## SavedVariablesPerCharacter: HydraSettings
+
+Libs\LibStub\LibStub.lua
+Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
+Libs\AceGUI-3.0\AceGUI-3.0.xml
+Libs\AceConfigRegistry-3.0\AceConfigRegistry-3.0.lua
+Libs\AceConfigDialog-3.0\AceConfigDialog-3.0.lua
+Libs\LibMounts-1.0\lib.xml
 
 Core.lua
 
@@ -23,12 +30,5 @@ Mount.lua
 Party.lua
 Quest.lua
 Taxi.lua
-
-
-Libs\LibStub\LibStub.lua
-Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
-Libs\AceGUI-3.0\AceGUI-3.0.xml
-Libs\AceConfigRegistry-3.0\AceConfigRegistry-3.0.lua
-Libs\AceConfigDialog-3.0\AceConfigDialog-3.0.lua
 
 Options.lua
