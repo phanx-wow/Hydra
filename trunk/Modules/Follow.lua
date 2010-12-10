@@ -1,5 +1,17 @@
 --[[--------------------------------------------------------------------
-	HYDRA FOLLOW
+	Hydra
+	Multibox leveling helper.
+	by Phanx < addons@phanx.net >
+	http://www.wowinterface.com/downloads/info17572-Hydra.html
+	http://wow.curseforge.com/projects/hydra/
+
+	Copyright © 2010 Phanx
+	I, the copyright holder of this work, hereby release it into the public
+	domain. This applies worldwide. In case this is not legally possible:
+	I grant anyone the right to use this work for any purpose, without any
+	conditions, unless such conditions are required by law.
+------------------------------------------------------------------------
+	Hydra Follow
 	* Alerts when someone who is following you falls off
 	* /followme or /fme commands all party members to follow you
 	* /corpse r[elease] causes all dead party members to release their spirit
@@ -70,12 +82,12 @@ function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 		if message == "release" and UnitIsDead("player") and not UnitIsGhost("player") and core:IsTrusted(sender) then
 			local ss = HasSoulstone()
 			if ss then
-				if ss == "Use Soulstone" then
+				if ss == L["Use Soulstone"] then
 					SendChatMessage("I have a soulstone.", "PARTY") -- #TODO: use comms
-				elseif ss == "Reincarnate" then
+				elseif ss == L["Reincarnate"] then
 					SendChatMessage("I can reincarnate.", "PARTY") -- #TODO: use comms
 				else -- probably "Twisting Nether"
-					SendChatMessage("I can self-resurrect.", "PARTY") -- #TODO: use comms
+					SendChatMessage("I can resurrect myself.", "PARTY") -- #TODO: use comms
 				end
 			else
 				RepopMe()
@@ -123,12 +135,18 @@ SLASH_HYDRACORPSE1 = "/corpse"
 
 function SlashCmdList.HYDRACORPSE(command)
 	if core.state == SOLO then return end
-	command = command and command:trim() or ""
-	if command:match("^r") then
+	command = command and command:trim():lower() or ""
+	if command:match("^r") or command == L["release"] then
 		SendAddonMessage("HydraCorpse", "release", "PARTY")
-	elseif command:match("^a") then
+	elseif command:match("^a") or command == L["accept"] then
 		SendAddonMessage("HydraCorpse", "accept", "PARTY")
 	end
 end
 
 ------------------------------------------------------------------------
+
+BINDING_HEADER_HYDRA = BINDING_HEADER_HYDRA or "Hydra"
+BINDING_NAME_HYDRA_FOLLOW_TARGET = BINDING_NAME_HYDRA_FOLLOW_TARGET or "Follow target"
+BINDING_NAME_HYDRA_FOLLOW_ME = BINDING_NAME_HYDRA_FOLLOW_ME or "Request follow"
+BINDING_NAME_HYDRA_RELEASE_CORPSE = BINDING_NAME_HYDRA_RELEASE_CORPSE or "Release spirit"
+BINDING_NAME_HYDRA_ACCEPT_CORPSE = BINDING_NAME_HYDRA_ACCEPT_CORPSE or "Resurrect"

@@ -1,5 +1,17 @@
 --[[--------------------------------------------------------------------
-	HYDRA QUEST
+	Hydra
+	Multibox leveling helper.
+	by Phanx < addons@phanx.net >
+	http://www.wowinterface.com/downloads/info17572-Hydra.html
+	http://wow.curseforge.com/projects/hydra/
+
+	Copyright © 2010 Phanx
+	I, the copyright holder of this work, hereby release it into the public
+	domain. This applies worldwide. In case this is not legally possible:
+	I grant anyone the right to use this work for any purpose, without any
+	conditions, unless such conditions are required by law.
+------------------------------------------------------------------------
+	Hydra Quest
 	* Shares quests accepted from NPCs with party members
 	* Accepts quests shared by party members
 	* Accepts quests from NPCs that another party member already accepted
@@ -7,7 +19,7 @@
 	* Turns in completed quests
 	* Abandons quests abandoned by party members
 
-	CREDITS:
+	Credits:
 	* Industrial - idQuestAutomation
 	* Shadowed - GetToThePoint
 	* Tekkub - Quecho

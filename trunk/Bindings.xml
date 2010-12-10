@@ -1,0 +1,22 @@
+<Bindings>
+	<Binding name="HYDRA_FOLLOW_TARGET" header="HYDRA">
+		if UnitIsPlayer("target") and UnitIsFriend("target") and CheckInteractDistance("target", 4) then
+			FollowUnit("target")
+		end
+	</Binding>
+	<Binding name="HYDRA_FOLLOW_ME">
+		if SlashCmdList.FOLLOWME then
+			SlashCmdList.FOLLOWME()
+		end
+	</Binding>
+	<Binding name="HYDRA_RELEASE_CORPSE">
+		if SlashCmdList.HYDRACORPSE then
+			SlashCmdList.HYDRACORPSE("r")
+		end
+	</Binding>
+	<Binding name="HYDRA_ACCEPT_CORPSE">
+		if SlashCmdList.HYDRACORPSE then
+			SlashCmdList.HYDRACORPSE("a")
+		end
+	</Binding>
+</Bindings>

@@ -1,9 +1,15 @@
 --[[--------------------------------------------------------------------
-	HYDRA
-	Makes multi-box leveling easier.
+	Hydra
+	Multibox leveling helper.
 	by Phanx < addons@phanx.net >
-	http://www.wowinterface.com/downloads/info-Hydra.html
+	http://www.wowinterface.com/downloads/info17572-Hydra.html
 	http://wow.curseforge.com/projects/hydra/
+
+	Copyright © 2010 Phanx
+	I, the copyright holder of this work, hereby release it into the public
+	domain. This applies worldwide. In case this is not legally possible:
+	I grant anyone the right to use this work for any purpose, without any
+	conditions, unless such conditions are required by law.
 ----------------------------------------------------------------------]]
 
 local _, core = ...
@@ -104,7 +110,7 @@ function f:PARTY_LEADER_CHANGED(unit)
 	if unit and not unit:match("^party%d$") then return end
 
 	local newstate = SOLO
-	if GetNumRaidMembers() == 0 and GetNumPartyMembers() > 0 then
+	if GetNumPartyMembers() > 0 then
 		for i = 1, GetNumPartyMembers() do
 			if not core:IsTrusted(UnitName("party" .. i)) then
 				newstate = INSECURE
