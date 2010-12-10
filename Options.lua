@@ -1,5 +1,10 @@
 --[[--------------------------------------------------------------------
-	HYDRA OPTIONS
+	Hydra
+	Multibox leveling helper.
+	by Phanx < addons@phanx.net >
+	Copyright © 2010 Phanx. Some rights reserved. See LICENSE.txt for details.
+	http://www.wowinterface.com/downloads/info17572-Hydra.html
+	http://wow.curseforge.com/projects/hydra/
 ----------------------------------------------------------------------]]
 
 local AceConfigRegistry = LibStub("AceConfigRegistry-3.0", true)

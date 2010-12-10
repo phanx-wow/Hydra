@@ -1,12 +1,17 @@
 --[[--------------------------------------------------------------------
-	HYDRA AUTOMATION
+	Hydra
+	Multibox leveling helper.
+	by Phanx < addons@phanx.net >
+	Copyright © 2010 Phanx. Some rights reserved. See LICENSE.txt for details.
+	http://www.wowinterface.com/downloads/info17572-Hydra.html
+	http://wow.curseforge.com/projects/hydra/
+------------------------------------------------------------------------
+	Hydra Automation
 	* Declines arena team invitations and charters
 	* Declines duel requests
 	* Declines guild invitations and charters
 	* Accepts summons
 	* Accepts non-combat resurrections
-	* Accepts corpse resurrections [NYI]
-	* Releases spirit upon death [NYI]
 	* Repairs equipment
 	* Sells junk
 ----------------------------------------------------------------------]]

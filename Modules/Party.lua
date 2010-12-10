@@ -1,5 +1,12 @@
 --[[--------------------------------------------------------------------
-	HYDRA PARTY
+	Hydra
+	Multibox leveling helper.
+	by Phanx < addons@phanx.net >
+	Copyright © 2010 Phanx. Some rights reserved. See LICENSE.txt for details.
+	http://www.wowinterface.com/downloads/info17572-Hydra.html
+	http://wow.curseforge.com/projects/hydra/
+------------------------------------------------------------------------
+	Hydra Party
 	* Type "/inviteme" to command your target to invite you to a module
 	  and promote you to module leader. Supplying any parameter with this
 	  command will stop the target from promoting you after inviting.

@@ -1,5 +1,12 @@
 --[[--------------------------------------------------------------------
-	HYDRA CHAT
+	Hydra
+	Multibox leveling helper.
+	by Phanx < addons@phanx.net >
+	Copyright © 2010 Phanx. Some rights reserved. See LICENSE.txt for details.
+	http://www.wowinterface.com/downloads/info17572-Hydra.html
+	http://wow.curseforge.com/projects/hydra/
+------------------------------------------------------------------------
+	Hydra Chat
 	* Forwards whispers to characters without app focus to party chat
 	* Relays responses to forwarded whispers in party chat back to the
 	  original sender as a whisper from the forwarding character
