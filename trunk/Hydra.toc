@@ -5,7 +5,8 @@
 ## Notes: Multibox leveling helper.
 ## Notes-koKR: 멀티박스 레벨링 도우미입니다.
 ## Author: Phanx
-## X-Copyright: Copyright © 2010 Phanx. All rights reserved.
+## X-Copyright: Copyright © 2010 Phanx.
+## X-License: Some rights reserved. See LICENSE.txt for details.
 ## X-Website: http://www.wowinterface.com/downloads/info17572-Hydra.html
 ## X-Curse-ProjectName: hydra
 ## X-WoWI-ID: 17572
