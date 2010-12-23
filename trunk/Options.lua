@@ -23,14 +23,7 @@ local realmName, playerName = GetRealmName(), UnitName("player")
 function module:CheckState()
 	self:Debug("Loading options...")
 
-	local L = setmetatable({ }, { __index = function(t, k)
-		if not k then return "" end
-		local v = tostring(k)
-		t[k] = v
-		return v
-	end })
-
-	local tlist, pname = { }, UnitName("player")
+	local L, tlist, pname = core.L, { }, UnitName("player")
 
 	local options = {
 		type = "group", args = {
