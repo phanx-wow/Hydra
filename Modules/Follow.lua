@@ -26,6 +26,8 @@ module:SetScript("OnEvent", function(f, e, ...) return f[e] and f[e](f, ...) end
 
 module.defaults = { enable = true, verbose = true }
 
+local L = core.L
+
 ------------------------------------------------------------------------
 
 function module:CheckState()

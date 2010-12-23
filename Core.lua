@@ -2,6 +2,7 @@
 	Hydra
 	Multibox leveling helper.
 	by Phanx < addons@phanx.net >
+	Currently maintainted by Akkorian < akkorian@hotmail.com >
 	Copyright © 2010 Phanx. Some rights reserved. See LICENSE.txt for details.
 	http://www.wowinterface.com/downloads/info17572-Hydra.html
 	http://wow.curseforge.com/projects/hydra/
@@ -12,6 +13,14 @@ if not core then -- 3.2 compat for China
 	core = { }
 	_G.Hydra = core
 end
+
+local L = setmetatable(core.L or { }, { __index = function(t, k)
+	if not k then return "" end
+	local v = tostring(k)
+	t[k] = v
+	return v
+end })
+core.L = L
 
 core.modules = { }
 

@@ -207,7 +207,7 @@ function module:CHAT_MSG_WHISPER(message, sender, _, _, _, flag, _, _, _, _, _, 
 				SendAddonMessage("HydraChat", format("GM |cff00ccff%s|r %s", sender, message), "PARTY")
 				SendChatMessage(format(">> GM %s: %s", sender, message), "PARTY")
 			else
-				local color = class and (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[(guid and guid ~= "" and select(2, GetPlayerInfoByGUID(arg12))) or "UNKNOWN"]
+				local color = guid and guid ~= "" and (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[select(2, GetPlayerInfoByGUID(guid)) or "UNKNOWN"]
 				SendAddonMessage("HydraChat", format("W %s %s", (color and format("\124cff%02x%02x%02x%s\124r", color.r * 255, color.g * 255, color.b * 255, sender) or sender), message), "PARTY")
 				SendChatMessage(format(">> %s: %s", sender, message), "PARTY")
 			end

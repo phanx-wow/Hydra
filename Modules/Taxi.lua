@@ -101,7 +101,7 @@ SLASH_CLEARTAXI1 = "/cleartaxi"
 function SlashCmdList.CLEARTAXI()
 	if taxiNode then
 		taxiTime, taxiNode, taxiNodeName = 0, nil, nil
-		Hydra:Print("Party taxi cleared.")
+		module:Print("Party taxi cleared.")
 	end
 end
 
