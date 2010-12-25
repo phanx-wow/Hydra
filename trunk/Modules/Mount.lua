@@ -50,7 +50,7 @@ function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 	local remoteID, remoteName = message:match("^(%d+) (.+)$")
 	if not remoteID or not remoteName then return end
 	remoteID = tonumber(remoteID)
-	self:Debug(sender, "mounted on", remoteName, remoteID, self.mounts[remoteID])
+	self:Debug(sender, "mounted on", remoteID, remoteName)
 
 	if IsMounted() then return self:Debug("Already mounted.") end
 	if not UnitIsVisible(sender) then return self:Debug("Not mounting because", sender, "is out of range.") end
