@@ -1,10 +1,11 @@
 --[[--------------------------------------------------------------------
 	Hydra
 	Multibox leveling helper.
-	by Phanx < addons@phanx.net >
-	Copyright © 2010 Phanx. Some rights reserved. See LICENSE.txt for details.
+	Written by Phanx <addons@phanx.net>
+	Maintained by Akkorian <akkorian@hotmail.com>
+	Copyright © 2010–2011 Phanx. Some rights reserved. See LICENSE.txt for details.
 	http://www.wowinterface.com/downloads/info17572-Hydra.html
-	http://wow.curseforge.com/projects/hydra/
+	http://wow.curse.com/downloads/wow-addons/details/hydra.aspx
 ------------------------------------------------------------------------
 	Hydra Taxi
 	* Autoselect the last taxi node selected by anyone in the party
