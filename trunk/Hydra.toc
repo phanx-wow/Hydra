@@ -21,9 +21,14 @@
 
 Libs\LibStub\LibStub.lua
 Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
-Libs\AceGUI-3.0\AceGUI-3.0.xml
-Libs\AceConfigRegistry-3.0\AceConfigRegistry-3.0.lua
-Libs\AceConfigDialog-3.0\AceConfigDialog-3.0.lua
+Libs\PhanxConfig-Button\PhanxConfig-Button.lua
+Libs\PhanxConfig-Checkbox\PhanxConfig-Checkbox.lua
+Libs\PhanxConfig-Dropdown\PhanxConfig-Dropdown.lua
+# Libs\PhanxConfig-Heading\PhanxConfig-Heading.lua
+Libs\PhanxConfig-EditBox\PhanxConfig-EditBox.lua
+# Libs\PhanxConfig-Options\PhanxConfig-Options.lua
+Libs\PhanxConfig-Panel\PhanxConfig-Panel.lua
+Libs\PhanxConfig-Slider\PhanxConfig-Slider.lua
 Libs\LibMounts-1.0\lib.xml
 
 Locales\Locale-koKR.lua
