@@ -8,20 +8,126 @@
 	http://wow.curse.com/downloads/wow-addons/details/hydra.aspx
 ----------------------------------------------------------------------]]
 
-local AceConfigRegistry = LibStub("AceConfigRegistry-3.0", true)
-local AceConfigDialog = LibStub("AceConfigDialog-3.0", true)
-if not AceConfigRegistry or not AceConfigDialog then return end
-
 local HYDRA, core = ...
 if not core then core = _G.Hydra end
 
 local module = core:RegisterModule("Options")
 
-local realmName, playerName = GetRealmName(), UnitName("player")
+local L, realmName, playerName = core.L, GetRealmName(), UnitName("player")
+
+local CreateButton = LibStub("PhanxConfig-Button").CreateButton
+local CreateCheckbox = LibStub("PhanxConfig-Checkbox").CreateCheckbox
+local CreateDropdown = LibStub("PhanxConfig-Dropdown").CreateDropdown
+local CreateEditBox = LibStub("PhanxConfig-EditBox").CreateEditBox
+local CreateSlider = LibStub("PhanxConfig-Slider").CreateSlider
+
+local CreateHeader = function( parent, name, desc )
+	if type( parent ) ~= "table" or not parent.CreateFontString then return end
+
+	local title = parent:CreateFontString( nil, "ARTWORK", "GameFontNormalLarge" )
+	title:SetPoint( "TOPLEFT", 16, -16 )
+	title:SetPoint( "TOPRIGHT", -16, -16 )
+	title:SetJustifyH( "LEFT" )
+	title:SetText( name )
+
+	local notes = parent:CreateFontString( nil, "ARTWORK", "GameFontHighlight" )
+	notes:SetPoint( "TOPLEFT", title, "BOTTOMLEFT", 0, -8 )
+	notes:SetPoint( "TOPRIGHT", title, "BOTTOMRIGHT", 0, -8 )
+	notes:SetHeight( 32 )
+	notes:SetJustifyH( "LEFT")
+	notes:SetJustifyV( "TOP")
+	notes:SetNonSpaceWrap( true )
+	notes:SetText( desc )
+
+	return title, notes
+end
+
+------------------------------------------------------------------------
+
+local trustOptions = CreateFrame( "Frame", nil, InterfaceOptionsFramePanelContainer )
+trustOptions.name = HYDRA
+
+trustOptions:Hide()
+trustOptions:SetScript( "OnShow", function( self )
+	local title, notes = CreateHeader( self, HYDRA, GetAddOnMetadata( HYDRA, "Notes" ) )
+
+	local add = CreateEditBox( self, L["Add name"], 12, L["Add a name to your trust list."] )
+	add:SetPoint( "TOPLEFT", notes, "BOTTOMLEFT", 0, -16 )
+	add:SetPoint( "TOPRIGHT", notes, "BOTTOM", -8, -16 )
+	add.OnValueChanged = function( self, value )
+		local len = value and string.len( string.trim( value ) ) or 0
+		if len > 2 and len < 13 then
+			value = string.gsub( value, "%a", string.upper, 1 )
+			core:Print( L["Added %s to your trust list."], value )
+			core.trusted[ value ] = value
+			HydraTrustList[ realmName ][ value ] = value
+			core:TriggerEvent( "PARTY_MEMBERS_CHANGED" )
+		end
+		self:SetText( nil )
+	end
+
+	local grp = CreateButton( self, L["Add party"], L["Add everyone in your party to your trust list."] )
+	grp:SetPoint( "TOPLEFT", notes, "BOTTOM", 8, -16 )
+	grp:SetPoint( "TOPRIGHT", notes, "BOTTOMRIGHT", 0, -16 )
+	grp.OnClick = function( self )
+		local added
+		for i = 1, 4 do
+			local value = UnitName( "party" .. i )
+			if value then
+				core:Print( L["Added %s to your trust list."], value )
+				core.trusted[ value ] = value
+				HydraTrustList[ realmName ][ value ] = value
+				added = true
+			end
+		end
+		if added then
+			core:TriggerEvent( "PARTY_MEMBERS_CHANGED" )
+		end
+	end
+
+	local rem = CreateDropdown( self, L["Remove name"], L["Remove a name from your trust list."] )
+	rem:SetPoint( "TOPLEFT", add, "BOTTOMLEFT", 0, -12 )
+	rem:SetPoint( "TOPRIGHT", add, "BOTTOMRIGHT", 0, -12 )
+	rem.OnValueChanged = function( self )
+		local name = self.value
+		if core.trusted[ name ] then
+			core.trusted[ name ] = nil
+			HydraTrustList[ realmName ][ name ] = nil
+			core:TriggerEvent( "PARTY_MEMBERS_CHANGED" )
+		end
+		rem.valueText:SetText( nil )
+	end
+	do
+		local info = { }
+		local list = { }
+		UIDropDownMenu_Initialize( rem.dropdown, function()
+			for name in pairs( core.trusted ) do
+				list[ #list + 1 ] = name
+			end
+			table.sort( list )
+			for i = 1, #list do
+				local name = list[ i ]
+
+				info.name = name
+				info.value = name
+				info.func = rem.OnValueChanged
+				info.notCheckable = 1
+
+				UIDropDownMenu_AddButton( info )
+			end
+			table.wipe( list )
+		end )
+	end
+
+	self:SetScript( "OnShow", nil )
+end )
+
+InterfaceOptions_AddCategory( trustOptions )
 
 ------------------------------------------------------------------------
 
 function module:CheckState()
+	do return end
 	self:Debug("Loading options...")
 
 	local L, tlist, pname = core.L, { }, UnitName("player")
