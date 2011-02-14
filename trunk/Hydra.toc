@@ -9,7 +9,7 @@
 ## X-Copyright: Copyright © 2010–2011 Phanx
 ## X-License: Some rights reserved. See LICENSE.txt for details.
 ## X-CompatibleLocales: deDE, enUS, esES, esMX, frFR, koKR, ruRU, zhCN, zhTW
-## X-Localization: enUS, koKR
+## X-Localizations: enUS, esES, esMX, koKR
 ## X-Website: http://www.wowinterface.com/downloads/info17572-Hydra.html
 ## X-Curse-Project-ID: hydra
 ## X-WoWI-ID: 17572
@@ -21,15 +21,14 @@
 
 Libs\LibStub\LibStub.lua
 Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
+Libs\LibMounts-1.0\lib.xml
 Libs\PhanxConfig-Button\PhanxConfig-Button.lua
 Libs\PhanxConfig-Checkbox\PhanxConfig-Checkbox.lua
+Libs\PhanxConfig-ColorPicker\PhanxConfig-ColorPicker.lua
 Libs\PhanxConfig-Dropdown\PhanxConfig-Dropdown.lua
-# Libs\PhanxConfig-Heading\PhanxConfig-Heading.lua
 Libs\PhanxConfig-EditBox\PhanxConfig-EditBox.lua
-# Libs\PhanxConfig-Options\PhanxConfig-Options.lua
 Libs\PhanxConfig-Panel\PhanxConfig-Panel.lua
 Libs\PhanxConfig-Slider\PhanxConfig-Slider.lua
-Libs\LibMounts-1.0\lib.xml
 
 Locales\Locale-koKR.lua
 
