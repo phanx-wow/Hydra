@@ -21,68 +21,14 @@ local CreateButton = LibStub( "PhanxConfig-Button" ).CreateButton
 local CreateCheckbox = LibStub( "PhanxConfig-Checkbox" ).CreateCheckbox
 local CreateDropdown = LibStub( "PhanxConfig-Dropdown" ).CreateDropdown
 local CreateEditBox = LibStub( "PhanxConfig-EditBox" ).CreateEditBox
-local CreatePanel = LibStub( "PhanxConfig-Panel" ).CreatePanel
+local CreateHeader = LibStub( "PhanxConfig-Header" ).CreateHeader
+local CreateOptionsPanel = LibStub( "PhanxConfig-OptionsPanel" ).CreateOptionsPanel
 local CreateSlider = LibStub( "PhanxConfig-Slider" ).CreateSlider
 
 ------------------------------------------------------------------------
 
-local CreateHeader = function( parent, titleText, notesText )
-	local title = parent:CreateFontString( nil, "ARTWORK", "GameFontNormalLarge" )
-	title:SetPoint( "TOPLEFT", 16, -16 )
-	title:SetPoint( "TOPRIGHT", -16, -16 )
-	title:SetJustifyH( "LEFT" )
-	title:SetText( titleText or parent.name )
-
-	local notes = parent:CreateFontString( nil, "ARTWORK", "GameFontHighlightSmall" )
-	notes:SetPoint( "TOPLEFT", title, "BOTTOMLEFT", 0, -8 )
-	notes:SetPoint( "TOPRIGHT", title, 0, -8 )
-	notes:SetHeight( 32 )
-	notes:SetJustifyH( "LEFT" )
-	notes:SetJustifyV( "TOP" )
-	notes:SetNonSpaceWrap( true )
-	notes:SetText( notesText )
-
-	return title, notes
-end
-
-------------------------------------------------------------------------
-
-local OptionsPanel_OnShow = function( self )
-	if type( self.runOnce ) == "function" then
-		self.runOnce( self )
-	end
-	if type( self.refresh ) == "function" then
-		self.refresh()
-	end
-	self.runOnce = nil
-	self:SetScript( "OnShow", nil )
-end
-
-local CreateOptionsPanel = function( name, parent, construct, refresh )
-	if type( name ) ~= "string" then return end
-	if type( parent ) ~= "string" then parent = nil end
-	if type( construct ) ~= "function" then construct = nil end
-	if type( refresh ) ~= "function" then refresh = nil end
-
-	local f = CreateFrame( "Frame", nil, InterfaceOptionsFramePanelContainer )
-	f:Hide()
-
-	f.name = name
-	f.parent = parent
-	f.refresh = refresh
-
-	f.runOnce = construct
-	f:SetScript( "OnShow", OptionsPanel_OnShow )
-
-	InterfaceOptions_AddCategory( f, parent )
-
-	return f
-end
-
-------------------------------------------------------------------------
-
-panels[1] = CreateOptionsPanel( HYDRA, nil, function( self )
-	local title, notes = CreateHeader( self, HYDRA, L["Hydra is a multibox leveling helper that aims to minimize the need to actively control secondary characters."] )
+panels[ #panels + 1 ] = CreateOptionsPanel( HYDRA, nil, function( self )
+	local title, notes = CreateHeader( self, self.name, L["Hydra is a multibox leveling helper that aims to minimize the need to actively control secondary characters."] )
 	notes:SetHeight( notes:GetHeight() * 1.5 )
 
 	local add = CreateEditBox( self, L["Add Name"], L["Add a character name to your trusted list for this realm."], 12 )
@@ -140,18 +86,15 @@ panels[1] = CreateOptionsPanel( HYDRA, nil, function( self )
 			wipe( temp )
 		end )
 	end
-
-	self.refresh = function()
-	end
 end )
 
 ------------------------------------------------------------------------
 
-panels[2] = CreateOptionsPanel( L["Automation"], HYDRA, function( self )
-	local title, notes = CreateHeader( self, L["Automation"], L["Automates simple repetetive tasks, such as clicking common dialogs."] )
+panels[ #panels + 1 ] = CreateOptionsPanel( L["Automation"], HYDRA, function( self )
+	local title, notes = CreateHeader( self, self.name, L["Automates simple repetetive tasks, such as clicking common dialogs."] )
 
 	local function OnClick( self, checked )
-		core.db["Automation"][ self.key ] = v
+		core.db["Automation"][ self.key ] = checked
 		if self.key ~= "verbose" then
 			core.modules["Automation"]:CheckState()
 		end
@@ -197,7 +140,7 @@ panels[2] = CreateOptionsPanel( L["Automation"], HYDRA, function( self )
 	sellJunk.OnClick = OnClick
 	sellJunk.key = "sellJunk"
 
-	local verbose = CreateCheckbox( self, L["Verbose mode"], L["Add messages to the chat frame when automatically performing actions."] )
+	local verbose = CreateCheckbox( self, L["Verbose mode"], L["Enable notification messages from this module."] )
 	verbose:SetPoint( "TOPLEFT", sellJunk, "BOTTOMLEFT", 0, -8 - verbose:GetHeight() )
 	verbose.OnClick = OnClick
 	verbose.key = "verbose"
@@ -217,215 +160,193 @@ end )
 
 ------------------------------------------------------------------------
 
---[=[
-Chat = {
-	name = L["Chat"],
-	type = "group", dialogInline = true, args = {
-		help = {
-			name = L["Forwards whispers sent to inactive characters to party chat, and forwards replies to the original sender."],
-			type = "description",
-			order = 10,
-		},
-		enable = {
-			name = L["Enable"],
-			type = "toggle",
-			order = 20,
-			get = function()
-				return core.db["Chat"].enable
-			end,
-			set = function(_, v)
-				core.db["Chat"].enable = v
-				core.modules["Chat"]:CheckState()
-			end,
-		},
-		mode = {
-			name = L["Mode"],
-			order = 30,
-			type = "select", values = {
-				appfocus = L["Application Focus"],
-				leader = L["Party Leader"],
-			},
-			get = function()
-				return core.db["Chat"].mode
-			end,
-			set = function(_, v)
-				core.db["Chat"].mode = v
-				core.modules["Chat"]:CheckState()
-			end,
-		},
-		timeout = {
-			name = L["Timeout"],
-			type = "range", min = 30, max = 600, step = 30,
-			order = 40,
-			get = function()
-				return core.db["Chat"].timeout
-			end,
-			set = function(_, v)
-				core.db["Chat"].timeout = v
-			end,
-		},
-	},
-},
-Follow = {
-	name = L["Follow"],
-	type = "group", dialogInline = true, args = {
-		help = {
-			name = L["Responds to follow requests from trusted party members."],
-			type = "description",
-			order = 10,
-		},
-		enable = {
-			name = L["Enable"],
-			type = "toggle",
-			order = 20,
-			get = function()
-				return core.db["Follow"].enable
-			end,
-			set = function(_, v)
-				core.db["Follow"].enable = v
-			end,
-		},
-		verbose = {
-			name = L["Verbose"],
-			type = "toggle",
-			order = 30,
-			get = function()
-				return core.db["Follow"].verbose
-			end,
-			set = function(_, v)
-				core.db["Follow"].verbose = v
-			end,
-		},
-	},
-},
-Mount = {
-	name = L["Mount"],
-	type = "group", dialogInline = true, args = {
-		help = {
-			name = L["Summons your mount when another party member mounts."],
-			type = "description",
-			order = 10,
-		},
-		enable = {
-			name = L["Enable"],
-			type = "toggle",
-			order = 20,
-			get = function()
-				return core.db["Mount"].enable
-			end,
-			set = function(_, v)
-				core.db["Mount"].enable = v
-				core.modules["Mount"]:CheckState()
-			end,
-		},
-	},
-},
-Party = {
-	name = L["Party"],
-	type = "group", dialogInline = true, args = {
-		help = {
-			name = L["Responds to invite and promote requests from trusted players."],
-			type = "description",
-			order = 10,
-		},
-		enable = {
-			name = L["Enable"],
-			type = "toggle",
-			order = 20,
-			get = function()
-				return core.db["Party"].enable
-			end,
-			set = function(_, v)
-				core.db["Party"].enable = v
-				core.modules["Party"]:CheckState()
-			end,
-		},
-	},
-},
-Quest = {
-	name = L["Quest"],
-	type = "group", dialogInline = true,
-	get = function(t)
-		return core.db["Quest"][t[#t]]
-	end,
-	set = function(t, v)
-		core.db["Quest"][t[#t]] = v
-	end,
-	args = {
-		help = {
-			name = L["Helps keep party members' quests in sync."],
-			type = "description",
-			order = 10,
-		},
-		turnin = {
-			name = L["Turn in quests"],
-			desc = L["Turn in complete quests."],
-			type = "toggle",
-			order = 20,
-		},
-		accept = {
-			name = L["Accept quests"],
-			desc = L["Accept quests shared by party members, quests from NPCs that other party members have already accepted, and escort-type quests started by another party member."],
-			type = "toggle",
-			order = 30,
-		},
-		share = {
-			name = L["Share quests"],
-			desc = L["Share quests you accept from NPCs."],
-			type = "toggle",
-			order = 40,
-		},
-		abandon = {
-			name = L["Abandon quests"],
-			desc = L["Abandon quests abandoned by a trusted party member."],
-			type = "toggle",
-			order = 50,
-		},
-	},
-},
-Taxi = {
-	name = L["Taxi"],
-	type = "group", dialogInline = true, args = {
-		help = {
-			name = L["Selects the same taxi destination as other party members."],
-			type = "description",
-			order = 10,
-		},
-		enable = {
-			name = L["Enable"],
-			type = "toggle",
-			order = 20,
-			get = function()
-				return core.db["Taxi"].enable
-			end,
-			set = function(_, v)
-				core.db["Chat"].enable = v
-				core.modules["Taxi"]:CheckState()
-			end,
-		},
-		timeout = {
-			name = L["Timeout"],
-			desc = L["Clear the taxi selection after this many seconds."],
-			type = "range", min = 30, max = 600, step = 30,
-			order = 30,
-			get = function()
-				return core.db["Taxi"].timeout
-			end,
-			set = function(_, v)
-				core.db["Taxi"].timeout = v
-			end,
-		},
-	},
-}
-]=]
+panels[ #panels + 1 ] = CreateOptionsPanel( L["Chat"], HYDRA, function( self )
+	local title, notes = CreateHeader( self, self.name, L["Forwards whispers sent to inactive characters to party chat, and forwards replies to the original sender."] )
+
+	local enable = CreateCheckbox( self, L["Enable"], L["Enable this module."] )
+	enable:SetPoint( "TOPLEFT", notes, "BOTTOMLEFT", 0, -12 )
+	enable.OnClick = function( self, checked )
+		core.db["Chat"].enable = checked
+		core.modules["Chat"]:CheckState()
+	end
+
+	local modes = {
+		appfocus = L["Application Focus"],
+		leader = L["Party Leader"],
+	}
+
+	local mode = CreateDropdown( self, L["Detection method"], nil, L["Select the method to use for detecting the primary character."] .. "\n\n" .. L["If you are multiboxing on multiple physical machines, or are running multiple copies of WoW in windowed mode, the \"Application Focus\" mode will probably not work for you, and you should make sure that your primary character is the party leader."] )
+	mode:SetPoint( "TOPLEFT", enable, "BOTTOMLEFT", 0, -16 )
+	mode:SetPoint( "TOPRIGHT", notes, "BOTTOM", -8, -12 - enable:GetHeight() -16 )
+	do
+		local info = { }
+		local OnClick = function( self )
+			core.db["Chat"].mode = self.value
+			core.modules["Chat"]:CheckState()
+		end
+		UIDropDownMenu_Initialize( mode.dropdown, function()
+			info.text = L["Application Focus"]
+			info.value = "appfocus"
+			info.func = OnClick
+			UIDropDownMenu_AddButton( info )
+
+			info.text = L["Party Leader"]
+			info.value = "leader"
+			info.func = OnClick
+			UIDropDownMenu_AddButton( info )
+		end )
+	end
+
+	local timeout = CreateSlider( self, L["Timeout"], 30, 600, 30, nil, L["If this many seconds have elapsed since the last forwarded message, don't forward messages typed in party chat to the last whisperer unless the target is explicitly specified."] )
+	timeout:SetPoint( "TOPLEFT", mode, "BOTTOMLEFT", 0, -16 )
+	timeout:SetPoint( "TOPRIGHT", mode, "BOTTOMRIGHT", 0, -16 )
+	timeout.OnValueChanged = function( self, value )
+		value = math.floor( ( value + 1 ) / 30 ) * 30
+		core.db["Chat"].timeout = value
+		return value
+	end
+
+	self.refresh = function()
+		enable:SetChecked( core.db["Chat"].enable )
+		mode:SetValue( modes[ core.db["Chat"].mode ] )
+		timeout:SetValue( core.db["Chat"].timeout )
+	end
+end )
 
 ------------------------------------------------------------------------
 
-local about = LibStub( "LibAboutPanel" ).new( HYDRA, HYDRA )
+panels[ #panels + 1 ] = CreateOptionsPanel( L["Follow"], HYDRA, function( self )
+	local title, notes = CreateHeader( self, self.name, L["Responds to follow requests from trusted party members."] )
+
+	local enable = CreateCheckbox( self, L["Enable"], L["Enable this module."] )
+	enable:SetPoint( "TOPLEFT", notes, "BOTTOMLEFT", 0, -12 )
+	enable.OnClick = function( self, checked )
+		core.db["Follow"].enable = checked
+	end
+
+	local verbose = CreateCheckbox( self, L["Verbose"], L["Enable notification messages from this module."] )
+	verbose:SetPoint( "TOPLEFT", enable, "BOTTOMLEFT", 0, -8 )
+	verbose.OnClick = function( self, checked )
+		core.db["Follow"].verbose = checked
+	end
+
+	self.refresh = function()
+		enable:SetChecked( core.db["Follow"].enable )
+		verbose:SetChecked( core.db["Follow"].verbose )
+	end
+end )
+
+------------------------------------------------------------------------
+
+panels[ #panels + 1 ] = CreateOptionsPanel( L["Mount"], HYDRA, function( self )
+	local title, notes = CreateHeader( self, self.name, L["Summons your mount when another party member mounts."] )
+
+	local enable = CreateCheckbox( self, L["Enable"], L["Enable this module."] )
+	enable:SetPoint( "TOPLEFT", notes, "BOTTOMLEFT", 0, -12 )
+	enable.OnClick = function( self, checked )
+		core.db["Mount"].enable = checked
+		core.modules["Mount"]:CheckState()
+	end
+
+	self.refresh = function()
+		enable:SetChecked( core.db["Mount"].enable )
+	end
+end )
+
+------------------------------------------------------------------------
+
+panels[ #panels + 1 ] = CreateOptionsPanel( L["Party"], HYDRA, function( self )
+	local title, notes = CreateHeader( self, self.name, L["Responds to invite and promote requests from trusted players."] )
+
+	local enable = CreateCheckbox( self, L["Enable"], L["Enable this module."] )
+	enable:SetPoint( "TOPLEFT", notes, "BOTTOMLEFT", 0, -12 )
+	enable.OnClick = function( self, checked )
+		core.db["Party"].enable = checked
+		core.modules["Party"]:CheckState()
+	end
+
+	self.refresh = function()
+		enable:SetChecked( core.db["Party"].enable )
+	end
+end )
+
+------------------------------------------------------------------------
+
+panels[ #panels + 1 ] = CreateOptionsPanel( L["Quest"], HYDRA, function( self )
+	local title, notes = CreateHeader( self, self.name, L["Helps keep party members' quests in sync."] )
+
+	local function OnClick( self, checked )
+		core.db["Quest"][ self.key ] = checked
+	end
+
+	local enable = CreateCheckbox( self, L["Enable"], L["Enable this module."] )
+	enable:SetPoint( "TOPLEFT", notes, "BOTTOMLEFT", 0, -12 )
+	enable.OnClick = OnClick
+	enable.key = "enable"
+
+	local turnin = CreateCheckbox( self, L["Turn in quests"], L["Turn in complete quests to NPCs."] )
+	turnin:SetPoint( "TOPLEFT", enable, "BOTTOMLEFT", 0, -8 )
+	turnin.OnClick = OnClick
+	turnin.key = "turnin"
+
+	local accept = CreateCheckbox( self, L["Accept quests"], L["Accept quests shared by party members, quests from NPCs that other party members have already accepted, and escort-type quests started by another party member."] )
+	accept:SetPoint( "TOPLEFT", turnin, "BOTTOMLEFT", 0, -8 )
+	accept.OnClick = OnClick
+	accept.key = "accept"
+
+	local share = CreateCheckbox( self, L["Share quests"], L["Share quests you accept from NPCs."] )
+	share:SetPoint( "TOPLEFT", accept, "BOTTOMLEFT", 0, -8 )
+	share.OnClick = OnClick
+	share.key = "share"
+
+	local abandon = CreateCheckbox( self, L["Abandon quests"], L["Abandon quests abandoned by trusted party members."] )
+	abandon:SetPoint( "TOPLEFT", share, "BOTTOMLEFT", 0, -8 )
+	abandon.OnClick = OnClick
+	abandon.key = "abandon"
+
+	self.refresh = function()
+		enable:SetChecked( core.db["Quest"].enable )
+		turnin:SetChecked( core.db["Quest"].turnin )
+		accept:SetChecked( core.db["Quest"].accept )
+		share:SetChecked( core.db["Quest"].share )
+		abandon:SetChecked( core.db["Quest"].abandon )
+	end
+end )
+
+------------------------------------------------------------------------
+
+panels[ #panels + 1 ] = CreateOptionsPanel( L["Taxi"], HYDRA, function( self )
+	local title, notes = CreateHeader( self, self.name, L["Selects the same taxi destination as other party members."] )
+
+	local enable = CreateCheckbox( self, L["Enable"], L["Enable this module."] )
+	enable:SetPoint( "TOPLEFT", notes, "BOTTOMLEFT", 0, -12 )
+	enable.OnClick = function( self, checked )
+		core.db["Party"].enable = checked
+		core.modules["Party"]:CheckState()
+	end
+
+	local timeout = CreateSlider( self, L["Timeout"], 30, 600, 30, nil, L["Clear the taxi selection after this many seconds."] )
+	timeout:SetPoint( "TOPLEFT", enable, "BOTTOMLEFT", 0, -16 )
+	timeout:SetPoint( "TOPRIGHT", notes, "BOTTOM", -8, -28 - enable:GetHeight() )
+	timeout.OnValueChanged = function( self, value )
+		value = math.floor( ( value + 1 ) / 30 ) * 30
+		core.db["Taxi"].timeout = value
+		return value
+	end
+
+	self.refresh = function()
+		enable:SetChecked( core.db["Taxi"].enable )
+		timeout:SetValue( core.db["Taxi"].timeout )
+	end
+end )
+
+------------------------------------------------------------------------
+
+panels[ #panels + 1 ] = LibStub( "LibAboutPanel" ).new( HYDRA, HYDRA )
 
 SLASH_HYDRA1 = "/hydra"
 SlashCmdList.HYDRA = function()
-	InterfaceOptionsFrame_OpenToCategory( about )
+	InterfaceOptionsFrame_OpenToCategory( panels[ #panels ] ) -- About panel
 	InterfaceOptionsFrame_OpenToCategory( panels[1] )
 end
 
