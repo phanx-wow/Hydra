@@ -144,11 +144,3 @@ function SlashCmdList.HYDRACORPSE(command)
 		SendAddonMessage("HydraCorpse", "accept", "PARTY")
 	end
 end
-
-------------------------------------------------------------------------
-
-BINDING_HEADER_HYDRA = BINDING_HEADER_HYDRA or "Hydra"
-BINDING_NAME_HYDRA_FOLLOW_TARGET = BINDING_NAME_HYDRA_FOLLOW_TARGET or "Follow target"
-BINDING_NAME_HYDRA_FOLLOW_ME = BINDING_NAME_HYDRA_FOLLOW_ME or "Request follow"
-BINDING_NAME_HYDRA_RELEASE_CORPSE = BINDING_NAME_HYDRA_RELEASE_CORPSE or "Release spirit"
-BINDING_NAME_HYDRA_ACCEPT_CORPSE = BINDING_NAME_HYDRA_ACCEPT_CORPSE or "Resurrect"

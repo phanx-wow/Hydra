@@ -87,6 +87,14 @@ panels[ #panels + 1 ] = CreateOptionsPanel( HYDRA, nil, function( self )
 			wipe( temp )
 		end )
 	end
+
+	local help = self:CreateFontString( nil, "OVERLAY", "GameFontNormalSmall" )
+	help:SetPoint( "BOTTOMLEFT", 16, 16 )
+	help:SetPoint( "BOTTOMRIGHT", -16, 16 )
+	help:SetHeight( 112 )
+	help:SetJustifyH( "LEFT" )
+	help:SetJustifyV( "BOTTOM" )
+	help:SetText( L.HELP_TRUST )
 end )
 
 ------------------------------------------------------------------------
@@ -142,9 +150,17 @@ panels[ #panels + 1 ] = CreateOptionsPanel( L["Automation"], HYDRA, function( se
 	sellJunk.key = "sellJunk"
 
 	local verbose = CreateCheckbox( self, L["Verbose mode"], L["Enable notification messages from this module."] )
-	verbose:SetPoint( "TOPLEFT", sellJunk, "BOTTOMLEFT", 0, -8 - verbose:GetHeight() )
+	verbose:SetPoint( "TOPLEFT", sellJunk, "BOTTOMLEFT", 0, -24 )
 	verbose.OnClick = OnClick
 	verbose.key = "verbose"
+
+	local help = self:CreateFontString( nil, "OVERLAY", "GameFontNormalSmall" )
+	help:SetPoint( "BOTTOMLEFT", 16, 16 )
+	help:SetPoint( "BOTTOMRIGHT", -16, 16 )
+	help:SetHeight( 112 )
+	help:SetJustifyH( "LEFT" )
+	help:SetJustifyV( "BOTTOM" )
+	help:SetText( L.HELP_AUTO )
 
 	self.refresh = function()
 		declineDuels:SetChecked( core.db["Automation"].declineDuels )
@@ -207,6 +223,14 @@ panels[ #panels + 1 ] = CreateOptionsPanel( L["Chat"], HYDRA, function( self )
 		return value
 	end
 
+	local help = self:CreateFontString( nil, "OVERLAY", "GameFontNormalSmall" )
+	help:SetPoint( "BOTTOMLEFT", 16, 16 )
+	help:SetPoint( "BOTTOMRIGHT", -16, 16 )
+	help:SetHeight( 112 )
+	help:SetJustifyH( "LEFT" )
+	help:SetJustifyV( "BOTTOM" )
+	help:SetText( L.HELP_CHAT )
+
 	self.refresh = function()
 		enable:SetChecked( core.db["Chat"].enable )
 		mode:SetValue( modes[ core.db["Chat"].mode ] )
@@ -251,6 +275,14 @@ panels[ #panels + 1 ] = CreateOptionsPanel( L["Follow"], HYDRA, function( self )
 	acceptres:SetPoint("TOPLEFT", release, "BOTTOMLEFT", 0, -8)
 	acceptres:SetPoint("TOPRIGHT", release, "BOTTOMRIGHT", 0, -8)
 
+	local help = self:CreateFontString( nil, "OVERLAY", "GameFontNormalSmall" )
+	help:SetPoint( "BOTTOMLEFT", 16, 16 )
+	help:SetPoint( "BOTTOMRIGHT", -16, 16 )
+	help:SetHeight( 112 )
+	help:SetJustifyH( "LEFT" )
+	help:SetJustifyV( "BOTTOM" )
+	help:SetText( L.HELP_FOLLOW )
+
 	self.refresh = function()
 		enable:SetChecked( core.db["Follow"].enable )
 		verbose:SetChecked( core.db["Follow"].verbose )
@@ -273,6 +305,14 @@ panels[ #panels + 1 ] = CreateOptionsPanel( L["Mount"], HYDRA, function( self )
 		core.modules["Mount"]:CheckState()
 	end
 
+	local help = self:CreateFontString( nil, "OVERLAY", "GameFontNormalSmall" )
+	help:SetPoint( "BOTTOMLEFT", 16, 16 )
+	help:SetPoint( "BOTTOMRIGHT", -16, 16 )
+	help:SetHeight( 112 )
+	help:SetJustifyH( "LEFT" )
+	help:SetJustifyV( "BOTTOM" )
+	help:SetText( L.HELP_MOUNT )
+
 	self.refresh = function()
 		enable:SetChecked( core.db["Mount"].enable )
 	end
@@ -290,10 +330,10 @@ panels[ #panels + 1 ] = CreateOptionsPanel( L["Party"], HYDRA, function( self )
 		core.modules["Party"]:CheckState()
 	end
 
-	local help = self:CreateFontString( nil, "OVERLAY", "GameFontHighlightSmall" )
+	local help = self:CreateFontString( nil, "OVERLAY", "GameFontNormalSmall" )
 	help:SetPoint( "BOTTOMLEFT", 16, 16 )
 	help:SetPoint( "BOTTOMRIGHT", -16, 16 )
-	help:SetHeight( 100 )
+	help:SetHeight( 112 )
 	help:SetJustifyH( "LEFT" )
 	help:SetJustifyV( "BOTTOM" )
 	help:SetText( L.HELP_PARTY )
@@ -337,6 +377,14 @@ panels[ #panels + 1 ] = CreateOptionsPanel( L["Quest"], HYDRA, function( self )
 	abandon.OnClick = OnClick
 	abandon.key = "abandon"
 
+	local help = self:CreateFontString( nil, "OVERLAY", "GameFontNormalSmall" )
+	help:SetPoint( "BOTTOMLEFT", 16, 16 )
+	help:SetPoint( "BOTTOMRIGHT", -16, 16 )
+	help:SetHeight( 112 )
+	help:SetJustifyH( "LEFT" )
+	help:SetJustifyV( "BOTTOM" )
+	help:SetText( L.HELP_QUEST )
+
 	self.refresh = function()
 		enable:SetChecked( core.db["Quest"].enable )
 		turnin:SetChecked( core.db["Quest"].turnin )
@@ -366,6 +414,14 @@ panels[ #panels + 1 ] = CreateOptionsPanel( L["Taxi"], HYDRA, function( self )
 		core.db["Taxi"].timeout = value
 		return value
 	end
+
+	local help = self:CreateFontString( nil, "OVERLAY", "GameFontNormalSmall" )
+	help:SetPoint( "BOTTOMLEFT", 16, 16 )
+	help:SetPoint( "BOTTOMRIGHT", -16, 16 )
+	help:SetHeight( 112 )
+	help:SetJustifyH( "LEFT" )
+	help:SetJustifyV( "BOTTOM" )
+	help:SetText( L.HELP_TAXI )
 
 	self.refresh = function()
 		enable:SetChecked( core.db["Taxi"].enable )

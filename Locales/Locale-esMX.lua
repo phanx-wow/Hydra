@@ -11,7 +11,7 @@
 	Last updated 2011-01-19 by Akkorian
 ----------------------------------------------------------------------]]
 
--- if not string.match( GetLocale(), "^es" ) then return end
+if not string.match( GetLocale(), "^es" ) then return end
 local L, _, core = { }, ...
 core.L = L
 
@@ -30,6 +30,8 @@ L["Adds all the characters in your current party group to your trusted list."] =
 
 L["Added %s to the trusted list."] = "Agregó %s a la lista de confianza."
 L["Removed %s from the trusted list."] = "Eliminado %s de la lista de confianza."
+
+L.HELP_TRUST = [[]]
 
 ------------
 -- Common --
@@ -73,6 +75,8 @@ L["Accepting summon when combat ends..."] = "Aceptando invocar cuando el combate
 L["Accepting summon from %s to %s"] = "Aceptando invocar por %s a %s."
 L["Summon expired!"] = "Invocar caducado!"
 
+L.HELP_AUTO = [[]]
+
 ----------
 -- Chat --
 ----------
@@ -87,6 +91,8 @@ L["Party Leader"] = "Líder del grupo"
 L["%s has received a whisper from a GM!"] = "%s ha recibido un susurro de un GM!"
 L["%s received a Battle.net whisper from %s"] = "%s ha recibido un susurro de Battle.net por %s."
 L["%s received a whisper from %s"] = "%s ha recibido un susurro por %s."
+
+L.HELP_CHAT = [[]]
 
 ------------
 -- Follow --
@@ -110,6 +116,10 @@ L["I can reincarnate."] = "Puedo reencarnarme."
 L["I can resurrect myself."] = "Puedo reencarnarme."
 L["I cannot resurrect!"] = "No puedo reencarnarme."
 
+L.HELP_FOLLOW = [[- Escribir "/sigueme" para solicitar que todos en tu grupo seguirte.
+- Escribir "/cadáver lib" para solicitar que todos en tu grupo liberar sus espíritus.
+- Escribir "/cadáver res" para solicitar que todos en tu grupo resucitar sobre sus cadáveres.]]
+
 SLASH_FOLLOWME3 = "/sigueme"
 SLASH_HYDRACORPSE2 = "/cadáver"
 L["release"] = "li?b?e?r?a?r?" -- liberar
@@ -128,6 +138,8 @@ L["Mount"] = "Monte"
 L["Summons your mount when another party member mounts."] = "Invoca tu montura cuando otro miembro del partido se monta."
 
 L["ERROR: %s is missing that mount!"] = "ERROR: %s no tiene este montura."
+
+L.HELP_MOUNT = [[]]
 
 -----------
 -- Party --
@@ -168,6 +180,8 @@ L["%s turned in %s"] = "%s entrega %s."
 L["%s abandoned %s"] = "%s ha abandonó a %s."
 L["That quest cannot be shared."] = "Esa misión no te puedes compartir."
 
+L.HELP_QUEST = [[]]
+
 ----------
 -- Taxi --
 ----------
@@ -180,5 +194,7 @@ L["ERROR: %s taxi timeout reached."] = "ERROR: Tiempo de espera de la ruta de vu
 L["ERROR: %s taxi node mismatch."] = "ERROR: La ruta de vuelo no coinciden."
 L["%s set the party taxi to: %s"] = "%s establece la ruta de vuelo del grupo a %s."
 L["Party taxi cleared."] = "Ruta de vuelo del grupo despejado."
+
+L.HELP_TAXI = [[]]
 
 SLASH_CLEARTAXI2 = "/quitartaxi"
