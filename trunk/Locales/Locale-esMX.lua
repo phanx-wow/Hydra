@@ -116,9 +116,11 @@ L["I can reincarnate."] = "Puedo reencarnarme."
 L["I can resurrect myself."] = "Puedo reencarnarme."
 L["I cannot resurrect!"] = "No puedo reencarnarme."
 
-L.HELP_FOLLOW = [[- Escribir "/sigueme" para solicitar que todos en tu grupo seguirte.
-- Escribir "/cadáver lib" para solicitar que todos en tu grupo liberar sus espíritus.
-- Escribir "/cadáver res" para solicitar que todos en tu grupo resucitar sobre sus cadáveres.]]
+L.HELP_FOLLOW = [[Escriba "|cffffffff/sigueme|r" para solicitar que todos en tu grupo seguirte.
+
+Escriba "|cffffffff/cadáver lib|r" para solicitar que todos en tu grupo liberar sus espíritus.
+
+Escriba "|cffffffff/cadáver res|r" para solicitar que todos en tu grupo resucitar sobre sus cadáveres.]]
 
 SLASH_FOLLOWME3 = "/sigueme"
 SLASH_HYDRACORPSE2 = "/cadáver"
@@ -153,9 +155,11 @@ L["I cannot invite you, because I am not the party leader."] = "No te puedo invi
 L["I cannot promote you, because you are not on my trusted list."] = "No te puedo promover, porque no están en mi lista de confianza."
 L["I cannot promote you, because I am not the party leader."] = "No te puedo promover, porque yo no soy el líder del grupo."
 
-L.HELP_PARTY = [[- Escriba "/invitarme" para solicitar una invitación de grupo de tu objetivo.
-- Escriba "/invitarme Nombre" para solicitar una invitación de grupo de "Nombre".
-- Escriba "/ascenderme" mientras que en un grupo de solicitar un ascenso a líder del grupo.]]
+L.HELP_PARTY = [[Escriba "|cffffffff/invitarme|r" para solicitar una invitación de grupo de tu objetivo.
+
+Escriba "|cffffffff/invitarme Nombre|r" para solicitar una invitación de grupo de "Nombre".
+
+Escriba "|cffffffff/ascenderme|r" mientras que en un grupo de solicitar un ascenso a líder del grupo.]]
 
 SLASH_INVITEME3 = "/invitarme"
 SLASH_PROMOTEME3 = "/ascenderme"
