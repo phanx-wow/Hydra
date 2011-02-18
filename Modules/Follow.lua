@@ -28,6 +28,10 @@ module:SetScript("OnEvent", function(f, e, ...) return f[e] and f[e](f, ...) end
 module.defaults = { enable = true, verbose = true }
 
 local L = core.L
+if GetLocale():match( "^en" ) then
+	L["release"] = "re?l?e?a?s?e?"
+	L["accept"] = "ac?c?e?p?t?"
+end
 
 ------------------------------------------------------------------------
 
@@ -134,9 +138,9 @@ SLASH_HYDRACORPSE1 = "/corpse"
 function SlashCmdList.HYDRACORPSE(command)
 	if core.state == SOLO then return end
 	command = command and command:trim():lower() or ""
-	if command:match("^r") or command == L["release"] then
+	if command:match( L["release"] ) then
 		SendAddonMessage("HydraCorpse", "release", "PARTY")
-	elseif command:match("^a") or command == L["accept"] then
+	elseif command:match( L["accept"] ) then
 		SendAddonMessage("HydraCorpse", "accept", "PARTY")
 	end
 end

@@ -22,6 +22,7 @@ local CreateCheckbox = LibStub( "PhanxConfig-Checkbox" ).CreateCheckbox
 local CreateDropdown = LibStub( "PhanxConfig-Dropdown" ).CreateDropdown
 local CreateEditBox = LibStub( "PhanxConfig-EditBox" ).CreateEditBox
 local CreateHeader = LibStub( "PhanxConfig-Header" ).CreateHeader
+local CreateKeyBinding = LibStub("PhanxConfig-KeyBinding").CreateKeyBinding
 local CreateOptionsPanel = LibStub( "PhanxConfig-OptionsPanel" ).CreateOptionsPanel
 local CreateSlider = LibStub( "PhanxConfig-Slider" ).CreateSlider
 
@@ -224,15 +225,39 @@ panels[ #panels + 1 ] = CreateOptionsPanel( L["Follow"], HYDRA, function( self )
 		core.db["Follow"].enable = checked
 	end
 
-	local verbose = CreateCheckbox( self, L["Verbose"], L["Enable notification messages from this module."] )
+	local verbose = CreateCheckbox( self, L["Verbose mode"], L["Enable notification messages from this module."] )
 	verbose:SetPoint( "TOPLEFT", enable, "BOTTOMLEFT", 0, -8 )
 	verbose.OnClick = function( self, checked )
 		core.db["Follow"].verbose = checked
 	end
 
+	local follow = CreateKeyBinding(self, L["Follow target"], "HYDRA_FOLLOW_TARGET",
+		L["Set a key binding to follow your current target."])
+	follow:SetPoint("TOPLEFT", notes, "BOTTOM", -8, -8)
+	follow:SetPoint("TOPRIGHT", notes, "BOTTOMRIGHT", 0, -8)
+
+	local followme = CreateKeyBinding(self, L["Follow me"], "HYDRA_FOLLOW_ME",
+		L["Set a key binding to send a \"follow me\" command to your party."])
+	followme:SetPoint("TOPLEFT", follow, "BOTTOMLEFT", 0, -8)
+	followme:SetPoint("TOPRIGHT", follow, "BOTTOMRIGHT", 0, -8)
+
+	local release = CreateKeyBinding(self, L["Release spirit"], "HYDRA_RELEASE_CORPSE",
+		L["Set a key binding to send a \"release spirit\" command to your party."])
+	release:SetPoint("TOPLEFT", followme, "BOTTOMLEFT", 0, -8)
+	release:SetPoint("TOPRIGHT", followme, "BOTTOMRIGHT", 0, -8)
+
+	local acceptres = CreateKeyBinding(self, L["Resurrect to corpse"], "HYDRA_ACCEPT_CORPSE",
+		L["Set a key binding to send an \"resurrect to corpse\" command to your party."])
+	acceptres:SetPoint("TOPLEFT", release, "BOTTOMLEFT", 0, -8)
+	acceptres:SetPoint("TOPRIGHT", release, "BOTTOMRIGHT", 0, -8)
+
 	self.refresh = function()
 		enable:SetChecked( core.db["Follow"].enable )
 		verbose:SetChecked( core.db["Follow"].verbose )
+		follow:RefreshValue()
+		followme:RefreshValue()
+		release:RefreshValue()
+		acceptres:RefreshValue()
 	end
 end )
 
@@ -264,6 +289,14 @@ panels[ #panels + 1 ] = CreateOptionsPanel( L["Party"], HYDRA, function( self )
 		core.db["Party"].enable = checked
 		core.modules["Party"]:CheckState()
 	end
+
+	local help = self:CreateFontString( nil, "OVERLAY", "GameFontHighlightSmall" )
+	help:SetPoint( "BOTTOMLEFT", 16, 16 )
+	help:SetPoint( "BOTTOMRIGHT", -16, 16 )
+	help:SetHeight( 100 )
+	help:SetJustifyH( "LEFT" )
+	help:SetJustifyV( "BOTTOM" )
+	help:SetText( L.HELP_PARTY )
 
 	self.refresh = function()
 		enable:SetChecked( core.db["Party"].enable )

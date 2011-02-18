@@ -1,8 +1,10 @@
 ## Interface: 40000
-## Version: 4.0.3.wowi:revision
+## Version: 4.0.6.wowi:revision
 
 ## Title: Hydra
 ## Notes: Multibox leveling helper.
+## Notes-esES: Ayudante para la nivelación multibox.
+## Notes-esMX: Ayudante para la nivelación multibox.
 ## Notes-koKR: 멀티박스 레벨링 도우미입니다.
 ## Author: Phanx, Akkorian
 ## X-Email: akkorian@hotmail.com
@@ -15,7 +17,7 @@
 ## X-WoWI-ID: 17572
 
 ## DefaultState: disabled
-## OptionalDependencies: Ace3, LibMounts-1.0
+## OptionalDependencies: Ace3, LibMounts-1.0, PhanxConfigWidgets
 ## SavedVariables: HydraTrustList
 ## SavedVariablesPerCharacter: HydraSettings
 
@@ -28,9 +30,11 @@ Libs\PhanxConfig-ColorPicker\PhanxConfig-ColorPicker.lua
 Libs\PhanxConfig-Dropdown\PhanxConfig-Dropdown.lua
 Libs\PhanxConfig-EditBox\PhanxConfig-EditBox.lua
 Libs\PhanxConfig-Header\PhanxConfig-Header.lua
+Libs\PhanxConfig-KeyBinding\PhanxConfig-KeyBinding.lua
 Libs\PhanxConfig-OptionsPanel\PhanxConfig-OptionsPanel.lua
 Libs\PhanxConfig-Slider\PhanxConfig-Slider.lua
 
+Locales\Locale-esMX.lua
 Locales\Locale-koKR.lua
 
 Core.lua
