@@ -8,7 +8,7 @@
 	http://wow.curse.com/downloads/wow-addons/details/hydra.aspx
 ----------------------------------------------------------------------]]
 
-local _, core = ...
+local ADDON_NAME, core = ...
 if not core then -- 3.2 compat for China
 	core = { }
 	_G.Hydra = core
@@ -23,6 +23,8 @@ end } )
 core.L = L
 
 core.modules = { }
+
+BINDING_HEADER_HYDRA = ADDON_NAME
 
 ------------------------------------------------------------------------
 

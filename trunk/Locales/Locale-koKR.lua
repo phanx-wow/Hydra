@@ -31,6 +31,8 @@ L["Adds all the characters in your current party group to your trusted list."] =
 L["Added %s to the trusted list."] = "%s 님을 신뢰하는 목록에 추가했습니다."
 L["Removed %s from the trusted list."] = "%s 님을 신뢰하는 목록에서 제거했습니다."
 
+-- L.HELP_TRUST = [[]]
+
 ------------
 -- Common --
 ------------
@@ -73,6 +75,8 @@ L["Accepting summon when combat ends..."] = "전투가 종료가 되면 소환�
 L["Accepting summon from %s to %s"] = "%s 님이 %s|1로;으로; 소환하는 것을 수락합니다."
 L["Summon expired!"] = "소환이 만료되었습니다!"
 
+-- L.HELP_AUTO = [[]]
+
 ----------
 -- Chat --
 ----------
@@ -87,6 +91,8 @@ L["Party Leader"] = "파티장"
 L["%s has received a whisper from a GM!"] = "%s 님이 GM에게 귓속말을 받았습니다!"
 L["%s received a Battle.net whisper from %s"] = "%s 님이 %s 님으로 부터 Battle.net 귓속말을 받았습니다."
 L["%s received a whisper from %s"] = "%s 님이 %s 님으로 부터 귓속말을 받았습니다."
+
+-- L.HELP_CHAT = [[]]
 
 ------------
 -- Follow --
@@ -110,6 +116,8 @@ L["I can reincarnate."] = "윤회를 할 수 있습니다."
 L["I can resurrect myself."] = "스스로 부활할 수 있습니다."
 L["I cannot resurrect!"] = "부활을 할 수 없습니다!"
 
+-- L.HELP_FOLLOW = [[]]
+
 SLASH_FOLLOWME3 = "/따라와"
 SLASH_HYDRACORPSE2 = "/시체"
 L["release"] = "무덤"
@@ -129,6 +137,8 @@ L["Summons your mount when another party member mounts."] = "다른 파티원이
 
 L["ERROR: %s is missing that mount!"] = "오류: %s 님은 탈 것이 없습니다!"
 
+-- L.HELP_MOUNT = [[]]
+
 -----------
 -- Party --
 -----------
@@ -140,6 +150,8 @@ L["I cannot invite you, because you are not on my trusted list."] = "나의 신�
 L["I cannot invite you, because I am not the module leader."] = "저는 모듈 리더가 아니므로 당신을 초대할 수 없습니다."
 L["I cannot promote you, because you are not on my trusted list."] = "나의 신뢰하는 목록에 존재하지 않으므로 때문에 당신을 승급할 수 없습니다."
 L["I cannot promote you, because I am not the party leader."] = "저는 파티장이 아니므로 당신을 승급할 수 없습니다."
+
+-- L.HELP_PARTY = [[]]
 
 SLASH_INVITEME3 = "/나초대"
 SLASH_PROMOTEME3 = "/승급"
@@ -164,6 +176,8 @@ L["%s turned in %s"] = "%s 님이 %s|1을;를; 반환했습니다."
 L["%s abandoned %s"] = "%s 님이 %s|1을;를; 포기했습니다."
 L["That quest cannot be shared."] = "해당 퀘스트는 공유할 수 없습니다."
 
+-- L.HELP_QUEST = [[]]
+
 ----------
 -- Taxi --
 ----------
@@ -176,5 +190,7 @@ L["ERROR: %s taxi timeout reached."] = "오류: %s 님의 택시가 시간 초�
 L["ERROR: %s taxi node mismatch."] = "오류: %s 님의 택시 노드가 일치하지 않습니다."
 L["%s set the party taxi to: %s"] = "%s 님이 지정한 파티 택시의 노드: %s"
 L["Party taxi cleared."] = "파티 택시가 지워졌습니다."
+
+-- L.HELP_TAXI = [[]]
 
 SLASH_CLEARTAXI2 = "/택시지우기"
