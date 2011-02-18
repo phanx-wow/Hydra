@@ -11,61 +11,53 @@
 	Last updated 2011-01-19 by Akkorian
 ----------------------------------------------------------------------]]
 
-if not string.match( GetLocale(), "^es" ) then return end
+-- if not string.match( GetLocale(), "^es" ) then return end
 local L, _, core = { }, ...
 core.L = L
+
+----------
+-- Core --
+----------
 
 L["Hydra is a multibox leveling helper that aims to minimize the need to actively control secondary characters."] = "Hydra es un ayudante para la nivelación multibox que tiene como objetivo reducir al mínimo la necesidad de controlar activamente personajes secundarios."
 L["Trust List"] = "Lista de confianza"
 L["Add Name"] = "Añadir nombre"
 L["Add a name to your trusted list."] = "Añadir un nombre a la lista de confianza."
-L["Added %s to the trusted list."] = "Agregó %s a la lista de confianza."
 L["Remove Name"] = "Eliminar nombre"
 L["Remove a name from your trusted list."] = "Eliminar un nombre de la lista de confianza."
-L["Removed %s from the trusted list."] = "Eliminado %s de la lista de confianza."
 L["Add Current Party"] = "Añadir grupo"
 L["Adds all the characters in your current party group to your trusted list."] = "Añadir todos los personajes en tu grupo actual a la lista de confianza."
+
+L["Added %s to the trusted list."] = "Agregó %s a la lista de confianza."
+L["Removed %s from the trusted list."] = "Eliminado %s de la lista de confianza."
+
+------------
+-- Common --
+------------
+
+L["Enable"] = "Activar"
+L["Enable this module."] = "Activar este módulo."
+
+L["Verbose mode"] = "Verboso"
+L["Enable notification messages from this module."] = "Activar mensajes de notificación de este módulo."
+
+L["Timeout"] = "Tiempo de espera"
+
+----------------
+-- Automation --
+----------------
+
 L["Automation"] = "Automatización"
-L["Automates simple repetitive tasks, such as clicking common dialogs."] = "Automatiza tareas repetitivas simples, como hacer clic en los cuadros de diálogo comunes."
+L["Automates simple repetetive tasks, such as clicking common dialogs."] = "Automatiza tareas repetitivas simples, como hacer clic en los cuadros de diálogo comunes."
 L["Decline duels"] = "Rechazar duelos"
 L["Decline arena teams"] = "Rechazar equipos de arena"
 L["Decline guilds"] = "Rechazar invitaciones de hermandad"
 L["Accept summons"] = "Aceptar invocaciones"
 L["Accept resurrections"] = "Aceptar resurecciones"
-L["Accept resurrections in combat"] = "Acceptar resurecciones de combate"
+L["Accept combat resurrections"] = "Aceptar resurecciones en combate"
 L["Repair equipment"] = "Reparar equipos"
 L["Sell junk"] = "Vender chatarra"
-L["Verbose mode"] = "Verboso"
-L["Print messages to the chat frame when performing any action."] = "Notificar en al cuadro de chat al realizar cualquier acción."
-L["Chat"] = "Chat"
-L["Forwards whispers sent to inactive characters to party chat, and forwards replies to the original sender."] = "Reenvía susurros enviado a los personajes inactivos por el chat del grupo, y reenvía las respuestas al remitente original."
-L["Enable"] = "Activar"
-L["Mode"] = "Modo"
-L["Application Focus"] = "Aplicación enfoque"
-L["Party Leader"] = "Líder del grupo"
-L["Timeout"] = "Tiempo de espera"
-L["Follow"] = "Seguir"
-L["Responds to follow requests from trusted party members."] = "Responde a las peticiones para seguimientar de los miembros del partido que están en tu lista de confianza."
-L["Verbose"] = "Verboso"
-L["Mount"] = "Monte"
-L["Summons your mount when another party member mounts."] = "Invoca tu montura cuando otro miembro del partido se monta."
-L["Party"] = "Grupo"
-L["Responds to invite and promote requests from trusted players."] = "Responde a las peticiones para invitar y promover de los jugadores que están en tu lista de confianza."
-L["Quest"] = "Misión"
-L["Helps keep party members' quests in sync."] = "Ayuda a mantener las misiones de todos los miembros del partido en sincronía."
-L["Turn in quests"] = "Entregar misiones"
-L["Turn in complete quests."] = "Entregar misiones completadas."
-L["Accept quests"] = "Aceptar misiones"
-L["Accept quests shared by party members, quests from NPCs that other party members have already accepted, and escort-type quests started by another party member."] = "Aceptar misiones compartidas por los miembros del partido, misiones de PNJs que otros miembros del grupo ya han aceptado, y misiones de escolta iniciado por otro miembro del grupo."
-L["Share quests"] = "Compartir misiones"
-L["Share quests you accept from NPCs."] = "Compartir misiones aceptadas a partir del PNJ."
-L["Abandon quests"] = "Abandonar"
-L["Abandon quests abandoned by a trusted party member."] = "Abandonar misiones que otros miembros del grupo ya han abandonado."
-L["Taxi"] = "Transporte"
-L["Selects the same taxi destination as other party members."] = "Seleccionar el mismo destino de transporte que otros miembros del grupo."
-L["Clear the taxi selection after this many seconds."] = "Desactive la selección de ruta después de estos segundos."
 
--- Automation
 L["Declined arena petition from %s"] = "Rechazó la petición de equipo de arena de %s."
 L["Declined guild petition from %s"] = "Rechazó la petición de hermandad de %s."
 L["Declined arena team invite from %s"] = "Rechazó la invitación a equipo de arena de %s"
@@ -79,14 +71,34 @@ L["Insufficient funds to repair!"] = "Insuficiente dinero para reparar!"
 L["Accepted resurrection from %s"] = "Aceptada la resurrección de %s."
 L["Accepting summon when combat ends..."] = "Aceptando invocar cuando el combate termina ..."
 L["Accepting summon from %s to %s"] = "Aceptando invocar por %s a %s."
-L["Summon expired!"] = ""
+L["Summon expired!"] = "Invocar caducado!"
 
--- Chat
+----------
+-- Chat --
+----------
+
+L["Chat"] = "Chat"
+L["Forwards whispers sent to inactive characters to party chat, and forwards replies to the original sender."] = "Reenvía susurros enviado a los personajes inactivos por el chat del grupo, y reenvía las respuestas al remitente original."
+L["Enable"] = "Activar"
+L["Mode"] = "Modo"
+L["Application Focus"] = "Aplicación enfoque"
+L["Party Leader"] = "Líder del grupo"
+
 L["%s has received a whisper from a GM!"] = "%s ha recibido un susurro de un GM!"
 L["%s received a Battle.net whisper from %s"] = "%s ha recibido un susurro de Battle.net por %s."
 L["%s received a whisper from %s"] = "%s ha recibido un susurro por %s."
 
--- Follow
+------------
+-- Follow --
+------------
+
+L["Follow"] = "Seguir"
+L["Responds to follow requests from trusted party members."] = "Responde a las peticiones para seguimientar de los miembros del partido que están en tu lista de confianza."
+L["Follow target"] = "Seguir el objetivo"
+L["Follow me"] = "Sígueme"
+L["Release spirit"] = "Liberar espíritu"
+L["Resurrect to corpse"] = "Recuperar cadáver"
+
 L["%s is now following you."] = "%s te siguiendo."
 L["%s is no longer following you."] = "%s ha dejado de seguir a tu."
 L["%s is no longer following you!"] = "%s ha dejado de seguir a tu!"
@@ -98,31 +110,75 @@ L["I can reincarnate."] = "Puedo reencarnarme."
 L["I can resurrect myself."] = "Puedo reencarnarme."
 L["I cannot resurrect!"] = "No puedo reencarnarme."
 
--- Mount
+SLASH_FOLLOWME3 = "/sigueme"
+SLASH_HYDRACORPSE2 = "/cadáver"
+L["release"] = "li?b?e?r?a?r?" -- liberar
+L["accept"] = "re?[cs]?u?[pc]?[ei]?[rt]?a?r?" -- recuperar o resucitar
+
+BINDING_NAME_HYDRA_FOLLOW_TARGET = "Seguir el objetivo"
+BINDING_NAME_HYDRA_FOLLOW_ME = "Enviar: Sígueme"
+BINDING_NAME_HYDRA_RELEASE_CORPSE = "Enviar: Liberar espíritu"
+BINDING_NAME_HYDRA_ACCEPT_CORPSE = "Enviar: Recuperar cadáver"
+
+-----------
+-- Mount --
+-----------
+
+L["Mount"] = "Monte"
+L["Summons your mount when another party member mounts."] = "Invoca tu montura cuando otro miembro del partido se monta."
+
 L["ERROR: %s is missing that mount!"] = "ERROR: %s no tiene este montura."
 
--- Party
+-----------
+-- Party --
+-----------
+
+L["Party"] = "Grupo"
+L["Responds to invite and promote requests from trusted players."] = "Responde a las peticiones para invitar y promover de los jugadores que están en tu lista de confianza."
+
 L["I cannot invite you, because you are not on my trusted list."] = "No te puedo invitar, porque no están en mi lista de confianza."
 L["I cannot invite you, because I am not the party leader."] = "No te puedo invitar, porque yo no soy el líder del grupo."
 L["I cannot promote you, because you are not on my trusted list."] = "No te puedo promover, porque no están en mi lista de confianza."
 L["I cannot promote you, because I am not the party leader."] = "No te puedo promover, porque yo no soy el líder del grupo."
 
--- Quest
+L.HELP_PARTY = [[- Escriba "/invitarme" para solicitar una invitación de grupo de tu objetivo.
+- Escriba "/invitarme Nombre" para solicitar una invitación de grupo de "Nombre".
+- Escriba "/ascenderme" mientras que en un grupo de solicitar un ascenso a líder del grupo.]]
+
+SLASH_INVITEME3 = "/invitarme"
+SLASH_PROMOTEME3 = "/ascenderme"
+
+-----------
+-- Quest --
+-----------
+
+L["Quest"] = "Misión"
+L["Helps keep party members' quests in sync."] = "Ayuda a mantener las misiones de todos los miembros del partido en sincronía."
+L["Turn in quests"] = "Entregar misiones"
+L["Turn in complete quests."] = "Entregar misiones completadas."
+L["Accept quests"] = "Aceptar misiones"
+L["Accept quests shared by party members, quests from NPCs that other party members have already accepted, and escort-type quests started by another party member."] = "Aceptar misiones compartidas por los miembros del partido, misiones de PNJs que otros miembros del grupo ya han aceptado, y misiones de escolta iniciado por otro miembro del grupo."
+L["Share quests"] = "Compartir misiones"
+L["Share quests you accept from NPCs."] = "Compartir misiones aceptadas a partir del PNJ."
+L["Abandon quests"] = "Abandonar misiones"
+L["Abandon quests abandoned by a trusted party member."] = "Abandonar misiones que otros miembros del grupo ya han abandonado."
+
 L["%s accepted %s"] = "%s aceptó %s."
 L["%s turned in %s"] = "%s entrega %s."
 L["%s abandoned %s"] = "%s ha abandonó a %s."
 L["That quest cannot be shared."] = "Esa misión no te puedes compartir."
 
--- Taxi
+----------
+-- Taxi --
+----------
+
+L["Taxi"] = "Transporte"
+L["Selects the same taxi destination as other party members."] = "Seleccionar el mismo destino de transporte que otros miembros del grupo."
+L["Clear the taxi selection after this many seconds."] = "Desactive la selección de ruta después de estos segundos."
+
 L["ERROR: %s taxi timeout reached."] = "ERROR: Tiempo de espera de la ruta de vuelo alcanzar."
 L["ERROR: %s taxi node mismatch."] = "ERROR: La ruta de vuelo no coinciden."
 L["%s set the party taxi to: %s"] = "%s establece la ruta de vuelo del grupo a %s."
 L["Party taxi cleared."] = "Ruta de vuelo del grupo despejado."
 
 SLASH_CLEARTAXI2 = "/quitartaxi"
-SLASH_FOLLOWME3 = "/sigueme"
-SLASH_INVITEME3 = "/invitarme"
-SLASH_PROMOTEME3 = "/ascenderme"
-SLASH_HYDRACORPSE2 = "/cadáver"
-L["release"] = "liberar"
-L["accept"] = "aceptar"

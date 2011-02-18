@@ -31,7 +31,7 @@ local SOLO, INSECURE, SECURE, LEADER = 0, 1, 2, 3
 
 ------------------------------------------------------------------------
 
-function core:Debug( ... )
+function core:Debug( str, ... )
 	if not self.debug then return end
 	if str:match( "%%[ds]" ) then
 		str = str:format( ... )
