@@ -34,20 +34,23 @@ local SOLO, INSECURE, SECURE, LEADER = 0, 1, 2, 3
 ------------------------------------------------------------------------
 
 function core:Debug( str, ... )
-	if not self.debug then return end
-	if str:match( "%%[ds]" ) then
-		str = str:format( ... )
-	elseif ( ... ) then
-		str = string.join( ", ", str, ... )
+	if ( ... ) then
+		if str:match( "%%[ds]" ) then
+			str = str:format( tostringall( ... ) )
+		else
+			str = string.join( ", ", str, tostringall( ... ) )
+		end
 	end
 	print( "|cffff9999Hydra:|r", ... )
 end
 
 function core:Print( str, ... )
-	if str:match( "%%[ds]" ) then
-		str = str:format( ... )
-	elseif ( ... ) then
-		str = string.join( ", ", str, ... )
+	if ( ... ) then
+		if str:match( "%%[ds]" ) then
+			str = str:format( tostringall( ... ) )
+		else
+			str = string.join( ", ", str, tostringall( ... ) )
+		end
 	end
 	print( "|cffffcc00Hydra:|r", str )
 end

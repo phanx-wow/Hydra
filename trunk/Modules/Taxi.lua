@@ -45,14 +45,14 @@ function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 	self:Debug("Comm received from", sender, "->", message)
 
 	if message == "TIMEOUT" then
-		return core:Print("ERROR:", sender, "taxi timeout reached.")
+		return core:Print( L["ERROR: %s: Taxi timeout reached."], sender )
 	elseif message == "MISMATCH" then
-		return core:Print("ERROR:", sender, "taxi node mismatch.")
+		return core:Print( L["ERROR: %s: Taxi node mismatch."], sender )
 	end
 
 	local node, nodeName = message:trim():match("^(%d+) (.+)$")
 	if node and nodeName then
-		core:Print(sender, "set the party taxi to:", nodeName)
+		core:Print( L["%1$s set the party taxi to %2$s."], sender, nodeName )
 		taxiNode, taxiNodeName, taxiTime = node, nodeName, GetTime()
 	end
 end

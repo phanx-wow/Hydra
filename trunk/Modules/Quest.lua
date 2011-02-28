@@ -85,10 +85,10 @@ function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 		if not accepted[qname] then
 			accept[qname] = message
 		end
-		return self:Print(sender, "accepted", message)
+		return self:Print( L["%1$s accepted %2$s."], sender, message )
 
 	elseif prefix == "HydraQuest_TurnIn" then
-		return self:Print(sender, "turned in", message)
+		return self:Print( L["%1$s turned in %2$s."], sender, message )
 
 	elseif prefix == "HydraQuest_Abandon" and self.db.abandon then
 		for i = 1, GetNumQuestLogEntries() do
@@ -97,7 +97,7 @@ function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 				SelectQuestLogEntry(i)
 				SetAbandonQuest()
 				AbandonQuest()
-				return self:Print(sender, "abandoned", message)
+				return self:Print( L["%1$s abandoned %2$s."], sender, message )
 			end
 		end
 	end
@@ -248,7 +248,7 @@ function module:QUEST_LOG_UPDATE()
 							self:Debug("Sharing quest...")
 							QuestLogPushQuest()
 						else
-							core:Print("That quest cannot be shared.")
+							core:Print( L["That quest cannot be shared."] )
 						end
 					end
 				end

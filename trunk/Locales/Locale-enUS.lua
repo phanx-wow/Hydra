@@ -7,7 +7,7 @@
 	http://www.wowinterface.com/downloads/info17572-Hydra.html
 	http://wow.curse.com/downloads/wow-addons/details/hydra.aspx
 ------------------------------------------------------------------------
-	Localization: enUS/enGB/enCN | English
+	Localization: enUS | English
 	Last updated 2011-02-18 by Akkorian
 ----------------------------------------------------------------------]]
 
@@ -19,19 +19,25 @@ core.L = L
 -- Core --
 ----------
 
-L.HELP_TRUST = [[]]
+L.HELP_TRUST = [[Hydra operates on the basis of "trust". You tell it which characters you trust, whether they're your multibox characters or just your questing buddies, and features are enabled or disabled depending on whether you're in a party with trusted characters or not.
+
+For example, whispers are only forwarded to party chat if everyone in the party is on your trusted list.]]
 
 ----------------
 -- Automation --
 ----------------
 
-L.HELP_AUTO = [[]]
+L.HELP_AUTO = [[\32]]
 
 ----------
 -- Chat --
 ----------
 
-L.HELP_CHAT = [[]]
+L.HELP_CHAT = [[Type a message in party chat to reply to the last forwarded whisper from any character.
+
+Type "|cffffffff@name Your message here|r" in party chat to reply to the last forwarded whisper from the character "name".
+
+Type "|cffffffff@name Your message here|r" in a whisper to a character to direct that character to send the message as a whisper to "name".]]
 
 ------------
 -- Follow --
@@ -43,16 +49,11 @@ Type "|cffffffff/corpse release|r" to request that all dead party members releas
 
 Type "|cffffffff/corpse accept|r" to request that all ghost party members accept resurrection.]]
 
-BINDING_NAME_HYDRA_FOLLOW_TARGET = "Follow target"
-BINDING_NAME_HYDRA_FOLLOW_ME = "Request follow"
-BINDING_NAME_HYDRA_RELEASE_CORPSE = "Release spirit"
-BINDING_NAME_HYDRA_ACCEPT_CORPSE = "Resurrect"
-
 -----------
 -- Mount --
 -----------
 
-L.HELP_MOUNT = [[]]
+L.HELP_MOUNT = [[\32]]
 
 -----------
 -- Party --
@@ -68,10 +69,12 @@ Type "|cffffffff/promoteme|r" while in a group to request a promotion to Party L
 -- Quest --
 -----------
 
-L.HELP_QUEST = [[]]
+L.HELP_QUEST = [[\32]]
 
 ----------
 -- Taxi --
 ----------
 
-L.HELP_TAXI = [[]]
+L.HELP_TAXI = [[Hold the Shift key while speaking to a flight master to temporarily disable auto-selection.
+
+Type "|cffffffff/cleartaxi" to clear the party taxi selection before it times out.]]

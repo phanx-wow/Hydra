@@ -82,7 +82,7 @@ function module:CHAT_MSG_PARTY(message, sender)
 		if GetTime() - partyForwardTime > self.db.timeout then
 			-- it's been a while
 			hasActiveConversation = nil
-			SendChatMessage("!ERROR: Party timeout reached.", "PARTY")
+			SendChatMessage( L["!ERROR: Party forwarding timeout reached."], "PARTY")
 		else
 			-- forwarding response to whisper sender
 			SendChatMessage(message, "WHISPER", nil, partyForwardFrom)
@@ -179,7 +179,7 @@ function module:CHAT_MSG_WHISPER(message, sender, _, _, _, flag, _, _, _, _, _, 
 			if GetTime() - whisperForwardTime > self.db.timeout then
 				-- it's been a while since our last forward to whisper
 				whisperForwardTo = nil
-				SendChatMessage("!ERROR: Whisper timeout reached.", "WHISPER", nil, sender)
+				SendChatMessage( L["!ERROR: Whisper timeout reached."], "WHISPER", nil, sender )
 			else
 				-- whisper last forward target
 				whisperForwardTime = GetTime()
@@ -233,13 +233,14 @@ function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 	self:Debug("HydraChat", sender, ftype, fsender, fmessage)
 
 	if type == "GM" then
-		self:Debug(sender, "received a whisper from GM", fsender)
-		self:Alert("|TInterface\\ChatFrame\\UI-ChatIcon-Blizz.blp:0:2:0:-3|t " .. sender .. " has received a whisper from a GM!", true)
-		self:Print("|TInterface\\ChatFrame\\UI-ChatIcon-Blizz.blp:0:2:0:-3|t", sender, "has received a whisper from a GM!")
+		local message = string.format( L["|TInterface\\ChatFrame\\UI-ChatIcon-Blizz.blp:0:2:0:-3|t %s has received a whisper from a GM!"], sender )
+		self:Debug( message )
+		self:Alert( message, true )
+		self:Print( message )
 	elseif type == "BN" then
-		self:Print(sender, "received a Battle.net whisper from", fsender)
+		self:Print( L["%1$s has received a Battle.net whisper from %2$s."], sender, fsender )
 	elseif type == "W" then
-		self:Debug(sender, "received a whisper from", fsender)
+		self:Debug( L["%1$s received a whisper from %2$s."], sender, fsender )
 	end
 end
 
