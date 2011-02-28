@@ -44,7 +44,7 @@ function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 	self:Debug("CHAT_MSG_ADDON", prefix, message, channel, sender)
 
 	if message == "ERROR" then
-		print("ERROR:", sender, "is missing that mount!")
+		self:Print( L["ERROR: %s is missing that mount!"], sender )
 		return
 	end
 

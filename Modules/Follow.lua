@@ -56,16 +56,16 @@ function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 	if prefix == "HydraFollow" then
 		if message == playerName then -- sender is following me
 			if self.db.verbose then
-				self:Print(sender, "is now following you.")
+				self:Print( L["%s is now following you."], sender )
 			end
 			followers[sender] = GetTime()
 		elseif message == "END" and followers[sender] then -- sender stopped following me
 			if GetTime() - followers[sender] > 2 then
 				if self.db.verbose then
-					self:Print(sender, "is no longer following you.")
+					self:Print( L["%s is no longer following you."], sender )
 				end
 				if not CheckInteractDistance(sender, 2) and not UnitOnTaxi("player") then
-					self:Alert(sender .. " is no longer following you!")
+					self:Alert( string.format(  L["%s is no longer following you!"], sender ) )
 				end
 			end
 			followers[sender] = nil
@@ -75,7 +75,7 @@ function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 				FollowUnit(sender)
 			else
 				if self.db.verbose then
-					self:Print(sender, "is too far away to follow!")
+					self:Print( L["%s is too far away to follow!"], sender )
 				end
 			end
 		end
@@ -85,11 +85,11 @@ function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 			local ss = HasSoulstone()
 			if ss then
 				if ss == L["Use Soulstone"] then
-					SendChatMessage("I have a soulstone.", "PARTY") -- #TODO: use comms
+					SendChatMessage( L["I have a soulstone."], "PARTY") -- #TODO: use comms
 				elseif ss == L["Reincarnate"] then
-					SendChatMessage("I can reincarnate.", "PARTY") -- #TODO: use comms
+					SendChatMessage( L["I can reincarnate."], "PARTY") -- #TODO: use comms
 				else -- probably "Twisting Nether"
-					SendChatMessage("I can resurrect myself.", "PARTY") -- #TODO: use comms
+					SendChatMessage( L["I can resurrect myself."], "PARTY") -- #TODO: use comms
 				end
 			else
 				RepopMe()
@@ -101,7 +101,7 @@ function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 				UseSoulstone()
 			end
 			if CannotBeResurrected() then
-				SendChatMessage("I cannot resurrect!", "PARTY") -- #TODO: use comms
+				SendChatMessage( L["I cannot resurrect!"], "PARTY") -- #TODO: use comms
 			end
 		end
 	end
@@ -124,6 +124,7 @@ end
 
 SLASH_FOLLOWME1 = "/fme"
 SLASH_FOLLOWME2 = "/followme"
+SLASH_FOLLOWME3 = L.SLASH_FOLLOWME3 ~= "/fme" and L.SLASH_FOLLOWME3 ~= "/followme" and L.SLASH_FOLLOWME3
 
 function SlashCmdList.FOLLOWME()
 	if core.state == SOLO then return end
@@ -134,6 +135,7 @@ end
 ------------------------------------------------------------------------
 
 SLASH_HYDRACORPSE1 = "/corpse"
+SLASH_HYDRACORPSE2 = L.SLASH_HYDRACORPSE2 ~= "/corpse" and L.SLASH_HYDRACORPSE2
 
 function SlashCmdList.HYDRACORPSE(command)
 	if core.state == SOLO then return end
@@ -144,3 +146,10 @@ function SlashCmdList.HYDRACORPSE(command)
 		SendAddonMessage("HydraCorpse", "accept", "PARTY")
 	end
 end
+
+------------------------------------------------------------------------
+
+BINDING_NAME_HYDRA_FOLLOW_TARGET = L.BINDING_NAME_HYDRA_FOLLOW_TARGET or "Follow target"
+BINDING_NAME_HYDRA_FOLLOW_ME = L.BINDING_NAME_HYDRA_FOLLOW_ME or "Request follow"
+BINDING_NAME_HYDRA_RELEASE_CORPSE = L.BINDING_NAME_HYDRA_RELEASE_CORPSE or "Release spirit"
+BINDING_NAME_HYDRA_ACCEPT_CORPSE = L.BINDING_NAME_HYDRA_ACCEPT_CORPSE or "Resurrect"

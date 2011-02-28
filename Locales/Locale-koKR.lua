@@ -60,19 +60,19 @@ L["Accept combat resurrections"] = "전투중 부할 수락"
 L["Repair equipment"] = "장비 수리"
 L["Sell junk"] = "잡동사니 팔기"
 
-L["Declined arena petition from %s"] = "%s 님의 투기장 창단 서명 요청을 거절했습니다."
-L["Declined guild petition from %s"] = "%s 님의 길드 창단 서명 요청을 거절했습니다."
-L["Declined arena team invite from %s"] = "%s 님의 투기장 팀 초대를 거절했습니다."
-L["Declined duel request from %s"] = "%s 님의 결투 신청을 거절했습니다."
-L["Declined guild invite from %s"] = "%s 님의 길드 초대를 거절했습니다."
-L["Sold %s junk |4item:items; for %s"] = "잡동사니 아이템 %s개를 상인에게 판매하여 %s를 획득했습니다."
-L["Repaired all items with guild bank funds for %s"] = "모든 아이템을 길드 은행의 금액으로 수리했습니다."
+L["Declined an arena team invitation from %s."] = "%s 님의 투기장 팀 초대를 거절했습니다."
+L["Declined an arena team petition from %s."] = "%s 님의 투기장 창단 서명 요청을 거절했습니다."
+L["Declined a guild invitation from %s."] = "%s 님의 길드 초대를 거절했습니다."
+L["Declined a guild petition from %s."] = "%s 님의 길드 창단 서명 요청을 거절했습니다."
+L["Declined a duel request from %s."] = "%s 님의 결투 신청을 거절했습니다."
+L["Sold %1$d junk |4item:items; for %2$s."] = "잡동사니 아이템 %1$d개를 상인에게 판매하여 %2$s를 획득했습니다."
+L["Repaired all items with guild bank funds for %s."] = "모든 아이템을 길드 은행의 금액으로 수리했습니다."
 L["Insufficient guild bank funds to repair!"] = "수리하기 위한 길드 은행의 금액이 부족합니다!"
-L["Repaired all items for %s"] = "모든 아이템을 %s로 수리했습니다."
+L["Repaired all items for %s."] = "모든 아이템을 %s로 수리했습니다."
 L["Insufficient funds to repair!"] = "수리하기 위한 금액이 부족합니다!"
-L["Accepted resurrection from %s"] = "%s 님의 부활을 수락했습니다."
-L["Accepting summon when combat ends..."] = "전투가 종료가 되면 소환을 수락합니다..."
-L["Accepting summon from %s to %s"] = "%s 님이 %s|1로;으로; 소환하는 것을 수락합니다."
+L["Accepted a resurrection from %s."] = "%s 님의 부활을 수락했습니다."
+L["Accepting a summon from %1$s to %2$s."] = "%1$s 님이 %2$s|1로;으로; 소환하는 것을 수락합니다."
+L["Accepting a summon when combat ends..."] = "전투가 종료가 되면 소환을 수락합니다..."
 L["Summon expired!"] = "소환이 만료되었습니다!"
 
 -- L.HELP_AUTO = [[]]
@@ -88,9 +88,11 @@ L["Mode"] = "모드"
 L["Application Focus"] = "애플리케이션 포커스"
 L["Party Leader"] = "파티장"
 
-L["%s has received a whisper from a GM!"] = "%s 님이 GM에게 귓속말을 받았습니다!"
-L["%s received a Battle.net whisper from %s"] = "%s 님이 %s 님으로 부터 Battle.net 귓속말을 받았습니다."
-L["%s received a whisper from %s"] = "%s 님이 %s 님으로 부터 귓속말을 받았습니다."
+L["|TInterface\\ChatFrame\\UI-ChatIcon-Blizz.blp:0:2:0:-3|t %s has received a whisper from a GM!"] = "|TInterface\\ChatFrame\\UI-ChatIcon-Blizz.blp:0:2:0:-3|t %s 님이 GM에게 귓속말을 받았습니다!"
+L["%1$s has received a Battle.net whisper from %2$s."] = "%1$s 님이 %2$s 님으로 부터 Battle.net 귓속말을 받았습니다."
+L["%1$s has received a whisper from %2$s."] = "%1$s 님이 %2$s 님으로 부터 귓속말을 받았습니다."
+-- L["!ERROR: Party forwarding timeout reached."] = ""
+-- L["!ERROR: Whisper timeout reached."] = ""
 
 -- L.HELP_CHAT = [[]]
 
@@ -118,15 +120,15 @@ L["I cannot resurrect!"] = "부활을 할 수 없습니다!"
 
 -- L.HELP_FOLLOW = [[]]
 
-SLASH_FOLLOWME3 = "/따라와"
-SLASH_HYDRACORPSE2 = "/시체"
+L.SLASH_FOLLOWME3 = "/따라와"
+L.SLASH_HYDRACORPSE2 = "/시체"
 L["release"] = "무덤"
 L["accept"] = "수락"
 
--- BINDING_NAME_HYDRA_FOLLOW_TARGET = ""
--- BINDING_NAME_HYDRA_FOLLOW_ME = ""
--- BINDING_NAME_HYDRA_RELEASE_CORPSE = ""
--- BINDING_NAME_HYDRA_ACCEPT_CORPSE = ""
+-- L.BINDING_NAME_HYDRA_FOLLOW_TARGET = ""
+-- L.BINDING_NAME_HYDRA_FOLLOW_ME = ""
+-- L.BINDING_NAME_HYDRA_RELEASE_CORPSE = ""
+-- L.BINDING_NAME_HYDRA_ACCEPT_CORPSE = ""
 
 -----------
 -- Mount --
@@ -147,14 +149,14 @@ L["Party"] = "파티"
 L["Responds to invite and promote requests from trusted players."] = "신뢰하는 파티원의 초대와 승급 요청에 대하여 응답합니다."
 
 L["I cannot invite you, because you are not on my trusted list."] = "나의 신뢰하는 목록에 존재하지 않으므로 당신을 초대할 수 없습니다."
-L["I cannot invite you, because I am not the module leader."] = "저는 모듈 리더가 아니므로 당신을 초대할 수 없습니다."
+L["I cannot invite you, because I am not the party leader."] = "저는 모듈 리더가 아니므로 당신을 초대할 수 없습니다."
 L["I cannot promote you, because you are not on my trusted list."] = "나의 신뢰하는 목록에 존재하지 않으므로 때문에 당신을 승급할 수 없습니다."
 L["I cannot promote you, because I am not the party leader."] = "저는 파티장이 아니므로 당신을 승급할 수 없습니다."
 
 -- L.HELP_PARTY = [[]]
 
-SLASH_INVITEME3 = "/나초대"
-SLASH_PROMOTEME3 = "/승급"
+L.SLASH_INVITEME3 = "/나초대"
+L.SLASH_PROMOTEME3 = "/승급"
 
 -----------
 -- Quest --
@@ -171,9 +173,9 @@ L["Share quests you accept from NPCs."] = "NPC에게 수락한 퀘스트를 공�
 L["Abandon quests"] = "퀘스트 포기"
 L["Abandon quests abandoned by a trusted party member."] = "신뢰하는 파티원이 포기한 퀘스트를 포기합니다."
 
-L["%s accepted %s"] = "%s 님이 %s|1을;를; 수락했습니다."
-L["%s turned in %s"] = "%s 님이 %s|1을;를; 반환했습니다."
-L["%s abandoned %s"] = "%s 님이 %s|1을;를; 포기했습니다."
+L["%1$s accepted %2$s."] = "%1$s 님이 %2$s|1을;를; 수락했습니다."
+L["%1$s turned in %2$s."] = "%1$s 님이 %2$s|1을;를; 반환했습니다."
+L["%1$s abandoned %2$s."] = "%1$s 님이 %2$s|1을;를; 포기했습니다."
 L["That quest cannot be shared."] = "해당 퀘스트는 공유할 수 없습니다."
 
 -- L.HELP_QUEST = [[]]
@@ -186,11 +188,11 @@ L["Taxi"] = "택시"
 L["Selects the same taxi destination as other party members."] = "택시(그리핀, 와이번)의 목적지를 다른 파티원과 동일한 곳으로 선택합니다."
 L["Clear the taxi selection after this many seconds."] = "이 시간(초)이 경과된 후에 택시 선택을 지웁니다."
 
-L["ERROR: %s taxi timeout reached."] = "오류: %s 님의 택시가 시간 초과되었습니다."
-L["ERROR: %s taxi node mismatch."] = "오류: %s 님의 택시 노드가 일치하지 않습니다."
-L["%s set the party taxi to: %s"] = "%s 님이 지정한 파티 택시의 노드: %s"
+L["ERROR: %s: Taxi timeout reached."] = "오류: %s: 님의 택시가 시간 초과되었습니다."
+L["ERROR: %s: Taxi node mismatch."] = "오류: %s: 님의 택시 노드가 일치하지 않습니다."
+L["%1$s set the party taxi to %2$s."] = "%1$s 님이 지정한 파티 택시의 노드 %2$s"
 L["Party taxi cleared."] = "파티 택시가 지워졌습니다."
 
 -- L.HELP_TAXI = [[]]
 
-SLASH_CLEARTAXI2 = "/택시지우기"
+L.SLASH_CLEARTAXI2 = "/택시지우기"

@@ -48,10 +48,10 @@ function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 
 	if prefix == "HydraInvite" and channel == "WHISPER" then
 		if not core:IsTrusted(sender) then
-			return SendChatMessage("I cannot invite you, because you are not on my trusted list.", "WHISPER", nil, sender)
+			return SendChatMessage( L["I cannot invite you, because you are not on my trusted list."], "WHISPER", nil, sender)
 		end
 		if GetNumPartyMembers() > 0 and not IsPartyLeader() then
-			return SendChatMessage("I cannot invite you, because I am not the module leader.", "WHISPER", nil, sender)
+			return SendChatMessage( L["I cannot invite you, because I am not the module leader."], "WHISPER", nil, sender)
 		end
 		if message ~= "NOPROMOTE" then
 			remote = sender
@@ -61,10 +61,10 @@ function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 
 	elseif prefix == "HydraPromote" then
 		if not core:IsTrusted(sender) then
-			return SendChatMessage("I cannot promote you, because you are not on my trusted list.", "WHISPER", nil, sender)
+			return SendChatMessage( L["I cannot promote you, because you are not on my trusted list."], "WHISPER", nil, sender)
 		end
 		if GetNumPartyMembers() > 0 and not IsPartyLeader() then
-			return SendChatMessage("I cannot promote you, because I am not the party leader.", "WHISPER", nil, sender)
+			return SendChatMessage( L["I cannot promote you, because I am not the party leader."], "WHISPER", nil, sender)
 		end
 		if GetNumPartyMembers() == 0 then
 			-- we're not in a party, invite instead

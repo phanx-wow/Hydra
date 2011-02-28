@@ -26,12 +26,14 @@ L["Add a name to your trusted list."] = "Añadir un nombre a la lista de confian
 L["Remove Name"] = "Eliminar nombre"
 L["Remove a name from your trusted list."] = "Eliminar un nombre de la lista de confianza."
 L["Add Current Party"] = "Añadir grupo"
-L["Adds all the characters in your current party group to your trusted list."] = "Añadir todos los personajes en tu grupo actual a la lista de confianza."
+L["Add all the characters in your current party group to your trusted list."] = "Añadir todos los personajes en tu grupo actual a la lista de confianza."
 
 L["Added %s to the trusted list."] = "Agregó %s a la lista de confianza."
 L["Removed %s from the trusted list."] = "Eliminado %s de la lista de confianza."
 
-L.HELP_TRUST = [[]]
+L.HELP_TRUST = [[Hydra opera sobre la base de "confianza". Te añada una lista de personajes de tu confianza, si son tus personajes multibox, o tus amigos, y las funciones se activan o desactivan si estás en una grupo con personajes de confianza o no.
+
+Por ejemplo, los susurros son sólo reenvió al chat de grupo si todos en el grupo que está en la lista de confianza.]]
 
 ------------
 -- Common --
@@ -60,19 +62,19 @@ L["Accept combat resurrections"] = "Aceptar resurecciones en combate"
 L["Repair equipment"] = "Reparar equipos"
 L["Sell junk"] = "Vender chatarra"
 
-L["Declined arena petition from %s"] = "Rechazó la petición de equipo de arena de %s."
-L["Declined guild petition from %s"] = "Rechazó la petición de hermandad de %s."
-L["Declined arena team invite from %s"] = "Rechazó la invitación a equipo de arena de %s"
-L["Declined duel request from %s"] = "Rechazó una invitación duelo de X."
-L["Declined guild invite from %s"] = "Rechazó una invitación a hermandad de %s"
-L["Sold %s junk |4item:items; for %s"] = "Vendió %s |4artículo:artículos; chatarra por %s."
-L["Repaired all items with guild bank funds for %s"] = "Reparado todos los objetos con el dinero del banco de hermandad por %s."
+L["Declined an arena team invitation from %s."] = "Rechazó una invitación a equipo de arena de %s"
+L["Declined an arena team petition from %s."] = "Rechazó una petición de equipo de arena de %s."
+L["Declined a guild invitation from %s."] = "Rechazó una invitación a hermandad de %s"
+L["Declined a guild petition from %s."] = "Rechazó una petición de hermandad de %s."
+L["Declined a duel request from %s."] = "Rechazó una invitación a duelo de X."
+L["Sold %1$d junk |4item:items; for %2$s."] = "Vendió %1$d |4artículo:artículos; chatarra por %2$s."
+L["Repaired all items with guild bank funds for %s."] = "Reparado todos los objetos con dinero del banco de hermandad por %s."
 L["Insufficient guild bank funds to repair!"] = "Insuficiente dinero en el banco de hermandad para reparar!"
-L["Repaired all items for %s"] = "Reparado todos los objetos por %s."
+L["Repaired all items for %s."] = "Reparado todos los objetos por %s."
 L["Insufficient funds to repair!"] = "Insuficiente dinero para reparar!"
-L["Accepted resurrection from %s"] = "Aceptada la resurrección de %s."
-L["Accepting summon when combat ends..."] = "Aceptando invocar cuando el combate termina ..."
-L["Accepting summon from %s to %s"] = "Aceptando invocar por %s a %s."
+L["Accepted a resurrection from %s."] = "Aceptada la resurrección de %s."
+L["Accepting a summon from %1$s to %2$s."] = "Aceptando invocar por %1$s a %2$s."
+L["Accepting a summon when combat ends..."] = "Aceptando invocar cuando el combate termina ..."
 L["Summon expired!"] = "Invocar caducado!"
 
 L.HELP_AUTO = [[]]
@@ -83,16 +85,21 @@ L.HELP_AUTO = [[]]
 
 L["Chat"] = "Chat"
 L["Forwards whispers sent to inactive characters to party chat, and forwards replies to the original sender."] = "Reenvía susurros enviado a los personajes inactivos por el chat del grupo, y reenvía las respuestas al remitente original."
-L["Enable"] = "Activar"
 L["Mode"] = "Modo"
 L["Application Focus"] = "Aplicación enfoque"
 L["Party Leader"] = "Líder del grupo"
 
-L["%s has received a whisper from a GM!"] = "%s ha recibido un susurro de un GM!"
-L["%s received a Battle.net whisper from %s"] = "%s ha recibido un susurro de Battle.net por %s."
-L["%s received a whisper from %s"] = "%s ha recibido un susurro por %s."
+L["|TInterface\\ChatFrame\\UI-ChatIcon-Blizz.blp:0:2:0:-3|t %s has received a whisper from a GM!"] = "|TInterface\\ChatFrame\\UI-ChatIcon-Blizz.blp:0:2:0:-3|t %s ha recibido un susurro de un GM!"
+L["%1$s has received a Battle.net whisper from %2$s."] = "%1$s ha recibido un susurro de Battle.net por %2$s."
+L["%1$s has received a whisper from %2$s."] = "%1$s ha recibido un susurro por %2$s."
+L["!ERROR: Party timeout reached."] = "!ERROR: Tiempo de espira caducado para reenvíar respuestas por el chat de grupo."
+L["!ERROR: Whisper timeout reached."] = "!ERROR: Tiempo de espira caducado para reenvíar susurros."
 
-L.HELP_CHAT = [[]]
+L.HELP_CHAT = [[Tipo un mensaje en el chat de grupo para repuesta a la última susurro enviado desde cualquier personaje.
+
+Tipo "|cffffffff@nombre Tu mensaje aquí|r" en el chat de grupo para repuesta a la última susurro enviado desde el personaje "nombre".
+
+Tipo "|cffffffff@name Tu mensaje aquí|r" en un susurro a un personaje para ordenándole enviar el mensaje por un susurro a "nombre".]]
 
 ------------
 -- Follow --
@@ -122,15 +129,15 @@ Escriba "|cffffffff/cadáver lib|r" para solicitar que todos en tu grupo liberar
 
 Escriba "|cffffffff/cadáver res|r" para solicitar que todos en tu grupo resucitar sobre sus cadáveres.]]
 
-SLASH_FOLLOWME3 = "/sigueme"
-SLASH_HYDRACORPSE2 = "/cadáver"
+L.SLASH_FOLLOWME3 = "/sigueme"
+L.SLASH_HYDRACORPSE2 = "/cadáver"
 L["release"] = "li?b?e?r?a?r?" -- liberar
 L["accept"] = "re?[cs]?u?[pc]?[ei]?[rt]?a?r?" -- recuperar o resucitar
 
-BINDING_NAME_HYDRA_FOLLOW_TARGET = "Seguir el objetivo"
-BINDING_NAME_HYDRA_FOLLOW_ME = "Enviar: Sígueme"
-BINDING_NAME_HYDRA_RELEASE_CORPSE = "Enviar: Liberar espíritu"
-BINDING_NAME_HYDRA_ACCEPT_CORPSE = "Enviar: Recuperar cadáver"
+L.BINDING_NAME_HYDRA_FOLLOW_TARGET = "Seguir el objetivo"
+L.BINDING_NAME_HYDRA_FOLLOW_ME = "Enviar: Sígueme"
+L.BINDING_NAME_HYDRA_RELEASE_CORPSE = "Enviar: Liberar espíritu"
+L.BINDING_NAME_HYDRA_ACCEPT_CORPSE = "Enviar: Recuperar cadáver"
 
 -----------
 -- Mount --
@@ -161,8 +168,8 @@ Escriba "|cffffffff/invitarme Nombre|r" para solicitar una invitación de grupo 
 
 Escriba "|cffffffff/ascenderme|r" mientras que en un grupo de solicitar un ascenso a líder del grupo.]]
 
-SLASH_INVITEME3 = "/invitarme"
-SLASH_PROMOTEME3 = "/ascenderme"
+L.SLASH_INVITEME3 = "/invitarme"
+L.SLASH_PROMOTEME3 = "/ascenderme"
 
 -----------
 -- Quest --
@@ -179,9 +186,9 @@ L["Share quests you accept from NPCs."] = "Compartir misiones aceptadas a partir
 L["Abandon quests"] = "Abandonar misiones"
 L["Abandon quests abandoned by a trusted party member."] = "Abandonar misiones que otros miembros del grupo ya han abandonado."
 
-L["%s accepted %s"] = "%s aceptó %s."
-L["%s turned in %s"] = "%s entrega %s."
-L["%s abandoned %s"] = "%s ha abandonó a %s."
+L["%1$s accepted %2$s."] = "%1$s aceptó %2$s."
+L["%1$s turned in %2$s."] = "%1$s entrega %2$s."
+L["%1$s abandoned %2$s."] = "%1$s ha abandonó a %2$s."
 L["That quest cannot be shared."] = "Esa misión no te puedes compartir."
 
 L.HELP_QUEST = [[]]
@@ -194,11 +201,13 @@ L["Taxi"] = "Transporte"
 L["Selects the same taxi destination as other party members."] = "Seleccionar el mismo destino de transporte que otros miembros del grupo."
 L["Clear the taxi selection after this many seconds."] = "Desactive la selección de ruta después de estos segundos."
 
-L["ERROR: %s taxi timeout reached."] = "ERROR: Tiempo de espera de la ruta de vuelo alcanzar."
-L["ERROR: %s taxi node mismatch."] = "ERROR: La ruta de vuelo no coinciden."
-L["%s set the party taxi to: %s"] = "%s establece la ruta de vuelo del grupo a %s."
+L["ERROR: %s: Taxi timeout reached."] = "ERROR: %s: Tiempo de espera de la ruta de vuelo alcanzar."
+L["ERROR: %s: Taxi node mismatch."] = "ERROR: %s: La ruta de vuelo no coinciden."
+L["%1$s set the party taxi to %2$s."] = "%1$s establece la ruta de vuelo del grupo a %2$s."
 L["Party taxi cleared."] = "Ruta de vuelo del grupo despejado."
 
-L.HELP_TAXI = [[]]
+L.HELP_TAXI = [[Pulse la tecla Shift mientras habla con un maestro de vuelo para ignorar la auto-selección.
 
-SLASH_CLEARTAXI2 = "/quitartaxi"
+Tipo "|cffffffff/quitartaxi" para quitar la selección de ruta de vuelo.]]
+
+L.SLASH_CLEARTAXI2 = "/quitartaxi"
