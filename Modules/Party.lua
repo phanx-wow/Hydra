@@ -99,7 +99,7 @@ end
 SLASH_HYDRA_INVITEME1 = "/ime"
 SLASH_HYDRA_INVITEME2 = "/inviteme"
 do
-	local slash = rawget( L, "SLASH_HYDRA_INVITEME3" )
+	local slash = rawget( core.L, "SLASH_HYDRA_INVITEME3" )
 	if slash and slash ~= SLASH_HYDRA_INVITEME1 and slash ~= SLASH_HYDRA_INVITEME2 then
 		SLASH_HYDRA_INVITEME3 = slash
 	end
@@ -135,7 +135,7 @@ end
 SLASH_HYDRA_PROMOTEME1 = "/pme"
 SLASH_HYDRA_PROMOTEME2 = "/promoteme"
 do
-	local slash = rawget( L, "SLASH_HYDRA_PROMOTEME3" )
+	local slash = rawget( core.L, "SLASH_HYDRA_PROMOTEME3" )
 	if slash and slash ~= SLASH_HYDRA_PROMOTEME1 and slash ~= SLASH_HYDRA_PROMOTEME2 then
 		SLASH_HYDRA_PROMOTEME3 = slash
 	end
