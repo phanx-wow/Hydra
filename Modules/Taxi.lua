@@ -97,9 +97,15 @@ end)
 
 ------------------------------------------------------------------------
 
-SLASH_CLEARTAXI1 = "/cleartaxi"
+SLASH_HYDRA_CLEARTAXI1 = "/cleartaxi"
+do
+	local slash = rawget( L, "SLASH_HYDRA_CLEARTAXI2" )
+	if slash and slash ~= SLASH_HYDRA_CLEARTAXI1 then
+		SLASH_HYDRACLEARTAXI2 = slash
+	end
+end
 
-function SlashCmdList.CLEARTAXI()
+function SlashCmdList.HYDRA_CLEARTAXI()
 	if taxiNode then
 		taxiTime, taxiNode, taxiNodeName = 0, nil, nil
 		module:Print("Party taxi cleared.")

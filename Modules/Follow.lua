@@ -122,11 +122,16 @@ end
 
 ------------------------------------------------------------------------
 
-SLASH_FOLLOWME1 = "/fme"
-SLASH_FOLLOWME2 = "/followme"
-SLASH_FOLLOWME3 = L.SLASH_FOLLOWME3 ~= "/fme" and L.SLASH_FOLLOWME3 ~= "/followme" and L.SLASH_FOLLOWME3
+SLASH_HYDRA_FOLLOWME1 = "/fme"
+SLASH_HYDRA_FOLLOWME2 = "/followme"
+do
+	local slash = rawget( L, "SLASH_HYDRA_FOLLOWME3" )
+	if slash and slash ~= SLASH_HYDRA_FOLLOWME1 and slash ~= SLASH_HYDRA_FOLLOWME2 then
+		SLASH_FOLLOWME3 = slash
+	end
+end
 
-function SlashCmdList.FOLLOWME()
+function SlashCmdList.HYDRA_FOLLOWME()
 	if core.state == SOLO then return end
 	module:Debug("Sending follow command")
 	SendAddonMessage("HydraFollow", "ME", "PARTY")
@@ -134,10 +139,15 @@ end
 
 ------------------------------------------------------------------------
 
-SLASH_HYDRACORPSE1 = "/corpse"
-SLASH_HYDRACORPSE2 = L.SLASH_HYDRACORPSE2 ~= "/corpse" and L.SLASH_HYDRACORPSE2
+SLASH_HYDRA_CORPSE1 = "/corpse"
+do
+	local slash = rawget( L, "SLASH_HYDRA_CORPSE2" )
+	if slash and slash ~= SLASH_HYDRA_CORPSE1 then
+		SLASH_HYDRA_CORPSE2 = slash
+	end
+end
 
-function SlashCmdList.HYDRACORPSE(command)
+function SlashCmdList.HYDRA_CORPSE(command)
 	if core.state == SOLO then return end
 	command = command and command:trim():lower() or ""
 	if command:match( L["release"] ) then
@@ -149,7 +159,7 @@ end
 
 ------------------------------------------------------------------------
 
-BINDING_NAME_HYDRA_FOLLOW_TARGET = L.BINDING_NAME_HYDRA_FOLLOW_TARGET or "Follow target"
-BINDING_NAME_HYDRA_FOLLOW_ME = L.BINDING_NAME_HYDRA_FOLLOW_ME or "Request follow"
-BINDING_NAME_HYDRA_RELEASE_CORPSE = L.BINDING_NAME_HYDRA_RELEASE_CORPSE or "Release spirit"
-BINDING_NAME_HYDRA_ACCEPT_CORPSE = L.BINDING_NAME_HYDRA_ACCEPT_CORPSE or "Resurrect"
+BINDING_NAME_HYDRA_FOLLOW_TARGET = rawget( L, "BINDING_NAME_HYDRA_FOLLOW_TARGET" ) or "Follow target"
+BINDING_NAME_HYDRA_FOLLOW_ME = rawget( L, "BINDING_NAME_HYDRA_FOLLOW_ME" ) or "Request follow"
+BINDING_NAME_HYDRA_RELEASE_CORPSE = rawget( L, "BINDING_NAME_HYDRA_RELEASE_CORPSE" ) or "Release spirit"
+BINDING_NAME_HYDRA_ACCEPT_CORPSE = rawget( L, "BINDING_NAME_HYDRA_ACCEPT_CORPSE" ) or "Resurrect"

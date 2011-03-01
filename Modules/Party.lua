@@ -96,10 +96,16 @@ end
 
 ------------------------------------------------------------------------
 
-SLASH_INVITEME1 = "/ime"
-SLASH_INVITEME2 = "/inviteme"
+SLASH_HYDRA_INVITEME1 = "/ime"
+SLASH_HYDRA_INVITEME2 = "/inviteme"
+do
+	local slash = rawget( L, "SLASH_HYDRA_INVITEME3" )
+	if slash and slash ~= SLASH_HYDRA_INVITEME1 and slash ~= SLASH_HYDRA_INVITEME2 then
+		SLASH_HYDRA_INVITEME3 = slash
+	end
+end
 
-SlashCmdList.INVITEME = function(target)
+SlashCmdList.HYDRA_INVITEME = function(target)
 	if GetNumPartyMembers() > 0 or GetNumRaidMembers() > 0 then return end
 	target = string.trim(target or ""):lower()
 
@@ -126,10 +132,16 @@ end
 
 ------------------------------------------------------------------------
 
-SLASH_PROMOTEME1 = "/pme"
-SLASH_PROMOTEME2 = "/promoteme"
+SLASH_HYDRA_PROMOTEME1 = "/pme"
+SLASH_HYDRA_PROMOTEME2 = "/promoteme"
+do
+	local slash = rawget( L, "SLASH_HYDRA_PROMOTEME3" )
+	if slash and slash ~= SLASH_HYDRA_PROMOTEME1 and slash ~= SLASH_HYDRA_PROMOTEME2 then
+		SLASH_HYDRA_PROMOTEME3 = slash
+	end
+end
 
-SlashCmdList.PROMOTEME = function()
+SlashCmdList.HYDRA_PROMOTEME = function()
 	if GetNumPartyMembers() == 0 or GetNumRaidMembers() > 0 then return end
 
 	module:Debug("PROMOTEME")
