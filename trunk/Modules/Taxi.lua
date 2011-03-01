@@ -99,7 +99,7 @@ end)
 
 SLASH_HYDRA_CLEARTAXI1 = "/cleartaxi"
 do
-	local slash = rawget( L, "SLASH_HYDRA_CLEARTAXI2" )
+	local slash = rawget( core.L, "SLASH_HYDRA_CLEARTAXI2" )
 	if slash and slash ~= SLASH_HYDRA_CLEARTAXI1 then
 		SLASH_HYDRACLEARTAXI2 = slash
 	end
