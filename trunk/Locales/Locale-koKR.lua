@@ -120,8 +120,9 @@ L["I cannot resurrect!"] = "부활을 할 수 없습니다!"
 
 -- L.HELP_FOLLOW = [[]]
 
-L.SLASH_FOLLOWME3 = "/따라와"
-L.SLASH_HYDRACORPSE2 = "/시체"
+L.SLASH_HYDRA_FOLLOWME3 = "/따라와"
+
+L.SLASH_HYDRA_CORPSE2 = "/시체"
 L["release"] = "무덤"
 L["accept"] = "수락"
 
@@ -155,8 +156,8 @@ L["I cannot promote you, because I am not the party leader."] = "저는 파티�
 
 -- L.HELP_PARTY = [[]]
 
-L.SLASH_INVITEME3 = "/나초대"
-L.SLASH_PROMOTEME3 = "/승급"
+L.SLASH_HYDRA_INVITEME3 = "/나초대"
+L.SLASH_HYDRA_PROMOTEME3 = "/승급"
 
 -----------
 -- Quest --
@@ -195,4 +196,4 @@ L["Party taxi cleared."] = "파티 택시가 지워졌습니다."
 
 -- L.HELP_TAXI = [[]]
 
-L.SLASH_CLEARTAXI2 = "/택시지우기"
+L.SLASH_HYDRA_CLEARTAXI2 = "/택시지우기"

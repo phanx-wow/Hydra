@@ -123,14 +123,15 @@ L["I can reincarnate."] = "Puedo reencarnarme."
 L["I can resurrect myself."] = "Puedo reencarnarme."
 L["I cannot resurrect!"] = "No puedo reencarnarme."
 
-L.HELP_FOLLOW = [[Escriba "|cffffffff/sigueme|r" para solicitar que todos en tu grupo seguirte.
+L.HELP_FOLLOW = [[Escriba "|cffffffff/seguirme|r" para solicitar que todos en tu grupo seguirte.
 
-Escriba "|cffffffff/cadáver lib|r" para solicitar que todos en tu grupo liberar sus espíritus.
+Escriba "|cffffffff/cadaver lib|r" para solicitar que todos en tu grupo liberar sus espíritus.
 
-Escriba "|cffffffff/cadáver res|r" para solicitar que todos en tu grupo resucitar sobre sus cadáveres.]]
+Escriba "|cffffffff/cadaver res|r" para solicitar que todos en tu grupo resucitar sobre sus cadáveres.]]
 
-L.SLASH_FOLLOWME3 = "/sigueme"
-L.SLASH_HYDRACORPSE2 = "/cadáver"
+L.SLASH_HYDRA_FOLLOWME3 = "/seguirme"
+
+L.SLASH_HYDRA_CORPSE2 = "/cadaver"
 L["release"] = "li?b?e?r?a?r?" -- liberar
 L["accept"] = "re?[cs]?u?[pc]?[ei]?[rt]?a?r?" -- recuperar o resucitar
 
@@ -168,8 +169,8 @@ Escriba "|cffffffff/invitarme Nombre|r" para solicitar una invitación de grupo 
 
 Escriba "|cffffffff/ascenderme|r" mientras que en un grupo de solicitar un ascenso a líder del grupo.]]
 
-L.SLASH_INVITEME3 = "/invitarme"
-L.SLASH_PROMOTEME3 = "/ascenderme"
+L.SLASH_HYDRA_INVITEME3 = "/invitarme"
+L.SLASH_HYDRA_PROMOTEME3 = "/ascenderme"
 
 -----------
 -- Quest --
@@ -210,4 +211,4 @@ L.HELP_TAXI = [[Pulse la tecla Shift mientras habla con un maestro de vuelo para
 
 Tipo "|cffffffff/quitartaxi" para quitar la selección de ruta de vuelo.]]
 
-L.SLASH_CLEARTAXI2 = "/quitartaxi"
+L.SLASH_HYDRA_CLEARTAXI2 = "/quitartaxi"
