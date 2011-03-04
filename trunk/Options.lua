@@ -29,10 +29,11 @@ local CreateSlider = LibStub( "PhanxConfig-Slider" ).CreateSlider
 ------------------------------------------------------------------------
 
 panels[ #panels + 1 ] = CreateOptionsPanel( HYDRA, nil, function( self )
-	local title, notes = CreateHeader( self, self.name, L["Hydra is a multibox leveling helper that aims to minimize the need to actively control secondary characters."] )
+	local title, notes = CreateHeader( self, self.name,
+		L["Hydra is a multibox leveling helper that aims to minimize the need to actively control secondary characters."] )
 	notes:SetHeight( notes:GetHeight() * 1.5 )
 
-	local add = CreateEditBox( self, L["Add Name"], L["Add a character name to your trusted list for this realm."], 12 )
+	local add = CreateEditBox( self, L["Add Name"], L["Add a name to your trusted list."], 12 )
 	add:SetPoint( "TOPLEFT", notes, "BOTTOMLEFT", 0, -12 )
 	add:SetPoint( "TOPRIGHT", notes, "BOTTOM", -8, -12 )
 	add.OnValueChanged = function( self, v )
@@ -46,7 +47,8 @@ panels[ #panels + 1 ] = CreateOptionsPanel( HYDRA, nil, function( self )
 		self:SetText( nil )
 	end
 
-	local party = CreateButton( self, L["Add Current Party"], L["Add all characters in your current party to your trusted list."] )
+	local party = CreateButton( self, L["Add Current Party"],
+		L["Add all the characters in your current party group to your trusted list."] )
 	party:SetPoint( "TOPLEFT", notes, "BOTTOM", 8, -5 - add.label:GetHeight() )
 	party:SetPoint( "TOPRIGHT", notes, "BOTTOMRIGHT", 0, -5 - add.label:GetHeight() )
 	party.OnClick = function( self )
@@ -59,7 +61,7 @@ panels[ #panels + 1 ] = CreateOptionsPanel( HYDRA, nil, function( self )
 		core:TriggerEvent("PARTY_MEMBERS_CHANGED")
 	end
 
-	local del = CreateDropdown( self, L["Remove Name"], nil, L["Remove a character name from your trusted list for this realm."] )
+	local del = CreateDropdown( self, L["Remove Name"], nil, L["Remove a name from your trusted list."] )
 	del:SetPoint( "TOPLEFT", add, "BOTTOMLEFT", 0, -16 )
 	del:SetPoint( "TOPRIGHT", add, "BOTTOMRIGHT", 0, -16 )
 	do
@@ -192,7 +194,8 @@ panels[ #panels + 1 ] = CreateOptionsPanel( L["Chat"], HYDRA, function( self )
 		leader = L["Party Leader"],
 	}
 
-	local mode = CreateDropdown( self, L["Detection method"], nil, L["Select the method to use for detecting the primary character."] .. "\n\n" .. L["If you are multiboxing on multiple physical machines, or are running multiple copies of WoW in windowed mode, the \"Application Focus\" mode will probably not work for you, and you should make sure that your primary character is the party leader."] )
+	local mode = CreateDropdown( self, L["Detection method"], nil,
+		L["Select the method to use for detecting the primary character."] .. "\n\n" .. L["If you are multiboxing on multiple physical machines, or are running multiple copies of WoW in windowed mode, the \"Application Focus\" mode will probably not work for you, and you should make sure that your primary character is the party leader."] )
 	mode:SetPoint( "TOPLEFT", enable, "BOTTOMLEFT", 0, -16 )
 	mode:SetPoint( "TOPRIGHT", notes, "BOTTOM", -8, -12 - enable:GetHeight() -16 )
 	do
