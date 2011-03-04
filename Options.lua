@@ -217,7 +217,8 @@ panels[ #panels + 1 ] = CreateOptionsPanel( L["Chat"], HYDRA, function( self )
 		end )
 	end
 
-	local timeout = CreateSlider( self, L["Timeout"], 30, 600, 30, nil, L["If this many seconds have elapsed since the last forwarded message, don't forward messages typed in party chat to the last whisperer unless the target is explicitly specified."] )
+	local timeout = CreateSlider( self, L["Timeout"], 30, 600, 30, nil,
+		L["If this many seconds have elapsed since the last forwarded message, don't forward messages typed in party chat to the last whisperer unless the target is explicitly specified."] )
 	timeout:SetPoint( "TOPLEFT", mode, "BOTTOMLEFT", 0, -16 )
 	timeout:SetPoint( "TOPRIGHT", mode, "BOTTOMRIGHT", 0, -16 )
 	timeout.OnValueChanged = function( self, value )
@@ -258,23 +259,23 @@ panels[ #panels + 1 ] = CreateOptionsPanel( L["Follow"], HYDRA, function( self )
 		core.db["Follow"].verbose = checked
 	end
 
-	local follow = CreateKeyBinding(self, L["Follow target"], "HYDRA_FOLLOW_TARGET",
+	local follow = CreateKeyBinding(self, BINDING_NAME_HYDRA_FOLLOW_TARGET, "HYDRA_FOLLOW_TARGET",
 		L["Set a key binding to follow your current target."])
 	follow:SetPoint("TOPLEFT", notes, "BOTTOM", -8, -8)
 	follow:SetPoint("TOPRIGHT", notes, "BOTTOMRIGHT", 0, -8)
 
-	local followme = CreateKeyBinding(self, L["Follow me"], "HYDRA_FOLLOW_ME",
-		L["Set a key binding to send a \"follow me\" command to your party."])
+	local followme = CreateKeyBinding(self, BINDING_NAME_HYDRA_FOLLOW_ME, "HYDRA_FOLLOW_ME",
+		L["Set a key binding to direct all characters in your party to follow you."])
 	followme:SetPoint("TOPLEFT", follow, "BOTTOMLEFT", 0, -8)
 	followme:SetPoint("TOPRIGHT", follow, "BOTTOMRIGHT", 0, -8)
 
-	local release = CreateKeyBinding(self, L["Release spirit"], "HYDRA_RELEASE_CORPSE",
-		L["Set a key binding to send a \"release spirit\" command to your party."])
+	local release = CreateKeyBinding(self, BINDING_NAME_HYDRA_RELEASE_CORPSE, "HYDRA_RELEASE_CORPSE",
+		L["Set a key binding to direct all dead characters in your party to release their spirit."])
 	release:SetPoint("TOPLEFT", followme, "BOTTOMLEFT", 0, -8)
 	release:SetPoint("TOPRIGHT", followme, "BOTTOMRIGHT", 0, -8)
 
-	local acceptres = CreateKeyBinding(self, L["Resurrect to corpse"], "HYDRA_ACCEPT_CORPSE",
-		L["Set a key binding to send an \"resurrect to corpse\" command to your party."])
+	local acceptres = CreateKeyBinding(self, BINDING_NAME_HYDRA_ACCEPT_CORPSE, "HYDRA_ACCEPT_CORPSE",
+		L["Set a key binding to direct all ghost characters in your party to accept resurrection to their corpse."])
 	acceptres:SetPoint("TOPLEFT", release, "BOTTOMLEFT", 0, -8)
 	acceptres:SetPoint("TOPRIGHT", release, "BOTTOMRIGHT", 0, -8)
 

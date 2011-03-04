@@ -98,6 +98,7 @@ L["Select the method to use for detecting the primary character."] = "Elegir el 
 L["If you are multiboxing on multiple physical machines, or are running multiple copies of WoW in windowed mode, the \"Application Focus\" mode will probably not work for you, and you should make sure that your primary character is the party leader."] = "Si estás jugando en más de una computadora, o estás ejecutando varias copias de WoW en modo ventana en la misma computadora, el modo de \"Programa en primer plano\" probablemente no funciona, y tendrá que promover tu personaje principal al líder del grupo."
 L["Application Focus"] = "Programa en primer plano"
 L["Party Leader"] = "Líder del grupo"
+L["If this many seconds have elapsed since the last forwarded message, don't forward messages typed in party chat to the last whisperer unless the target is explicitly specified."] = "Si esta cantidad de segundos transcurridos desde el mensaje reenviado pasado, no reenviar mensajes escritos en el chat de grupo al remitente susurro última a menos que el objetivo se especifica explícitamente."
 
 L["|TInterface\\ChatFrame\\UI-ChatIcon-Blizz.blp:0:2:0:-3|t %s has received a whisper from a GM!"] = "|TInterface\\ChatFrame\\UI-ChatIcon-Blizz.blp:0:2:0:-3|t %s ha recibido un susurro de un GM!"
 L["%1$s has received a Battle.net whisper from %2$s."] = "%1$s ha recibido un susurro de Battle.net por %2$s."
@@ -117,15 +118,10 @@ Tipo "|cffffffff@name Tu mensaje aquí|r" en un susurro a un personaje para orde
 
 L["Follow"] = "Seguir"
 L["Responds to follow requests from trusted party members."] = "Responde a las peticiones para seguimientar de los miembros del partido que están en tu lista de confianza."
-L["Follow target"] = "Seguir el objetivo"
 L["Set a key binding to follow your current target."] = "Asignar una tecla para seguir el objetivo actual."
-L["Follow me"] = "Sígueme"
-L["Set a key binding to send a \"follow me\" command to your party."] = "Asignar una tecla para enviar un \"Sígueme\" comando a tu grupo."
-L["Release spirit"] = "Liberar espíritu"
-L["Set a key binding to send a \"release spirit\" command to your party."] = "Asignar una tecla para enviar un \"Liberar espíritu\" comando a tu grupo."
-L["Resurrect to corpse"] = "Recuperar cadáver"
-L["Set a key binding to send a \"resurrect to corpse\" command to your party."] = "Asignar una tecla para enviar un \"Recuperar cadáver\" comando a tu grupo."
-
+L["Set a key binding to direct all characters in your party to follow you."] = "Asignar una tecla para dirigir a tu grupo para siguir."
+L["Set a key binding to direct all dead characters in your party to release their spirit."] = "Asignar una tecla para dirigir a tu grupo para liberar los espíritus."
+L["Set a key binding to direct all ghost characters in your party to accept resurrection to their corpse."] = "Asignar una tecla para dirigir a tu grupo para recuperar los cadáveres."
 
 L["%s is now following you."] = "%s te siguiendo."
 L["%s is no longer following you."] = "%s ha dejado de seguir a tu."
@@ -150,10 +146,10 @@ L.SLASH_HYDRA_CORPSE2 = "/cadaver"
 L["release"] = "li?b?e?r?a?r?" -- liberar
 L["accept"] = "re?[cs]?u?[pc]?[ei]?[rt]?a?r?" -- recuperar o resucitar
 
-L.BINDING_NAME_HYDRA_FOLLOW_TARGET = "Seguir el objetivo"
-L.BINDING_NAME_HYDRA_FOLLOW_ME = "Enviar: Sígueme"
-L.BINDING_NAME_HYDRA_RELEASE_CORPSE = "Enviar: Liberar espíritu"
-L.BINDING_NAME_HYDRA_ACCEPT_CORPSE = "Enviar: Recuperar cadáver"
+L.BINDING_NAME_HYDRA_FOLLOW_TARGET = "Seguir objetivo"
+L.BINDING_NAME_HYDRA_FOLLOW_ME = "Dirigir: Sígueme"
+L.BINDING_NAME_HYDRA_RELEASE_CORPSE = "Dirigir: Liberar espíritu"
+L.BINDING_NAME_HYDRA_ACCEPT_CORPSE = "Dirigir: Recuperar cadáver"
 
 -----------
 -- Mount --
