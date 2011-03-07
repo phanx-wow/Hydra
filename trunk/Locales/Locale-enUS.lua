@@ -27,7 +27,7 @@ For example, whispers are only forwarded to party chat if everyone in the party 
 -- Automation --
 ----------------
 
-L.HELP_AUTO = [[\32]]
+L.HELP_AUTO = [[ ]]
 
 ----------
 -- Chat --
@@ -53,7 +53,7 @@ Type "|cffffffff/corpse accept|r" to request that all ghost party members accept
 -- Mount --
 -----------
 
-L.HELP_MOUNT = [[\32]]
+L.HELP_MOUNT = [[ ]]
 
 -----------
 -- Party --
@@ -69,7 +69,7 @@ Type "|cffffffff/promoteme|r" while in a group to request a promotion to Party L
 -- Quest --
 -----------
 
-L.HELP_QUEST = [[\32]]
+L.HELP_QUEST = [[ ]]
 
 ----------
 -- Taxi --
