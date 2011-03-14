@@ -20,6 +20,8 @@
 local _, core = ...
 if not core then core = _G.Hydra end
 
+local L = core.L
+
 local module = core:RegisterModule("Automation", CreateFrame("Frame"))
 module:SetScript("OnEvent", function(f, e, ...) return f[e] and f[e](f, ...) end)
 

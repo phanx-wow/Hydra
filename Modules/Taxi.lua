@@ -14,6 +14,8 @@
 local _, core = ...
 if not core then core = _G.Hydra end
 
+local L = core.L
+
 local SOLO, PARTY, TRUSTED, LEADER = 0, 1, 2, 3
 local playerName = UnitName("player")
 

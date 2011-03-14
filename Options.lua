@@ -439,7 +439,6 @@ panels[ #panels + 1 ] = LibStub( "LibAboutPanel" ).new( HYDRA, HYDRA )
 
 SLASH_HYDRA1 = "/hydra"
 SlashCmdList.HYDRA = function()
-	InterfaceOptionsFrame_OpenToCategory( panels[ #panels ] ) -- About panel
 	InterfaceOptionsFrame_OpenToCategory( panels[1] )
 end
 
@@ -450,5 +449,10 @@ if LDB then
 		icon = "Interface\\Icons\\Achievement_Boss_Bazil_Akumai",
 		label = HYDRA,
 		OnClick = SlashCmdList.HYDRA,
+		OnTooltipShow = function( tooltip )
+			tooltip:AddLine( HYDRA, 1, 1, 1 )
+			tooltip:AddLine( L["Click for options."] )
+			tooltip:Show()
+		end,
 	})
 end
