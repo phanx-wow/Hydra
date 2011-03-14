@@ -17,6 +17,8 @@
 local _, core = ...
 if not core then core = _G.Hydra end
 
+local L = core.L
+
 local SOLO, PARTY, TRUSTED, LEADER = 0, 1, 2, 3
 local playerName = UnitName("player")
 
@@ -27,7 +29,6 @@ module:SetScript("OnEvent", function(f, e, ...) return f[e] and f[e](f, ...) end
 
 module.defaults = { enable = true, verbose = true }
 
-local L = core.L
 if GetLocale():match( "^en" ) then
 	L["release"] = "re?l?e?a?s?e?"
 	L["accept"] = "ac?c?e?p?t?"
