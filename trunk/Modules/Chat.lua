@@ -52,13 +52,18 @@ function module:CheckState()
 		self:Hide()
 	else
 		self:Debug("Enable module: Chat")
-		if self.db.mode == "appfocus" then self:Show() end
+		if self.db.mode == "appfocus" then
+			self:Show()
+		end
 		self:RegisterEvent("CHAT_MSG_ADDON")
 		self:RegisterEvent("CHAT_MSG_PARTY")
 		self:RegisterEvent("CHAT_MSG_PARTY_LEADER")
 		self:RegisterEvent("CHAT_MSG_SYSTEM")
 		self:RegisterEvent("CHAT_MSG_WHISPER")
 		self:RegisterEvent("CHAT_MSG_BN_WHISPER")
+		if not IsAddonMessagePrefixRegistered( "HydraChat" ) then
+			RegisterAddonMessagePrefix( "HydraChat" )
+		end
 	end
 end
 

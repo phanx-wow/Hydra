@@ -36,6 +36,9 @@ function module:CheckState()
 		self:Debug("Enable module: Taxi")
 		self:RegisterEvent("CHAT_MSG_ADDON")
 		self:RegisterEvent("TAXIMAP_OPENED")
+		if not IsAddonMessagePrefixRegistered( "HydraTaxi" ) then
+			RegisterAddonMessagePrefix( "HydraTaxi" )
+		end
 	end
 	taxiNode, taxiNodeName, taxiTime = nil, nil, 0
 end
