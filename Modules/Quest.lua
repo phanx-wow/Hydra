@@ -52,6 +52,15 @@ function module:CheckState()
 		self:RegisterEvent("CHAT_MSG_ADDON")
 		self:RegisterEvent("QUEST_ACCEPT_CONFIRM")
 		self:RegisterEvent("QUEST_LOG_UPDATE")
+		if not IsAddonMessagePrefixRegistered( "HydraQuest_Abandon" ) then
+			RegisterAddonMessagePrefix( "HydraQuest_Abandon" )
+		end
+		if not IsAddonMessagePrefixRegistered( "HydraQuest_Accept" ) then
+			RegisterAddonMessagePrefix( "HydraQuest_Accept" )
+		end
+		if not IsAddonMessagePrefixRegistered( "HydraQuest_TurnIn" ) then
+			RegisterAddonMessagePrefix( "HydraQuest_TurnIn" )
+		end
 	end
 end
 

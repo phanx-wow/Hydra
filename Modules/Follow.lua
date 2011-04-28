@@ -46,6 +46,9 @@ function module:CheckState()
 		self:RegisterEvent("AUTOFOLLOW_BEGIN")
 		self:RegisterEvent("AUTOFOLLOW_END")
 		self:RegisterEvent("CHAT_MSG_ADDON")
+		if not IsAddonMessagePrefixRegistered( "HydraFollow" ) then
+			RegisterAddonMessagePrefix( "HydraFollow" )
+		end
 	end
 end
 

@@ -37,6 +37,12 @@ function module:CheckState()
 		self:Debug("Enable module: Party")
 		self:RegisterEvent("CHAT_MSG_ADDON")
 		self:RegisterEvent("PARTY_INVITE_REQUEST")
+		if not IsAddonMessagePrefixRegistered( "HydraInvite" ) then
+			RegisterAddonMessagePrefix( "HydraInvite" )
+		end
+		if not IsAddonMessagePrefixRegistered( "HydraPromote" ) then
+			RegisterAddonMessagePrefix( "HydraPromote" )
+		end
 	else
 		self:Debug("Disable module: Party")
 		self:UnregisterAllEvents()

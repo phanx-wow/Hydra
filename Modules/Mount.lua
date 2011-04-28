@@ -33,6 +33,9 @@ function module:CheckState()
 		self:Debug("Enable module: Mount")
 		self:RegisterEvent("CHAT_MSG_ADDON")
 		self:RegisterEvent("UNIT_SPELLCAST_SENT")
+		if not IsAddonMessagePrefixRegistered( "HydraMount" ) then
+			RegisterAddonMessagePrefix( "HydraMount" )
+		end
 	else
 		self:Debug("Disable module: Mount")
 		self:UnregisterAllEvents()
