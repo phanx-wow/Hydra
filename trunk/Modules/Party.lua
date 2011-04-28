@@ -51,41 +51,41 @@ end
 
 ------------------------------------------------------------------------
 
-function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
-	if sender == playerName then return end
+function module:CHAT_MSG_ADDON( prefix, message, channel, sender )
+	if prefix ~= "HydraInvite" or sender == playerName then return end
 
-	if prefix == "HydraInvite" and channel == "WHISPER" then
-		if not core:IsTrusted(sender) then
-			return SendChatMessage( L["I cannot invite you, because you are not on my trusted list."], "WHISPER", nil, sender)
+	if message:match( "INVITE" ) and channel == "WHISPER" then
+		if not core:IsTrusted( sender ) then
+			return SendChatMessage( L["I cannot invite you, because you are not on my trusted list."], "WHISPER", nil, sender )
 		end
 		if GetNumPartyMembers() > 0 and not IsPartyLeader() then
-			return SendChatMessage( L["I cannot invite you, because I am not the module leader."], "WHISPER", nil, sender)
+			return SendChatMessage( L["I cannot invite you, because I am not the module leader."], "WHISPER", nil, sender )
 		end
-		if message ~= "NOPROMOTE" then
+		if message:match( "PROMOTE" ) then
 			remote = sender
-			self:RegisterEvent("PARTY_LEADER_CHANGED")
+			self:RegisterEvent( "PARTY_LEADER_CHANGED" )
 		end
 		InviteUnit(sender)
 
-	elseif prefix == "HydraPromote" then
+	elseif message:match( "PROMOTE" ) then
 		if not core:IsTrusted(sender) then
-			return SendChatMessage( L["I cannot promote you, because you are not on my trusted list."], "WHISPER", nil, sender)
+			return SendChatMessage( L["I cannot promote you, because you are not on my trusted list."], "WHISPER", nil, sender )
 		end
 		if GetNumPartyMembers() > 0 and not IsPartyLeader() then
-			return SendChatMessage( L["I cannot promote you, because I am not the party leader."], "WHISPER", nil, sender)
+			return SendChatMessage( L["I cannot promote you, because I am not the party leader."], "WHISPER", nil, sender )
 		end
 		if GetNumPartyMembers() == 0 then
 			-- we're not in a party, invite instead
-			return self:CHAT_MSG_ADDON("HydraInvite", "ME", "WHISPER", sender)
+			return self:CHAT_MSG_ADDON( "HydraParty", "INVITE", "WHISPER", sender )
 		end
-		PromoteToLeader(sender)
+		PromoteToLeader( sender )
 	end
 end
 
 function module:PARTY_LEADER_CHANGED()
 	if GetNumPartyMembers() > 0 and IsPartyLeader() then
-		self:UnregisterEvent("PARTY_LEADER_CHANGED")
-		PromoteToLeader(remote)
+		self:UnregisterEvent( "PARTY_LEADER_CHANGED" )
+		PromoteToLeader( remote )
 		remote = nil
 	end
 end
@@ -135,7 +135,7 @@ SlashCmdList.HYDRA_INVITEME = function(target)
 
 	module:Debug("INVITEME", target, nopromote)
 
-	SendAddonMessage("HydraInvite", nopromote and "NOPROMOTE" or "ME", "WHISPER", target)
+	SendAddonMessage("HydraParty", nopromote and "INVITE" or "INVITEANDPROMOTE", "WHISPER", target)
 end
 
 ------------------------------------------------------------------------
@@ -154,7 +154,7 @@ SlashCmdList.HYDRA_PROMOTEME = function()
 
 	module:Debug("PROMOTEME")
 
-	SendAddonMessage("HydraPromote", "ME", "PARTY")
+	SendAddonMessage("HydraParty", "PROMOTE", "PARTY")
 end
 
 ------------------------------------------------------------------------
