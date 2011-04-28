@@ -52,14 +52,8 @@ function module:CheckState()
 		self:RegisterEvent("CHAT_MSG_ADDON")
 		self:RegisterEvent("QUEST_ACCEPT_CONFIRM")
 		self:RegisterEvent("QUEST_LOG_UPDATE")
-		if not IsAddonMessagePrefixRegistered( "HydraQuest_Abandon" ) then
-			RegisterAddonMessagePrefix( "HydraQuest_Abandon" )
-		end
-		if not IsAddonMessagePrefixRegistered( "HydraQuest_Accept" ) then
-			RegisterAddonMessagePrefix( "HydraQuest_Accept" )
-		end
-		if not IsAddonMessagePrefixRegistered( "HydraQuest_TurnIn" ) then
-			RegisterAddonMessagePrefix( "HydraQuest_TurnIn" )
+		if not IsAddonMessagePrefixRegistered( "HydraQuest" ) then
+			RegisterAddonMessagePrefix( "HydraQuest" )
 		end
 	end
 end
@@ -89,19 +83,21 @@ end
 ------------------------------------------------------------------------
 
 function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
-	if sender == playerName or channel ~= "PARTY" or not core:IsTrusted(sender) then return end
+	if prefix ~= "HydraQuest" or sender == playerName or channel ~= "PARTY" or not core:IsTrusted(sender) then return end
 
-	if prefix == "HydraQuest_Accept" then
+	prefix, message = message:match( "^(%S+) (.+)$" )
+
+	if prefix == "ACCEPT" then
 		local qname = message:match("%[(.-)%]"):lower()
 		if not accepted[qname] then
 			accept[qname] = message
 		end
 		return self:Print( L["%1$s accepted %2$s."], sender, message )
 
-	elseif prefix == "HydraQuest_TurnIn" then
+	elseif prefix == "TURNIN" then
 		return self:Print( L["%1$s turned in %2$s."], sender, message )
 
-	elseif prefix == "HydraQuest_Abandon" and self.db.abandon then
+	elseif prefix == "ABANDON" and self.db.abandon then
 		for i = 1, GetNumQuestLogEntries() do
 			local link = GetQuestLink(i)
 			if link == message then
@@ -235,10 +231,10 @@ function module:QUEST_LOG_UPDATE()
 		if not currentquests[id] then
 			if abandoning then
 				self:Debug("Abandoned quest", link)
-				SendAddonMessage("HydraQuest_Abandon", link, "PARTY")
+				SendAddonMessage("HydraQuest", "ABANDON " .. link, "PARTY")
 			else
 				self:Debug("Turned in quest", link)
-				SendAddonMessage("HydraQuest_TurnIn", link, "PARTY")
+				SendAddonMessage("HydraQuest", "TURNIN " .. link, "PARTY")
 			end
 		end
 	end
@@ -248,7 +244,7 @@ function module:QUEST_LOG_UPDATE()
 	for id, link in pairs(currentquests) do
 		if not oldquests[id] then
 			self:Debug("Accepted quest", link)
-			SendAddonMessage("HydraQuest_Accept", link, "PARTY")
+			SendAddonMessage("HydraQuest", "ACCEPT " .. link, "PARTY")
 
 			local qname = link:match("%[(.-)%]"):lower()
 			if self.db.share and not accept[qname] and not accepted[qname] then
