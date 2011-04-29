@@ -5,18 +5,18 @@
 		end
 	</Binding>
 	<Binding name="HYDRA_FOLLOW_ME">
-		if SlashCmdList.FOLLOWME then
-			SlashCmdList.FOLLOWME()
+		if SlashCmdList.HYDRA_FOLLOWME then
+			SlashCmdList.HYDRA_FOLLOWME()
 		end
 	</Binding>
 	<Binding name="HYDRA_RELEASE_CORPSE">
-		if SlashCmdList.HYDRACORPSE then
-			SlashCmdList.HYDRACORPSE("r")
+		if SlashCmdList.HYDRA_CORPSE then
+			SlashCmdList.HYDRA_CORPSE("r")
 		end
 	</Binding>
 	<Binding name="HYDRA_ACCEPT_CORPSE">
-		if SlashCmdList.HYDRACORPSE then
-			SlashCmdList.HYDRACORPSE("a")
+		if SlashCmdList.HYDRA_CORPSE then
+			SlashCmdList.HYDRA_CORPSE("a")
 		end
 	</Binding>
 </Bindings>
