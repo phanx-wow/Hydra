@@ -154,9 +154,9 @@ end
 function SlashCmdList.HYDRA_CORPSE(command)
 	if core.state == SOLO then return end
 	command = command and command:trim():lower() or ""
-	if command:match( L["release"] ) then
+	if command:match( L["release"] ) or command:match( "^r" ) then
 		SendAddonMessage("HydraCorpse", "release", "PARTY")
-	elseif command:match( L["accept"] ) then
+	elseif command:match( L["accept"] ) or command:match( "^a" ) then
 		SendAddonMessage("HydraCorpse", "accept", "PARTY")
 	end
 end
