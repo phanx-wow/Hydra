@@ -37,11 +37,8 @@ function module:CheckState()
 		self:Debug("Enable module: Party")
 		self:RegisterEvent("CHAT_MSG_ADDON")
 		self:RegisterEvent("PARTY_INVITE_REQUEST")
-		if not IsAddonMessagePrefixRegistered( "HydraInvite" ) then
-			RegisterAddonMessagePrefix( "HydraInvite" )
-		end
-		if not IsAddonMessagePrefixRegistered( "HydraPromote" ) then
-			RegisterAddonMessagePrefix( "HydraPromote" )
+		if not IsAddonMessagePrefixRegistered( "HydraParty" ) then
+			RegisterAddonMessagePrefix( "HydraParty" )
 		end
 	else
 		self:Debug("Disable module: Party")
@@ -52,7 +49,7 @@ end
 ------------------------------------------------------------------------
 
 function module:CHAT_MSG_ADDON( prefix, message, channel, sender )
-	if prefix ~= "HydraInvite" or sender == playerName then return end
+	if prefix ~= "HydraParty" or sender == playerName then return end
 
 	if message:match( "INVITE" ) and channel == "WHISPER" then
 		if not core:IsTrusted( sender ) then

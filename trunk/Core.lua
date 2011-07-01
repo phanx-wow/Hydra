@@ -34,15 +34,17 @@ local SOLO, INSECURE, SECURE, LEADER = 0, 1, 2, 3
 ------------------------------------------------------------------------
 
 function core:Debug( str, ... )
-	if not self.debugging then return end
-	if str:match( "%%[ds]" ) then
-		str = str:format( ... )
+	if not self.debugging or not str then return end
+	str = tostring( str )
+	if str:match( "%%[dsx%d%.]" ) then
+		print( "|cffff9999Hydra:|r", str:format( ... ) )
+	else
+		print( "|cffff9999Hydra:|r", str, ... )
 	end
-	print( "|cffff9999Hydra:|r", ... )
 end
 
 function core:Print( str, ... )
-	if str:match( "%%[ds]" ) then
+	if str:match( "%%[dsx%d%.]" ) then
 		str = str:format( ... )
 	end
 	print( "|cffffcc00Hydra:|r", str )
