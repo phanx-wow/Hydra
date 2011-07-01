@@ -73,7 +73,7 @@ end
 
 function module:QUEST_ACCEPT_CONFIRM(name, qname)
 	if not UnitInParty(name) or not self.db.accept then return end
-	-- self:Debug("Accepting quest", qname, "started by", name)
+	self:Debug("Accepting quest", qname, "started by", name)
 	ConfirmAcceptQuest()
 	StaticPopup_Hide("QUEST_ACCEPT")
 end
@@ -83,28 +83,28 @@ end
 ------------------------------------------------------------------------
 
 function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
-	if prefix ~= "HydraQuest" or sender == playerName or channel ~= "PARTY" or not core:IsTrusted(sender) then return end
+	if prefix ~= "HydraQuest" or channel ~= "PARTY" or sender == playerName or not core:IsTrusted(sender) then return end
 
-	prefix, message = message:match( "^(%S+) (.+)$" )
+	local action, qlink = message:match( "^(%S+) (.+)$" )
 
-	if prefix == "ACCEPT" then
-		local qname = message:match("%[(.-)%]"):lower()
+	if action == "ACCEPT" then
+		local qname = qlink:match("%[(.-)%]"):lower()
 		if not accepted[qname] then
-			accept[qname] = message
+			accept[qname] = qlink
 		end
-		return self:Print( L["%1$s accepted %2$s."], sender, message )
+		return self:Print( L["%1$s accepted %2$s."], sender, qlink )
 
-	elseif prefix == "TURNIN" then
-		return self:Print( L["%1$s turned in %2$s."], sender, message )
+	elseif action == "TURNIN" then
+		return self:Print( L["%1$s turned in %2$s."], sender, qlink )
 
-	elseif prefix == "ABANDON" and self.db.abandon then
+	elseif action == "ABANDON" and self.db.abandon then
 		for i = 1, GetNumQuestLogEntries() do
 			local link = GetQuestLink(i)
-			if link == message then
+			if link == qlink then
 				SelectQuestLogEntry(i)
 				SetAbandonQuest()
 				AbandonQuest()
-				return self:Print( L["%1$s abandoned %2$s."], sender, message )
+				return self:Print( L["%1$s abandoned %2$s."], sender, qlink )
 			end
 		end
 	end
@@ -231,28 +231,28 @@ function module:QUEST_LOG_UPDATE()
 		if not currentquests[id] then
 			if abandoning then
 				self:Debug("Abandoned quest", link)
-				SendAddonMessage("HydraQuest", "ABANDON " .. link, "PARTY")
+				SendAddonMessage( "HydraQuest", "ABANDON " .. link, "PARTY" )
 			else
 				self:Debug("Turned in quest", link)
-				SendAddonMessage("HydraQuest", "TURNIN " .. link, "PARTY")
+				SendAddonMessage( "HydraQuest", "TURNIN " .. link, "PARTY" )
 			end
 		end
 	end
 
 	abandoning = nil
 
-	for id, link in pairs(currentquests) do
-		if not oldquests[id] then
-			self:Debug("Accepted quest", link)
-			SendAddonMessage("HydraQuest", "ACCEPT " .. link, "PARTY")
+	for id, link in pairs( currentquests ) do
+		if not oldquests[ id ] then
+			self:Debug( "Accepted quest", link )
+			SendAddonMessage( "HydraQuest", "ACCEPT " .. link, "PARTY" )
 
-			local qname = link:match("%[(.-)%]"):lower()
-			if self.db.share and not accept[qname] and not accepted[qname] then
+			local qname = link:match( "%[(.-)%]" ):lower()
+			if self.db.share and not accept[ qname ] and not accepted[ qname ] then
 				for i = 1, GetNumQuestLogEntries() do
-					if link == GetQuestLink(i) then
-						SelectQuestLogEntry(i)
+					if link == GetQuestLink( i ) then
+						SelectQuestLogEntry( i )
 						if GetQuestLogPushable() then
-							self:Debug("Sharing quest...")
+							self:Debug( "Sharing quest..." )
 							QuestLogPushQuest()
 						else
 							core:Print( L["That quest cannot be shared."] )
@@ -265,9 +265,9 @@ function module:QUEST_LOG_UPDATE()
 end
 
 local abandon = AbandonQuest
-function AbandonQuest(...)
+function AbandonQuest( ... )
 	abandoning = true
-	return abandon(...)
+	return abandon( ... )
 end
 
 ------------------------------------------------------------------------
