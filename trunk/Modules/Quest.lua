@@ -196,6 +196,8 @@ function module:QUEST_COMPLETE()
 
 	if GetNumQuestChoices() <= 1 then
 		GetQuestReward(QuestFrameRewardPanel.itemChoice)
+	else
+		QuestRewardScrollFrame:SetVerticalScroll(QuestRewardScrollFrame:GetVerticalScrollRange())
 	end
 end
 
