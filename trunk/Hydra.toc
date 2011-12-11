@@ -1,5 +1,5 @@
-## Interface: 40200
-## Version: 4.2.0.wowi:revision
+## Interface: 40300
+## Version: 4.3.0.wowi:revision
 
 ## Title: Hydra
 ## Notes: Multibox leveling helper.
@@ -7,10 +7,10 @@
 ## Notes-esMX: Ayudante para la nivelación multibox.
 ## Notes-koKR: 멀티박스 레벨링 도우미입니다.
 ## Author: Phanx, Akkorian
-## X-Email: akkorian@hotmail.com
+## X-Email: addons@phanx.net
 ## X-Copyright: Copyright © 2010–2011 Phanx
 ## X-License: Some rights reserved. See LICENSE.txt for details.
-## X-CompatibleLocales: deDE, enUS, esES, esMX, frFR, koKR, ruRU, zhCN, zhTW
+## X-CompatibleLocales: deDE, enUS, esES, esMX, frFR, koKR, ptBR, ruRU, zhCN, zhTW
 ## X-Localizations: enUS, esES, esMX, koKR
 ## X-Website: http://www.wowinterface.com/downloads/info17572-Hydra.html
 ## X-Curse-Project-ID: hydra

@@ -2,7 +2,6 @@ Hydra
 =====
 
 * Written by Phanx <addons@phanx.net>
-* Maintained by Akkorian <akkorian@hotmail.com>
 * Copyright © 2010–2011 Phanx. Some rights reserved. See LICENSE.txt for details.
 * http://www.wowinterface.com/downloads/info17572-Hydra.html
 * http://wow.curse.com/downloads/wow-addons/details/hydra.aspx
@@ -125,4 +124,4 @@ page or in the WowAce forum thread:
 * http://forums.wowace.com/showthread.php?t=18382
 
 If you need to contact me privately, you can do so by private message on
-either download site, or by email at <akkorian@hotmail.com>.
+either download site, or by email at <addons@phanx.net>.
