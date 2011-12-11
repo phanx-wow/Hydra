@@ -99,9 +99,12 @@ Localization
 Hydra is compatible with all locales, and does not require localization
 to function.
 
-The options panel and user messages are currently translated only in
-English. If you can provide translations for any locale, send me a PM
-on either download site..
+The options panel and user messages are currently translated into
+English, Español, and 한국어. To add or update translations for any
+locale, send me a PM on either download site, or use the CurseForge
+localization page:
+
+* http://wow.curseforge.com/addons/hydra/localization/
 
 
 Feedback
