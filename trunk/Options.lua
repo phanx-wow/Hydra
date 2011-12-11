@@ -36,6 +36,7 @@ panels[ #panels + 1 ] = CreateOptionsPanel( HYDRA, nil, function( self )
 	add:SetPoint( "TOPLEFT", notes, "BOTTOMLEFT", 0, -12 )
 	add:SetPoint( "TOPRIGHT", notes, "BOTTOM", -8, -12 )
 	add.OnValueChanged = function( self, v )
+		if not _G.ADDBOX then _G.ADDBOX = self end
 		text = v and string.gsub( string.trim( v ), "%a", string.upper, 1 )
 		if string.len( v ) > 1 then
 			core:Print( L["%s has been added to your trusted list."], v )
@@ -43,7 +44,7 @@ panels[ #panels + 1 ] = CreateOptionsPanel( HYDRA, nil, function( self )
 			HydraTrustList[ realmName ][ v ] = v
 			core:TriggerEvent( "PARTY_MEMBERS_CHANGED" )
 		end
-		self:SetText( nil )
+		self:SetText( "" )
 	end
 
 	local party = CreateButton( self, L["Add Current Party"],
@@ -64,6 +65,7 @@ panels[ #panels + 1 ] = CreateOptionsPanel( HYDRA, nil, function( self )
 	del:SetPoint( "TOPLEFT", add, "BOTTOMLEFT", 0, -16 )
 	del:SetPoint( "TOPRIGHT", add, "BOTTOMRIGHT", 0, -16 )
 	do
+		local me = UnitName("player")
 		local info, temp = { }, { }
 		local OnClick = function( self )
 			local v = self.value
@@ -83,6 +85,7 @@ panels[ #panels + 1 ] = CreateOptionsPanel( HYDRA, nil, function( self )
 				info.value = name
 				info.func = OnClick
 				info.notCheckable = 1
+				info.disabled = name == me
 				UIDropDownMenu_AddButton( info )
 			end
 			wipe( temp )
