@@ -4,7 +4,7 @@
 	Written by Phanx <addons@phanx.net>
 	Copyright © 2010–2011 Phanx. Some rights reserved. See LICENSE.txt for details.
 	http://www.wowinterface.com/downloads/info17572-Hydra.html
-	http://wow.curse.com/downloads/wow-addons/details/hydra.aspx
+	http://www.curse.com/addons/wow/hydra
 ------------------------------------------------------------------------
 	Localization: enUS | English
 	Last updated 2011-02-18 by Akkorian
