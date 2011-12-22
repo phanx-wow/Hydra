@@ -166,7 +166,7 @@ local ignorewords = {
 	(UnitName("player")), -- spammers seem to think addressing you by your character's name adds a personal touch...
 }
 
-function module:CHAT_MSG_WHISPER(message, sender, _, _, _, flag, _, _, _, _, _, _, guid)
+function module:CHAT_MSG_WHISPER(message, sender, _, _, _, flag, _, _, _, _, _, guid)
 	self:Debug("CHAT_MSG_WHISPER", guid, flag, sender, message)
 
 	if UnitInParty(sender) then
@@ -179,13 +179,12 @@ function module:CHAT_MSG_WHISPER(message, sender, _, _, _, flag, _, _, _, _, _, 
 			-- sender wants us to whisper target with text
 			whisperForwardTo, whisperForwardTime = target, GetTime()
 			SendChatMessage(text, "WHISPER", nil, target)
-
 		elseif whisperForwardTo then
 			-- we've forwarded to whisper recently
 			if GetTime() - whisperForwardTime > self.db.timeout then
 				-- it's been a while since our last forward to whisper
 				whisperForwardTo = nil
-				SendChatMessage( L["!ERROR: Whisper timeout reached."], "WHISPER", nil, sender )
+				SendChatMessage(L["!ERROR: Whisper timeout reached."], "WHISPER", nil, sender)
 			else
 				-- whisper last forward target
 				whisperForwardTime = GetTime()
@@ -193,28 +192,32 @@ function module:CHAT_MSG_WHISPER(message, sender, _, _, _, flag, _, _, _, _, _, 
 			end
 		end
 	else
-		local spamwords = 0
-		local searchstring = message:lower():gsub("%W", "")
-		for _, word in ipairs(ignorewords) do
-			if searchstring:find(word) then
-				spamwords = spamwords + 1
-			end
-		end
-		if spamwords > 3 then
-			message = "POSSIBLE SPAM"
-		end
-
 		local active = self.db.mode == "appfocus" and GetTime() - frametime < 0.25 or IsPartyLeader()
 		self:Debug(active and "Active" or "Not active")
 		if not active then -- someone outside the party whispered me
-			if message ~= "POSSIBLE SPAM" then
-				hasActiveConversation, partyForwardFrom, partyForwardTime = true, sender, GetTime()
-			end
 			if flag == "GM" then
 				SendAddonMessage("HydraChat", format("GM |cff00ccff%s|r %s", sender, message), "PARTY")
 				SendChatMessage(format(">> GM %s: %s", sender, message), "PARTY")
 			else
-				local color = guid and guid ~= "" and (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[select(2, GetPlayerInfoByGUID(guid)) or "UNKNOWN"]
+				local spamwords = 0
+				local searchstring = message:lower():gsub("%W", "")
+				for _, word in ipairs(ignorewords) do
+					if searchstring:find(word) then
+						spamwords = spamwords + 1
+					end
+				end
+				if spamwords > 3 then
+					message = "POSSIBLE SPAM"
+					hasActiveConversation, partyForwardFrom, partyForwardTime = true, sender, GetTime()
+				end
+
+				local color
+				if guid and guid ~= "" then
+					local _, class = GetPlayerInfoByGUID(guid)
+					if class then
+						color = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[class]
+					end
+				end
 				SendAddonMessage("HydraChat", format("W %s %s", (color and format("\124cff%02x%02x%02x%s\124r", color.r * 255, color.g * 255, color.b * 255, sender) or sender), message), "PARTY")
 				SendChatMessage(format(">> %s: %s", sender, message), "PARTY")
 			end
