@@ -36,7 +36,6 @@ panels[ #panels + 1 ] = CreateOptionsPanel( HYDRA, nil, function( self )
 	add:SetPoint( "TOPLEFT", notes, "BOTTOMLEFT", 0, -12 )
 	add:SetPoint( "TOPRIGHT", notes, "BOTTOM", -8, -12 )
 	add.OnValueChanged = function( self, v )
-		if not _G.ADDBOX then _G.ADDBOX = self end
 		text = v and string.gsub( string.trim( v ), "%a", string.upper, 1 )
 		if string.len( v ) > 1 then
 			core:Print( L["%s has been added to your trusted list."], v )

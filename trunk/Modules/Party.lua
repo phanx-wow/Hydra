@@ -88,14 +88,27 @@ end
 
 ------------------------------------------------------------------------
 
-function module:PARTY_INVITE_REQUEST(sender)
-	if core:IsTrusted(sender) then
-		-- AcceptGroup()
+local invitePending
+
+hooksecurefunc("StaticPopup_Show", function(which)
+	module:Debug("StaticPopup_Show", which)
+	if which == "PARTY_INVITE" and invitePending and core:IsTrusted(invitePending) then
+		module:Debug("Sender", invitePending, "is trusted.")
 		local dialog = StaticPopup_Visible("PARTY_INVITE")
 		if dialog then
-			_G[dialog .. "Button1"]:Click()
+			module:Debug("Found dialog:", dialog)
+			local button = _G[dialog .. "Button1"]
+			button:GetScript("OnClick")(button, "LeftButton")
+		else
+			module:Debug("Did not find dialog. WTF?")
 		end
+		pendingInvite = nil
 	end
+end)
+
+function module:PARTY_INVITE_REQUEST(sender)
+	self:Debug("PARTY_INVITE_REQUEST", sender)
+	invitePending = sender
 end
 
 ------------------------------------------------------------------------
