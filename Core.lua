@@ -8,10 +8,6 @@
 ----------------------------------------------------------------------]]
 
 local ADDON_NAME, core = ...
-if not core then -- 3.2 compat for China
-	core = { }
-	_G.Hydra = core
-end
 
 local L = setmetatable( core.L or { }, { __index = function( t, k )
 	if k == nil then return "" end
@@ -33,7 +29,7 @@ local SOLO, INSECURE, SECURE, LEADER = 0, 1, 2, 3
 ------------------------------------------------------------------------
 
 function core:Debug( str, ... )
-	if not self.debugging or not str then return end
+	if not str or ( not self.debug and not core.debugall ) then return end
 	str = tostring( str )
 	if str:match( "%%[dsx%d%.]" ) then
 		print( "|cffff9999Hydra:|r", str:format( ... ) )
@@ -55,7 +51,9 @@ end
 
 function core:IsTrusted( name, realm )
 	if ( realm and realm ~= "" and realm ~= realmName ) or name:match( "%-" ) then return end
-	return core.trusted[ name ]
+	local trusted = core.trusted[ name ]
+	self:Debug("IsTrusted", name, tostring(trusted))
+	return trusted
 end
 
 local noop = function() end
