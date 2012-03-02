@@ -2,12 +2,12 @@
 	Hydra
 	Multibox leveling helper.
 	Written by Phanx <addons@phanx.net>
-	Copyright © 2010–2011 Phanx. Some rights reserved. See LICENSE.txt for details.
+	Copyright © 2010–2012 Phanx. Some rights reserved. See LICENSE.txt for details.
 	http://www.wowinterface.com/downloads/info17572-Hydra.html
 	http://www.curse.com/addons/wow/hydra
 ----------------------------------------------------------------------]]
 
-local ADDON_NAME, core = ...
+local HYDRA, core = ...
 
 local L = setmetatable( core.L or { }, { __index = function( t, k )
 	if k == nil then return "" end
@@ -19,7 +19,7 @@ core.L = L
 
 core.modules = { }
 
-BINDING_HEADER_HYDRA = ADDON_NAME
+BINDING_HEADER_HYDRA = HYDRA
 
 ------------------------------------------------------------------------
 
