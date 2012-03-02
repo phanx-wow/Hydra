@@ -27,7 +27,7 @@ local module = core:RegisterModule("Party", CreateFrame("Frame"))
 module:SetScript("OnEvent", function(f, e, ...) return f[e] and f[e](f, ...) end)
 
 module.defaults = { enable = true }
-module.debug = true
+
 ------------------------------------------------------------------------
 
 function module:CheckState()
