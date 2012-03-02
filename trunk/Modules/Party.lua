@@ -2,7 +2,7 @@
 	Hydra
 	Multibox leveling helper.
 	Written by Phanx <addons@phanx.net>
-	Copyright © 2010–2011 Phanx. Some rights reserved. See LICENSE.txt for details.
+	Copyright © 2010–2012 Phanx. Some rights reserved. See LICENSE.txt for details.
 	http://www.wowinterface.com/downloads/info17572-Hydra.html
 	http://www.curse.com/addons/wow/hydra
 ------------------------------------------------------------------------
@@ -15,7 +15,6 @@
 ----------------------------------------------------------------------]]
 
 local _, core = ...
-if not core then core = _G.Hydra end
 
 local L = core.L
 
@@ -28,7 +27,7 @@ local module = core:RegisterModule("Party", CreateFrame("Frame"))
 module:SetScript("OnEvent", function(f, e, ...) return f[e] and f[e](f, ...) end)
 
 module.defaults = { enable = true }
-
+module.debug = true
 ------------------------------------------------------------------------
 
 function module:CheckState()
@@ -88,27 +87,31 @@ end
 
 ------------------------------------------------------------------------
 
-local invitePending
-
-hooksecurefunc("StaticPopup_Show", function(which)
-	module:Debug("StaticPopup_Show", which)
-	if which == "PARTY_INVITE" and invitePending and core:IsTrusted(invitePending) then
-		module:Debug("Sender", invitePending, "is trusted.")
-		local dialog = StaticPopup_Visible("PARTY_INVITE")
-		if dialog then
-			module:Debug("Found dialog:", dialog)
-			local button = _G[dialog .. "Button1"]
-			button:GetScript("OnClick")(button, "LeftButton")
-		else
-			module:Debug("Did not find dialog. WTF?")
+do
+	local function checkPartyInvite(sender)
+		if core:IsTrusted(sender) then
+			module:Debug("Sender", sender, "is trusted.")
+			local dialog = StaticPopup_Visible("PARTY_INVITE")
+			if dialog then
+				module:Debug("Dialog found:", dialog)
+				StaticPopup_OnClick(_G[dialog], 1)
+			else
+				module:Debug("Dialog not found.")
+			end
 		end
-		pendingInvite = nil
 	end
-end)
 
-function module:PARTY_INVITE_REQUEST(sender)
-	self:Debug("PARTY_INVITE_REQUEST", sender)
-	invitePending = sender
+	hooksecurefunc("StaticPopup_Show", function(which, sender)
+		if which == "PARTY_INVITE" then
+			module:Debug("StaticPopup_Show", which, sender)
+			checkPartyInvite(sender)
+		end
+	end)
+
+	function module:PARTY_INVITE_REQUEST(sender)
+		self:Debug("PARTY_INVITE_REQUEST", sender)
+		checkPartyInvite(sender)
+	end
 end
 
 ------------------------------------------------------------------------
