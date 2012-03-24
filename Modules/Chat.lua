@@ -118,49 +118,21 @@ end
 
 local ignorewords = {
 	"account",
-	"battle",
-	"bonus",
-	"buy",
-	"blizz",
-	"cheap",
-	"complain",
-	"contest",
-	"coupon",
-	"customer",
-	"dear",
-	"deliver",
-	"detect",
-	"discount",
+	"battle", "bonus", "buy", "blizz",
+	"cheap", "complain", "contest", "coupon", "customer",
+	"dear", "deliver", "detect", "discount",
 	"extra",
 	"free",
-	"gift",
-	"gold",
-	"illegal",
-	"interest",
-	"login",
-	"lowest",
-	"lucky",
+	"gift", "gold",
+	"illegal", "in",
+	"lowest", "lucky",
 	"order",
-	"powerle?ve?l",
-	"price",
-	"promoti[on][gn]",
+	"powerle?ve?l", "price", "promoti[on][gn]",
 	"reduced",
-	"safe",
-	"secure",
-	"server",
-	"service",
-	"scan",
-	"stock",
-	"suspecte?d?",
-	"suspend",
-	"validat[ei]",
-	"verif[iy]",
-	"violat[ei]",
-	"visit",
-	"welcome",
-	"www",
-	"%d+%.?%d*eur",
-	"%d+%.?%d*dollars",
+	"safe", "secure", "server", "service", "scan", "stock", "suspecte?d?", "suspend",
+	"validat[ei]", "verif[iy]", "violat[ei]", "visit",
+	"welcome", "www",
+	"%d+%.?%d*eur", "%d+%.?%d*dollars",
 	"[\226\130\172$\194\163]%d+",
 	(UnitName("player")), -- spammers seem to think addressing you by your character's name adds a personal touch...
 }
@@ -253,3 +225,72 @@ function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 end
 
 ------------------------------------------------------------------------
+
+function module:SetupOptions(panel)
+	local title, notes = LibStub("PhanxConfig-Header").CreateHeader(panel, panel.name,
+		L["Forwards whispers sent to inactive characters to party chat, and forwards replies to the original sender."])
+
+	local enable = LibStub("PhanxConfig-Checkbox").CreateCheckbox(panel, L["Enable"])
+	enable:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
+	enable.OnClick = function(_, checked)
+		self.db.enable = checked
+		self:CheckState()
+	end
+
+	local modes = {
+		appfocus = L["Application Focus"],
+		leader = L["Party Leader"],
+	}
+
+	local mode = LibStub("PhanxConfig-Dropdown").CreateDropdown(panel, L["Detection method"], nil,
+		L["Select the method to use for detecting the primary character."] .. "\n\n" .. L["If you are multiboxing on multiple physical machines, or are running multiple copies of WoW in windowed mode, the \"Application Focus\" mode will probably not work for you, and you should make sure that your primary character is the party leader."])
+	mode:SetPoint("TOPLEFT", enable, "BOTTOMLEFT", 0, -16)
+	mode:SetPoint("TOPRIGHT", notes, "BOTTOM", -8, -12 - enable:GetHeight() - 16)
+	do
+		local info = { }
+		local IsChecked = function(this)
+			return self.db.mode == this.value
+		end
+		local OnClick = function(this)
+			self.db.mode = this.value
+			self:CheckState()
+		end
+		UIDropDownMenu_Initialize(mode.dropdown, function()
+			info.text = L["Application Focus"]
+			info.value = "appfocus"
+			info.checked = IsChecked
+			info.func = OnClick
+			UIDropDownMenu_AddButton(info)
+
+			info.text = L["Party Leader"]
+			info.value = "leader"
+			info.checked = IsChecked
+			info.func = OnClick
+			UIDropDownMenu_AddButton(info)
+		end)
+	end
+
+	local timeout = LibStub("PhanxConfig-Slider").CreateSlider(panel, L["Timeout"], 30, 600, 30, nil,
+		L["If this many seconds have elapsed since the last forwarded message, don't forward messages typed in party chat to the last whisperer unless the target is explicitly specified."])
+	timeout:SetPoint("TOPLEFT", mode, "BOTTOMLEFT", 0, -16)
+	timeout:SetPoint("TOPRIGHT", mode, "BOTTOMRIGHT", 0, -16)
+	timeout.OnValueChanged = function(_, value)
+		value = math.floor((value + 1) / 30) * 30
+		self.db.timeout = value
+		return value
+	end
+
+	local help = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+	help:SetPoint("BOTTOMLEFT", 16, 16)
+	help:SetPoint("BOTTOMRIGHT", -16, 16)
+	help:SetHeight(112)
+	help:SetJustifyH("LEFT")
+	help:SetJustifyV("BOTTOM")
+	help:SetText(L.HELP_CHAT)
+
+	panel.refresh = function()
+		enable:SetChecked(self.db.enable)
+		mode:SetValue(modes[ self.db.mode ])
+		timeout:SetValue(self.db.timeout)
+	end
+end

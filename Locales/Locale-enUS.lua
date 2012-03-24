@@ -76,4 +76,4 @@ L.HELP_QUEST = [[ ]]
 
 L.HELP_TAXI = [[Hold the Shift key while speaking to a flight master to temporarily disable auto-selection.
 
-Type "|cffffffff/cleartaxi" to clear the party taxi selection before it times out.]]
+Type "|cffffffff/cleartaxi|r" to clear the party taxi selection before it times out.]]

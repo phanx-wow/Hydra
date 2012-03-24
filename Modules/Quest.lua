@@ -271,3 +271,55 @@ function AbandonQuest( ... )
 end
 
 ------------------------------------------------------------------------
+
+function module:SetupOptions(panel)
+	local title, notes = LibStub("PhanxConfig-Header").CreateHeader(panel, panel.name,
+		L["Helps keep party members' quests in sync."])
+
+	local CreateCheckbox = LibStub("PhanxConfig-Checkbox").CreateCheckbox
+
+	local function OnClick(box, checked)
+		self.db[ box.key ] = checked
+	end
+
+	local enable = CreateCheckbox(panel, L["Enable"])
+	enable:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
+	enable.OnClick = OnClick
+	enable.key = "enable"
+
+	local turnin = CreateCheckbox(panel, L["Turn in quests"], L["Turn in complete quests to NPCs."])
+	turnin:SetPoint("TOPLEFT", enable, "BOTTOMLEFT", 0, -8)
+	turnin.OnClick = OnClick
+	turnin.key = "turnin"
+
+	local accept = CreateCheckbox(panel, L["Accept quests"], L["Accept quests shared by party members, quests from NPCs that other party members have already accepted, and escort-type quests started by another party member."])
+	accept:SetPoint("TOPLEFT", turnin, "BOTTOMLEFT", 0, -8)
+	accept.OnClick = OnClick
+	accept.key = "accept"
+
+	local share = CreateCheckbox(panel, L["Share quests"], L["Share quests you accept from NPCs."])
+	share:SetPoint("TOPLEFT", accept, "BOTTOMLEFT", 0, -8)
+	share.OnClick = OnClick
+	share.key = "share"
+
+	local abandon = CreateCheckbox(panel, L["Abandon quests"], L["Abandon quests abandoned by trusted party members."])
+	abandon:SetPoint("TOPLEFT", share, "BOTTOMLEFT", 0, -8)
+	abandon.OnClick = OnClick
+	abandon.key = "abandon"
+
+	local help = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+	help:SetPoint("BOTTOMLEFT", 16, 16)
+	help:SetPoint("BOTTOMRIGHT", -16, 16)
+	help:SetHeight(112)
+	help:SetJustifyH("LEFT")
+	help:SetJustifyV("BOTTOM")
+	help:SetText(L.HELP_QUEST)
+
+	panel.refresh = function()
+		enable:SetChecked(self.db.enable)
+		turnin:SetChecked(self.db.turnin)
+		accept:SetChecked(self.db.accept)
+		share:SetChecked(self.db.share)
+		abandon:SetChecked(self.db.abandon)
+	end
+end

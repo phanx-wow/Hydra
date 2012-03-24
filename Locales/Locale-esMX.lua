@@ -219,6 +219,6 @@ L["Party taxi cleared."] = "Ruta de vuelo del grupo despejado."
 
 L.HELP_TAXI = [[Pulse la tecla Shift mientras habla con un maestro de vuelo para ignorar la auto-selección.
 
-Tipo "|cffffffff/quitartaxi" para quitar la selección de ruta de vuelo.]]
+Tipo "|cffffffff/quitartaxi|r" para quitar la selección de ruta de vuelo.]]
 
 L.SLASH_HYDRA_CLEARTAXI2 = "/quitartaxi"

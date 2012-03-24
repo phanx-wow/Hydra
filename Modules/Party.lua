@@ -170,3 +170,26 @@ SlashCmdList.HYDRA_PROMOTEME = function()
 end
 
 ------------------------------------------------------------------------
+
+function module:SetupOptions(panel)
+	local title, notes = LibStub("PhanxConfig-Header").CreateHeader(panel, panel.name, L["Responds to invite and promote requests from trusted players."])
+
+	local enable = LibStub("PhanxConfig-Checkbox").CreateCheckbox(panel, L["Enable"])
+	enable:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
+	enable.OnClick = function(_, checked)
+		self.db.enable = checked
+		self:CheckState()
+	end
+
+	local help = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+	help:SetPoint("BOTTOMLEFT", 16, 16)
+	help:SetPoint("BOTTOMRIGHT", -16, 16)
+	help:SetHeight(112)
+	help:SetJustifyH("LEFT")
+	help:SetJustifyV("BOTTOM")
+	help:SetText(L.HELP_PARTY)
+
+	panel.refresh = function()
+		enable:SetChecked(self.db.enable)
+	end
+end

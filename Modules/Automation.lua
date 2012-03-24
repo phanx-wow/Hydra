@@ -208,3 +208,93 @@ function module:TRAINER_SHOW()
 	SetTrainerServiceTypeFilter( "unavailable", 0 )
 	SetTrainerServiceTypeFilter( "used", 0 )
 end
+
+------------------------------------------------------------------------
+
+function module:SetupOptions(panel)
+	local title, notes = LibStub("PhanxConfig-Header").CreateHeader(panel, panel.name,
+		L["Automates simple repetetive tasks, such as clicking common dialogs."])
+
+	local CreateCheckbox = LibStub("PhanxConfig-Checkbox").CreateCheckbox
+
+	local function OnClick(checkbox, checked)
+		self.db[ checkbox.key ] = checked
+		if checkbox.key ~= "verbose" then
+			self:CheckState()
+		end
+	end
+
+	local declineDuels = CreateCheckbox(panel, L["Decline duels"],
+		L["Decline duel requests."])
+	declineDuels:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
+	declineDuels.OnClick = OnClick
+	declineDuels.key = "declineDuels"
+
+	local declineGuilds = CreateCheckbox(panel, L["Decline guilds"],
+		L["Decline guild invitations and petitions."])
+	declineGuilds:SetPoint("TOPLEFT", declineDuels, "BOTTOMLEFT", 0, -8)
+	declineGuilds.OnClick = OnClick
+	declineGuilds.key = "declineGuilds"
+
+	local declineArenaTeams = CreateCheckbox(panel, L["Decline arena teams"],
+		L["Decline arena team invitations and petitions."])
+	declineArenaTeams:SetPoint("TOPLEFT", declineGuilds, "BOTTOMLEFT", 0, -8)
+	declineArenaTeams.OnClick = OnClick
+	declineArenaTeams.key = "declineArenaTeams"
+
+	local acceptSummons = CreateCheckbox(panel, L["Accept summons"],
+		L["Accept summon requests."])
+	acceptSummons:SetPoint("TOPLEFT", declineArenaTeams, "BOTTOMLEFT", 0, -8)
+	acceptSummons.OnClick = OnClick
+	acceptSummons.key = "acceptSummons"
+
+	local acceptResurrections = CreateCheckbox(panel, L["Accept resurrections"],
+		L["Accept resurrections from players not in combat."])
+	acceptResurrections:SetPoint("TOPLEFT", acceptSummons, "BOTTOMLEFT", 0, -8)
+	acceptResurrections.OnClick = OnClick
+	acceptResurrections.key = "acceptResurrections"
+
+	local acceptResurrectionsInCombat = CreateCheckbox(panel, L["Accept combat resurrections"],
+		L["Accept resurrections from players in combat."])
+	acceptResurrectionsInCombat:SetPoint("TOPLEFT", acceptResurrections, "BOTTOMLEFT", 0, -8)
+	acceptResurrectionsInCombat.OnClick = OnClick
+	acceptResurrectionsInCombat.key = "acceptResurrectionsInCombat"
+
+	local repairEquipment = CreateCheckbox(panel, L["Repair equipment"],
+		L["Repair all equipment when interacting with a repair vendor."])
+	repairEquipment:SetPoint("TOPLEFT", acceptResurrectionsInCombat, "BOTTOMLEFT", 0, -8)
+	repairEquipment.OnClick = OnClick
+	repairEquipment.key = "repairEquipment"
+
+	local sellJunk = CreateCheckbox(panel, L["Sell junk"],
+		L["Sell all junk (gray) items when interacting with a vendor."])
+	sellJunk:SetPoint("TOPLEFT", repairEquipment, "BOTTOMLEFT", 0, -8)
+	sellJunk.OnClick = OnClick
+	sellJunk.key = "sellJunk"
+
+	local verbose = CreateCheckbox(panel, L["Verbose mode"],
+		L["Enable notification messages from this self."])
+	verbose:SetPoint("TOPLEFT", sellJunk, "BOTTOMLEFT", 0, -24)
+	verbose.OnClick = OnClick
+	verbose.key = "verbose"
+
+	local help = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+	help:SetPoint("BOTTOMLEFT", 16, 16)
+	help:SetPoint("BOTTOMRIGHT", -16, 16)
+	help:SetHeight(112)
+	help:SetJustifyH("LEFT")
+	help:SetJustifyV("BOTTOM")
+	help:SetText(L.HELP_AUTO)
+
+	panel.refresh = function()
+		declineDuels:SetChecked(self.db.declineDuels)
+		declineArenaTeams:SetChecked(self.db.declineArenaTeams)
+		declineGuilds:SetChecked(self.db.declineGuilds)
+		acceptSummons:SetChecked(self.db.acceptSummons)
+		acceptResurrections:SetChecked(self.db.acceptResurrections)
+		acceptResurrectionsInCombat:SetChecked(self.db.acceptResurrectionsInCombat)
+		repairEquipment:SetChecked(self.db.repairEquipment)
+		sellJunk:SetChecked(self.db.sellJunk)
+		verbose:SetChecked(self.db.verbose)
+	end
+end
