@@ -116,3 +116,36 @@ function SlashCmdList.HYDRA_CLEARTAXI()
 end
 
 ------------------------------------------------------------------------
+
+function module:SetupOptions(panel)
+	local title, notes = LibStub("PhanxConfig-Header").CreateHeader(panel, panel.name, L["Selects the same taxi destination as other party members."])
+
+	local enable = LibStub("PhanxConfig-Checkbox").CreateCheckbox(panel, L["Enable"])
+	enable:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
+	enable.OnClick = function(_, checked)
+		self.db.enable = checked
+		self:CheckState()
+	end
+
+	local timeout = LibStub("PhanxConfig-Slider").CreateSlider(panel, L["Timeout"], 30, 600, 30, nil, L["Clear the taxi selection after this many seconds."])
+	timeout:SetPoint("TOPLEFT", enable, "BOTTOMLEFT", 0, -16)
+	timeout:SetPoint("TOPRIGHT", notes, "BOTTOM", -8, -28 - enable:GetHeight())
+	timeout.OnValueChanged = function(_, value)
+		value = math.floor((value + 1) / 30) * 30
+		self.db.timeout = value
+		return value
+	end
+
+	local help = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+	help:SetPoint("BOTTOMLEFT", 16, 16)
+	help:SetPoint("BOTTOMRIGHT", -16, 16)
+	help:SetHeight(112)
+	help:SetJustifyH("LEFT")
+	help:SetJustifyV("BOTTOM")
+	help:SetText(L.HELP_TAXI)
+
+	panel.refresh = function()
+		enable:SetChecked(self.db.enable)
+		timeout:SetValue(self.db.timeout)
+	end
+end
