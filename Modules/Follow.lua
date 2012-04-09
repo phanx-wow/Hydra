@@ -135,8 +135,14 @@ end
 
 function SlashCmdList.HYDRA_FOLLOWME()
 	if core.state == SOLO then return end
-	module:Debug("Sending follow command")
-	SendAddonMessage("HydraFollow", "ME", "PARTY")
+	if UnitInParty("target") then
+		local target = UnitName("target")
+		module:Debug("Sending follow command to target:", target)
+		SendAddonMessage("HydraFollow", "ME", "WHISPER", target)
+	else
+		module:Debug("Sending follow command to party")
+		SendAddonMessage("HydraFollow", "ME", "PARTY")
+	end
 end
 
 ------------------------------------------------------------------------
