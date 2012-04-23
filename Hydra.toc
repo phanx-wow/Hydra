@@ -3,8 +3,6 @@
 
 ## Title: Hydra
 ## Notes: Multibox leveling helper.
-## Notes-esES: Ayudante para la nivelación multibox.
-## Notes-esMX: Ayudante para la nivelación multibox.
 ## Notes-koKR: 멀티박스 레벨링 도우미입니다.
 ## Author: Phanx
 ## X-Email: addons@phanx.net
