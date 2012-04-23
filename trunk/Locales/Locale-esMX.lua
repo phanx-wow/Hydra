@@ -7,7 +7,7 @@
 	http://www.curse.com/addons/wow/hydra
 ------------------------------------------------------------------------
 	Localization: esMX | Español (AL) | Spanish (Latin America)
-	Last updated 2011-01-19 by Akkorian
+	Last updated 2012-04-22 by Phanx
 ----------------------------------------------------------------------]]
 
 if not string.match( GetLocale(), "^es" ) then return end
@@ -21,13 +21,15 @@ core.L = L
 L["Hydra is a multibox leveling helper that aims to minimize the need to actively control secondary characters."] = "Hydra es un ayudante para la nivelación multibox que tiene como objetivo reducir al mínimo la necesidad de controlar activamente personajes secundarios."
 L["Trust List"] = "Lista de confianza"
 L["Add Name"] = "Añadir nombre"
-L["Add a name to your trusted list."] = "Añadir un nombre a la lista de confianza."
+L["Add a name to your trusted list."] = "Añadir a la lista de confianza un nombre."
+L["Add Party"] = "Añadir grupo"
+L["Add all the characters in your current party group to your trusted list."] = "Añadir a la lista de confianza los nombres de todos en tu grupo."
 L["Remove Name"] = "Eliminar nombre"
-L["Remove a name from your trusted list."] = "Eliminar un nombre de la lista de confianza."
-L["Add Current Party"] = "Añadir grupo"
-L["Add all the characters in your current party group to your trusted list."] = "Añadir todos los personajes en tu grupo actual a la lista de confianza."
+L["Remove a name from your trusted list."] = "Eliminar de la lista de confianza un nombre."
+L["Remove All"] = "Eliminar todos"
+L["Remove all names from your trusted list for this server."] = "Eliminar de la lista de todos los nombres en este reino." 
 
-L["Added %s to the trusted list."] = "Agregó %s a la lista de confianza."
+L["Added %s to the trusted list."] = "Añadido %s a la lista de confianza."
 L["Removed %s from the trusted list."] = "Eliminado %s de la lista de confianza."
 
 L.HELP_TRUST = [[Hydra opera sobre la base de "confianza". Te añada una lista de personajes de tu confianza, si son tus personajes multibox, o tus amigos, y las funciones se activan o desactivan si estás en una grupo con personajes de confianza o no.

@@ -212,68 +212,58 @@ end
 ------------------------------------------------------------------------
 
 function module:SetupOptions(panel)
-	local title, notes = LibStub("PhanxConfig-Header").CreateHeader(panel, panel.name,
-		L["Automates simple repetetive tasks, such as clicking common dialogs."])
+	local title, notes = LibStub("PhanxConfig-Header").CreateHeader(panel, panel.name, L["Automates simple repetetive tasks, such as clicking common dialogs."])
 
-	local CreateCheckbox = LibStub("PhanxConfig-Checkbox").CreateCheckbox
+	panel.CreateCheckbox = LibStub("PhanxConfig-Checkbox").CreateCheckbox
 
-	local function OnClick(checkbox, checked)
-		self.db[ checkbox.key ] = checked
+	local function OnClick(self, checked)
+		self.db[self.key] = checked
 		if checkbox.key ~= "verbose" then
 			self:CheckState()
 		end
 	end
 
-	local declineDuels = CreateCheckbox(panel, L["Decline duels"],
-		L["Decline duel requests."])
+	local declineDuels = panel:CreateCheckbox(L["Decline duels"], L["Decline duel requests."])
 	declineDuels:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
 	declineDuels.OnClick = OnClick
 	declineDuels.key = "declineDuels"
 
-	local declineGuilds = CreateCheckbox(panel, L["Decline guilds"],
-		L["Decline guild invitations and petitions."])
+	local declineGuilds = panel:CreateCheckbox(L["Decline guilds"], L["Decline guild invitations and petitions."])
 	declineGuilds:SetPoint("TOPLEFT", declineDuels, "BOTTOMLEFT", 0, -8)
 	declineGuilds.OnClick = OnClick
 	declineGuilds.key = "declineGuilds"
 
-	local declineArenaTeams = CreateCheckbox(panel, L["Decline arena teams"],
-		L["Decline arena team invitations and petitions."])
+	local declineArenaTeams = panel:CreateCheckbox(L["Decline arena teams"], L["Decline arena team invitations and petitions."])
 	declineArenaTeams:SetPoint("TOPLEFT", declineGuilds, "BOTTOMLEFT", 0, -8)
 	declineArenaTeams.OnClick = OnClick
 	declineArenaTeams.key = "declineArenaTeams"
 
-	local acceptSummons = CreateCheckbox(panel, L["Accept summons"],
-		L["Accept summon requests."])
+	local acceptSummons = panel:CreateCheckbox(L["Accept summons"], L["Accept summon requests."])
 	acceptSummons:SetPoint("TOPLEFT", declineArenaTeams, "BOTTOMLEFT", 0, -8)
 	acceptSummons.OnClick = OnClick
 	acceptSummons.key = "acceptSummons"
 
-	local acceptResurrections = CreateCheckbox(panel, L["Accept resurrections"],
-		L["Accept resurrections from players not in combat."])
+	local acceptResurrections = panel:CreateCheckbox(L["Accept resurrections"], L["Accept resurrections from players not in combat."])
 	acceptResurrections:SetPoint("TOPLEFT", acceptSummons, "BOTTOMLEFT", 0, -8)
 	acceptResurrections.OnClick = OnClick
 	acceptResurrections.key = "acceptResurrections"
 
-	local acceptResurrectionsInCombat = CreateCheckbox(panel, L["Accept combat resurrections"],
-		L["Accept resurrections from players in combat."])
+	local acceptResurrectionsInCombat = panel:CreateCheckbox(L["Accept combat resurrections"], L["Accept resurrections from players in combat."])
 	acceptResurrectionsInCombat:SetPoint("TOPLEFT", acceptResurrections, "BOTTOMLEFT", 0, -8)
 	acceptResurrectionsInCombat.OnClick = OnClick
 	acceptResurrectionsInCombat.key = "acceptResurrectionsInCombat"
 
-	local repairEquipment = CreateCheckbox(panel, L["Repair equipment"],
-		L["Repair all equipment when interacting with a repair vendor."])
+	local repairEquipment = panel:CreateCheckbox(L["Repair equipment"], L["Repair all equipment when interacting with a repair vendor."])
 	repairEquipment:SetPoint("TOPLEFT", acceptResurrectionsInCombat, "BOTTOMLEFT", 0, -8)
 	repairEquipment.OnClick = OnClick
 	repairEquipment.key = "repairEquipment"
 
-	local sellJunk = CreateCheckbox(panel, L["Sell junk"],
-		L["Sell all junk (gray) items when interacting with a vendor."])
+	local sellJunk = panel:CreateCheckbox(L["Sell junk"], L["Sell all junk (gray) items when interacting with a vendor."])
 	sellJunk:SetPoint("TOPLEFT", repairEquipment, "BOTTOMLEFT", 0, -8)
 	sellJunk.OnClick = OnClick
 	sellJunk.key = "sellJunk"
 
-	local verbose = CreateCheckbox(panel, L["Verbose mode"],
-		L["Enable notification messages from this self."])
+	local verbose = panel:CreateCheckbox(L["Verbose mode"], L["Enable notification messages from this module."])
 	verbose:SetPoint("TOPLEFT", sellJunk, "BOTTOMLEFT", 0, -24)
 	verbose.OnClick = OnClick
 	verbose.key = "verbose"
@@ -286,15 +276,15 @@ function module:SetupOptions(panel)
 	help:SetJustifyV("BOTTOM")
 	help:SetText(L.HELP_AUTO)
 
-	panel.refresh = function()
-		declineDuels:SetChecked(self.db.declineDuels)
-		declineArenaTeams:SetChecked(self.db.declineArenaTeams)
-		declineGuilds:SetChecked(self.db.declineGuilds)
-		acceptSummons:SetChecked(self.db.acceptSummons)
-		acceptResurrections:SetChecked(self.db.acceptResurrections)
-		acceptResurrectionsInCombat:SetChecked(self.db.acceptResurrectionsInCombat)
-		repairEquipment:SetChecked(self.db.repairEquipment)
-		sellJunk:SetChecked(self.db.sellJunk)
-		verbose:SetChecked(self.db.verbose)
+	function panel:refresh()
+		declineDuels:SetChecked(module.db.declineDuels)
+		declineArenaTeams:SetChecked(module.db.declineArenaTeams)
+		declineGuilds:SetChecked(module.db.declineGuilds)
+		acceptSummons:SetChecked(module.db.acceptSummons)
+		acceptResurrections:SetChecked(module.db.acceptResurrections)
+		acceptResurrectionsInCombat:SetChecked(module.db.acceptResurrectionsInCombat)
+		repairEquipment:SetChecked(module.db.repairEquipment)
+		sellJunk:SetChecked(module.db.sellJunk)
+		verbose:SetChecked(module.db.verbose)
 	end
 end
