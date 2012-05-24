@@ -133,10 +133,24 @@ do
 	end
 end
 
-function SlashCmdList.HYDRA_FOLLOWME()
+function SlashCmdList.HYDRA_FOLLOWME(names)
 	if core.state == SOLO then return end
-	if UnitInParty("target") then
-		local target = UnitName("target")
+	local target = UnitName("target")
+	if names and names:len() > 0 then
+		local sent = 0
+		for name in names:gmatch("%S+") do
+			name = name:lower():gsub("%a", string.upper, 1)
+			if UnitInParty(name) and core:IsTrusted(name) then
+				module:Debug("Sending follow command to:", name)
+				SendAddonMessage("HydraFollow", "ME", "WHISPER", name)
+				sent = sent + 1
+			end
+		end
+		if sent > 0 then
+			return
+		end
+	end
+	if target and module.db.targetedFollowMe and UnitInParty("target") and core:IsTrusted(target) then
 		module:Debug("Sending follow command to target:", target)
 		SendAddonMessage("HydraFollow", "ME", "WHISPER", target)
 	else
@@ -192,6 +206,13 @@ function module:SetupOptions(panel)
 		self.db.verbose = checked
 	end
 
+	local targeted = CreateCheckbox(panel, L["Targeted /followme"],
+		L["Send the /followme only to your current target while targeting a trusted party member."])
+	targeted:SetPoint("TOPLEFT", verbose, "BOTTOMLEFT", 0, -8)
+	targeted.OnClick = function(_, checked)
+		self.db.targetedFollowMe = checked
+	end
+
 	local follow = CreateKeyBinding(panel, BINDING_NAME_HYDRA_FOLLOW_TARGET, "HYDRA_FOLLOW_TARGET",
 		L["Set a key binding to follow your current target."])
 	follow:SetPoint("TOPLEFT", notes, "BOTTOM", -8, -8)
@@ -223,6 +244,7 @@ function module:SetupOptions(panel)
 	panel.refresh = function()
 		enable:SetChecked(self.db.enable)
 		verbose:SetChecked(self.db.verbose)
+		targeted:SetChecked(self.db.targetedFollowMe)
 		follow:RefreshValue()
 		followme:RefreshValue()
 		release:RefreshValue()
