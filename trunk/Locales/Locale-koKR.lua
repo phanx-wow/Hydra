@@ -1,8 +1,8 @@
 --[[--------------------------------------------------------------------
 	Hydra
 	Multibox leveling helper.
-	Written by Phanx <addons@phanx.net>
-	Copyright © 2010–2012 Phanx. Some rights reserved. See LICENSE.txt for details.
+	Copyright (c) 2010-2012 Phanx <addons@phanx.net>. All rights reserved.
+	See the accompanying README and LICENSE files for more information.
 	http://www.wowinterface.com/downloads/info17572-Hydra.html
 	http://www.curse.com/addons/wow/hydra
 ------------------------------------------------------------------------
@@ -27,7 +27,7 @@ L["Remove a name from your trusted list."] = "신뢰하는 목록에서 이름�
 L["Add Party"] = "현재 파티 추가"
 L["Adds all the characters in your current party group to your trusted list."] = "현재 파티 그룹의 모든 캐릭터들을 신뢰하는 목록에 추가합니다."
 --L["Remove All"] = ""
---L["Remove all names from your trusted list for this server."] = "" 
+--L["Remove all names from your trusted list for this server."] = ""
 
 L["Added %s to the trusted list."] = "%s 님을 신뢰하는 목록에 추가했습니다."
 L["Removed %s from the trusted list."] = "%s 님을 신뢰하는 목록에서 제거했습니다."

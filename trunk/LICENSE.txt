@@ -1,34 +1,28 @@
-Hydra
-Multibox leveling helper.
-http://www.wowinterface.com/downloads/info17572-Hydra.html
-http://www.curse.com/addons/wow/hydra
+Copyright (c) 2010-2012 Phanx <addons@phanx.net>
 
-Copyright © 2010–2012 Phanx <addons@phanx.net>
+All rights reserved.
 
-The contents of this software, excluding third-party resources, are
-copyrighted to its author with all rights reserved, under United States
-and international copyright law. Copyright law specifices certain rights
-and restrictions persuant to your use of this software. The author of
-this software also grants you several additional rights. In summary:
+Permission is granted for anyone to use, read, or otherwise interpret
+this software for any purpose, without any restrictions.
 
-1. You MAY download and run this software as a user interface addon
-   inside the World of Warcraft game client.
+Permission is granted for anyone to modify this software or sample from
+it, and to distribute such modified versions or derivative works as long
+as neither the names of this software nor its authors are used in the
+name or title of the work or in any other way that may cause it to be
+confused with this software.
 
-2. You MAY make modifications to your local copy of this software for
-   your own private use.
+Permission is granted for anyone to distribute this software as part of
+a collective work or compilation as long as the software is not modified
+in any way, including by modifying or removing any files.
 
-3. You MAY distribute a whole and unaltered copy of this software as
-   part of a compilation released through Curse.com, CurseForge.com,
-   WoWAce.com, or WoWInterface.com.
+The names of this software and/or its authors may not be used to promote
+endorse works derived from or including this software without specific
+prior written permission from the authors of this software.
 
-4. You MAY NOT distribute this software in any other way, with or
-   without modifications, without prior written permission from its
-   author.
-
-5. You MAY use source code from this software for any purpose, provided
-   that the names of this software and/or its author are not used to
-   promote your project, and do not appear in the title, source code, or
-   file names of your project, outside of an optional credits notation.
-
-All rights not explicitly addressed in this license are reserved by the
-copyright holder.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
