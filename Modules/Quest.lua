@@ -1,8 +1,8 @@
 --[[--------------------------------------------------------------------
 	Hydra
 	Multibox leveling helper.
-	Written by Phanx <addons@phanx.net>
-	Copyright © 2010–2012 Phanx. Some rights reserved. See LICENSE.txt for details.
+	Copyright (c) 2010-2012 Phanx <addons@phanx.net>. All rights reserved.
+	See the accompanying README and LICENSE files for more information.
 	http://www.wowinterface.com/downloads/info17572-Hydra.html
 	http://www.curse.com/addons/wow/hydra
 ------------------------------------------------------------------------

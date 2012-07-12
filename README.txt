@@ -1,8 +1,8 @@
 Hydra
 =====
 
-* Written by Phanx <addons@phanx.net>
-* Copyright © 2010–2012 Phanx. Some rights reserved. See LICENSE.txt for details.
+* Copyright (c) 2010-2012 Phanx <addons@phanx.net>. All rights reserved.
+* See the accompanying LICENSE file for more information.
 * http://www.wowinterface.com/downloads/info17572-Hydra.html
 * http://www.curse.com/addons/wow/hydra
 
@@ -17,11 +17,11 @@ times you need to actively control secondary characters.
 Usage
 -----
 
-Type “/hydra” for options, or browse to the Hydra panel in the
+Type "/hydra" for options, or browse to the Hydra panel in the
 standard Interface Options window.
 
-Many of Hydra’s features are only active in parties consisting of
-characters on your “trusted” list, or only respond to characters on
+Many of Hydra's features are only active in parties consisting of
+characters on your "trusted" list, or only respond to characters on
 this list. The first time you run Hydra, you will need to define
 this list in the options panel.
 
@@ -40,30 +40,30 @@ Features
 * Declines duels, guilds, and arena teams
 * Repairs equipment and sells junk to vendors
 * Hold Shift to bypass repairing and selling
-* “/corpse release” causes all dead party members release their spirit
-* “/corpse accept causes all party members to accept resurrection
+* "/corpse release" causes all dead party members release their spirit
+* "/corpse accept causes all party members to accept resurrection
 
 ### Chat
 
 * Forwards whispers to secondary characters to party chat.
 * Forwards responses from party chat back to the original whisperer
   as a whisper from the character they messaged.
-* Messages in party chat that do not being with “@” or “!” are
+* Messages in party chat that do not being with "@" or "!" are
   assumed to be a response to the last forwarded whisper.
-* Type “@partymember message here” in party chat to respond to the
-  last message forwarded to party chat by “partymember”.
-* Type “@target message here” in a whisper to a trusted character to
-  have that character whisper “message here” to the player “target”.
+* Type "@partymember message here" in party chat to respond to the
+  last message forwarded to party chat by "partymember".
+* Type "@target message here" in a whisper to a trusted character to
+  have that character whisper "message here" to the player "target".
 
 ### Follow
 
 * Notifies you when a party member starts or stops following you.
-* Command all party members to follow you by typing “/followme”.
+* Command all party members to follow you by typing "/followme".
 * Command dead party members to release their spirit by typing
-  “/corpse release”.
+  "/corpse release".
 * Command party members to resurrect to their corpse (or by using their
-  soulstone or other self-resurrection ability) by typing “/corpse
-  accept”.
+  soulstone or other self-resurrection ability) by typing "/corpse
+  accept".
 
 ### Mount
 
@@ -72,9 +72,9 @@ Features
 ### Party
 
 * Accepts party invitations from trusted characters.
-* Type “/inivteme” to request a party invitation from your target.
-* Type “/inviteme name” to request a party invitation from “name”.
-* Type “/promoteme” to request a promotion to party leader.
+* Type "/inivteme" to request a party invitation from your target.
+* Type "/inviteme name" to request a party invitation from "name".
+* Type "/promoteme" to request a promotion to party leader.
 
 ### Quest
 
@@ -83,48 +83,42 @@ Features
 * Accepts start confirmations for escort-type quests.
 * Abandons quests abandoned by trusted party members.
 * Accepts quests from NPCs that another party member accepted.
-* Turns in completed quests that don’t have reward choices.
+* Turns in completed quests that don't have reward choices.
 
 ### Taxi
 
 * Selects the last taxi node selected by another party member in the
   last 60 seconds.
-* Type “/cleartaxi” to clear the taxi selection for the character.
+* Type "/cleartaxi" to clear the taxi selection for the character.
 * Hold Shift when speaking to a flight master to bypass autoselect.
 
 
 Localization
 ------------
 
-Hydra is compatible with all locales, and does not require localization
-to function.
+Compatible with English, Deutsch, Español (EU), Español (AL), Français,
+Italiano, Português, Русский, 한국어, 简体中文, and 正體中文 game clients.
 
-The options panel and user messages are currently translated into
-English, Español, and 한국어. To add or update translations for any
-locale, send me a PM on either download site, or use the CurseForge
-localization page:
+Translated into English, Español, and 한국어.
 
-* http://wow.curseforge.com/addons/hydra/localization/
+To add or update translations for any language, see the Localization tab
+on the CurseForge project page:
+
+http://wow.curseforge.com/addons/hydra/localization/
 
 
 Feedback
 --------
 
-Please report bugs using the ticket tracker:
+Bugs, errors, or other problems:
+	Submit a bug report ticket on either download page.
 
-* http://www.wowinterface.com/portal.php?uid=28751&a=listbugs
-* http://wow.curseforge.com/addons/hydra/tickets/?status=+&type=d
+Feature requests or other suggestions:
+	Submit a feature request ticket system on either download page.
 
-Please request features using the ticket tracker:
+General questions or comments:
+	Post a comment on the WoWInterface download page.
 
-* http://www.wowinterface.com/portal.php?uid=28751&a=listfeatures
-* http://wow.curseforge.com/addons/hydra/tickets/?status=+&type=e
-
-General questions and comments can be posted on the WoWI download
-page or in the WowAce forum thread:
-
-* http://www.wowinterface.com/downloads/info17572-Hydra.html
-* http://forums.wowace.com/showthread.php?t=18382
-
-If you need to contact me privately, you can do so by private message on
-either download site, or by email at <addons@phanx.net>.
+If you need to contact me privately for a reason other than those listed
+above, you can send me a private message on either download site, or
+email me at <addons@phanx.net>.
