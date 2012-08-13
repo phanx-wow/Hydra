@@ -50,8 +50,9 @@ function module:CheckState()
 		self:RegisterEvent("CHAT_MSG_ADDON")
 		self:RegisterEvent("QUEST_ACCEPT_CONFIRM")
 		self:RegisterEvent("QUEST_LOG_UPDATE")
-		if not IsAddonMessagePrefixRegistered( "HydraQuest" ) then
-			RegisterAddonMessagePrefix( "HydraQuest" )
+
+		if not IsAddonMessagePrefixRegistered("HydraQuest") then
+			RegisterAddonMessagePrefix("HydraQuest")
 		end
 	end
 end
@@ -60,20 +61,20 @@ end
 
 local function strip(text)
 	if not text then return "" end
-	text = text:gsub("%[.*%]%s*","")
-	text = text:gsub("|c%x%x%x%x%x%x%x%x(.+)|r","%1")
-	text = text:gsub("(.+) %(.+%)", "%1")
-	text = text:trim()
-	return text
+	text = gsub(text, "%[.*%]%s*","")
+	text = gsub(text, "|c%x%x%x%x%x%x%x%x(.+)|r","%1")
+	text = gsub(text, "(.+) %(.+%)", "%1")
+	return strtrim(text)
 end
 
 ------------------------------------------------------------------------
 
 function module:QUEST_ACCEPT_CONFIRM(name, qname)
-	if not UnitInParty(name) or not self.db.accept then return end
-	self:Debug("Accepting quest", qname, "started by", name)
-	ConfirmAcceptQuest()
-	StaticPopup_Hide("QUEST_ACCEPT")
+	if self.db.accept and (UnitInRaid(name) or UnitInParty(name)) then
+		self:Debug("Accepting quest", qname, "started by", name)
+		ConfirmAcceptQuest()
+		StaticPopup_Hide("QUEST_ACCEPT")
+	end
 end
 
 ------------------------------------------------------------------------
@@ -81,19 +82,19 @@ end
 ------------------------------------------------------------------------
 
 function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
-	if prefix ~= "HydraQuest" or channel ~= "PARTY" or sender == playerName or not core:IsTrusted(sender) then return end
+	if prefix ~= "HydraQuest" or (channel ~= "PARTY" and channel ~= "RAID") or sender == playerName or not core:IsTrusted(sender) then return end
 
-	local action, qlink = message:match( "^(%S+) (.+)$" )
+	local action, qlink = message:match("^(%S+) (.+)$")
 
 	if action == "ACCEPT" then
 		local qname = qlink:match("%[(.-)%]"):lower()
 		if not accepted[qname] then
 			accept[qname] = qlink
 		end
-		return self:Print( L["%1$s accepted %2$s."], sender, qlink )
+		return self:Print(L["%1$s accepted %2$s."], sender, qlink)
 
 	elseif action == "TURNIN" then
-		return self:Print( L["%1$s turned in %2$s."], sender, qlink )
+		return self:Print(L["%1$s turned in %2$s."], sender, qlink)
 
 	elseif action == "ABANDON" and self.db.abandon then
 		for i = 1, GetNumQuestLogEntries() do
@@ -102,7 +103,7 @@ function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 				SelectQuestLogEntry(i)
 				SetAbandonQuest()
 				AbandonQuest()
-				return self:Print( L["%1$s abandoned %2$s."], sender, qlink )
+				return self:Print(L["%1$s abandoned %2$s."], sender, qlink)
 			end
 		end
 	end
@@ -133,7 +134,7 @@ function module:GOSSIP_SHOW()
 	for i = 1, 32 do
 		local button = _G["GossipTitleButton" .. i]
 		if button and button:IsVisible() then
-			local text = strip(button:GetText()):lower()
+			local text = strlower(strip(button:GetText()))
 			self:Debug(i, button.type, "=", button:GetText(), "->", text)
 			if (button.type == "Available" and accept[text] and self.db.accept) or (button.type == "Active" and IsQuestComplete(text) and self.db.turnin) then
 				self:Debug(button.type == "Active" and "Completing quest" or "Accepting quest", strip(button:GetText()))
@@ -150,7 +151,7 @@ function module:QUEST_GREETING()
 	for i = 1, 32 do
 		local button = _G["QuestTitleButton" .. i]
 		if button and button:IsVisible() then
-			local text = strip(button:GetText()):lower()
+			local text = strlower(strip(button:GetText()))
 			self:Debug(i, button:GetText(), "->", text)
 			if (IsQuestComplete(text) and self.db.turnin) or (accept[text] and self.db.accept) then
 				self:Debug(IsQuestComplete(text) and "Completing quest" or "Accepting quest", strip(button:GetText()))
@@ -164,15 +165,12 @@ function module:QUEST_DETAIL()
 	self:Debug("QUEST_DETAIL")
 	if IsShiftKeyDown() then return end
 
-	local qname = strip(GetTitleText()):lower()
-	if not accept[qname] and not UnitInParty("questnpc") then return end
-
-	if UnitInParty("questnpc") then
+	local qname = strlower(strip(GetTitleText()))
+	if accept[qname] and (UnitInParty("questnpc") or UnitInRaid("questnpc")) then
 		accepted[qname] = true
+		self:Debug("Accepting quest", strip(GetTitleText()), "from", (UnitName("questnpc")))
+		AcceptQuest()
 	end
-
-	self:Debug("Accepting quest", strip(GetTitleText()), "from", (UnitName("questnpc")))
-	AcceptQuest()
 end
 
 ------------------------------------------------------------------------
@@ -231,31 +229,31 @@ function module:QUEST_LOG_UPDATE()
 		if not currentquests[id] then
 			if abandoning then
 				self:Debug("Abandoned quest", link)
-				SendAddonMessage( "HydraQuest", "ABANDON " .. link, "PARTY" )
+				SendAddonMessage("HydraQuest", "ABANDON " .. link, "RAID")
 			else
 				self:Debug("Turned in quest", link)
-				SendAddonMessage( "HydraQuest", "TURNIN " .. link, "PARTY" )
+				SendAddonMessage("HydraQuest", "TURNIN " .. link, "RAID")
 			end
 		end
 	end
 
 	abandoning = nil
 
-	for id, link in pairs( currentquests ) do
+	for id, link in pairs(currentquests) do
 		if not oldquests[ id ] then
-			self:Debug( "Accepted quest", link )
-			SendAddonMessage( "HydraQuest", "ACCEPT " .. link, "PARTY" )
+			self:Debug("Accepted quest", link)
+			SendAddonMessage("HydraQuest", "ACCEPT " .. link, "RAID")
 
-			local qname = link:match( "%[(.-)%]" ):lower()
+			local qname = link:match("%[(.-)%]"):lower()
 			if self.db.share and not accept[ qname ] and not accepted[ qname ] then
 				for i = 1, GetNumQuestLogEntries() do
-					if link == GetQuestLink( i ) then
-						SelectQuestLogEntry( i )
+					if link == GetQuestLink(i) then
+						SelectQuestLogEntry(i)
 						if GetQuestLogPushable() then
-							self:Debug( "Sharing quest..." )
+							self:Debug("Sharing quest...")
 							QuestLogPushQuest()
 						else
-							core:Print( L["That quest cannot be shared."] )
+							core:Print(L["That quest cannot be shared."])
 						end
 					end
 				end
@@ -265,9 +263,9 @@ function module:QUEST_LOG_UPDATE()
 end
 
 local abandon = AbandonQuest
-function AbandonQuest( ... )
+function AbandonQuest(...)
 	abandoning = true
-	return abandon( ... )
+	return abandon(...)
 end
 
 ------------------------------------------------------------------------

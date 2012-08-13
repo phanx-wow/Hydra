@@ -76,31 +76,31 @@ end
 
 function module:PETITION_SHOW()
 	local type, _, _, _, sender, mine = GetPetitionInfo()
-	if not mine and not UnitInParty(sender) then
-		if (type == "arena" and self.db.declineArenaTeams) then
-			self:Print( L["Declined an arena team petition from %s."], sender )
+	if not mine then
+		if type == "arena" and self.db.declineArenaTeams then
+			self:Print(L["Declined an arena team petition from %s."], sender)
 			ClosePetition()
-		elseif (type == "guild" and self.db.declineGuilds) then
-			self:Print( L["Declined a guild petition from %s."], sender )
+		elseif type == "guild" and self.db.declineGuilds then
+			self:Print(L["Declined a guild petition from %s."], sender)
 			ClosePetition()
 		end
 	end
 end
 
 function module:ARENA_TEAM_INVITE_REQUEST(sender)
-	self:Print( L["Declined an arena team invitation from %s"], sender )
+	self:Print(L["Declined an arena team invitation from %s"], sender)
 	DeclineArenaTeam()
 	StaticPopup_Hide("ARENA_TEAM_INVITE")
 end
 
 function module:DUEL_REQUESTED(sender)
-	self:Print( L["Declined a duel request from %s."], sender )
+	self:Print(L["Declined a duel request from %s."], sender)
 	CancelDuel()
 	StaticPopup_Hide("DUEL_REQUESTED")
 end
 
 function module:GUILD_INVITE_REQUEST(sender)
-	self:Print( L["Declined a guild invitation from %s."], sender )
+	self:Print(L["Declined a guild invitation from %s."], sender)
 	DeclineGuild()
 	StaticPopup_Hide("GUILD_INVITE")
 end
@@ -138,7 +138,7 @@ function module:MERCHANT_SHOW()
 			end
 		end
 		if num > 0 then
-			self:Print( L["Sold %1$d junk |4item:items; for %2$s."], num, formatMoney(value) )
+			self:Print(L["Sold %1$d junk |4item:items; for %2$s."], num, formatMoney(value))
 		end
 	end
 
@@ -153,14 +153,14 @@ function module:MERCHANT_SHOW()
 
 			if guildmoney >= cost and self.db.repairWithGuildFunds and IsInGuild() then
 				RepairAllItems(1)
-				self:Print( L["Repaired all items with guild bank funds for %s."], formatMoney(cost) )
+				self:Print(L["Repaired all items with guild bank funds for %s."], formatMoney(cost))
 			elseif self.db.repairWithGuildFunds and IsInGuild() then
-				self:Print( L["Insufficient guild bank funds to repair!"] )
+				self:Print(L["Insufficient guild bank funds to repair!"])
 			elseif money > cost then
 				RepairAllItems()
-				self:Print( L["Repaired all items for %s."], formatMoney(cost) )
+				self:Print(L["Repaired all items for %s."], formatMoney(cost))
 			else
-				self:Print( L["Insufficient funds to repair!"] )
+				self:Print(L["Insufficient funds to repair!"])
 			end
 		end
 	end
@@ -169,14 +169,14 @@ end
 ------------------------------------------------------------------------
 
 function module:RESURRECT_REQUEST(sender)
-	if not UnitInParty(sender) then return end
-
-	local _, class = UnitClass(sender)
-	if class == "DRUID" and not self.db.acceptResurrectionsInCombat and UnitAffectingCombat(sender) then return end
-
-	self:Print( L["Accepted a resurrection from %s."], sender )
-	AcceptResurrect()
-	StaticPopup_Hide("RESURRECT_NO_SICKNESS")
+	if UnitInRaid(sender) or UnitInParty(sender) then
+		local _, class = UnitClass(sender)
+		if class ~= "DRUID" or self.db.acceptResurrectionsInCombat or not UnitAffectingCombat(sender) then
+			self:Print(L["Accepted a resurrection from %s."], sender)
+			AcceptResurrect()
+			StaticPopup_Hide("RESURRECT_NO_SICKNESS")
+		end
+	end
 end
 
 ------------------------------------------------------------------------
@@ -188,25 +188,27 @@ end
 
 function module:CONFIRM_SUMMON()
 	local sender, location = GetSummonConfirmSummoner(), GetSummonConfirmAreaName()
-	if not sender or not location then return end
+	if sender and location then
+		if UnitAffectingCombat("player") or not PlayerCanTeleport() then
+			self:Print(L["Accepting a summon when combat ends..."])
+			self:RegisterEvent("PLAYER_REGEN_ENABLED")
 
-	if UnitAffectingCombat("player") or not PlayerCanTeleport() then
-		self:Print( L["Accepting a summon when combat ends..."] )
-		self:RegisterEvent("PLAYER_REGEN_ENABLED")
-	elseif GetSummonConfirmTimeLeft() > 0 then
-		self:Print( L["Accepting a summon from %1$s to %2$s."], sender, location )
-		ConfirmSummon()
-		StaticPopup_Hide("CONFIRM_SUMMON")
-	else
-		self:Print( L["Summon expired!"] )
+		elseif GetSummonConfirmTimeLeft() > 0 then
+			self:Print(L["Accepting a summon from %1$s to %2$s."], sender, location)
+			ConfirmSummon()
+			StaticPopup_Hide("CONFIRM_SUMMON")
+
+		else
+			self:Print(L["Summon expired!"])
+		end
 	end
 end
 
 ------------------------------------------------------------------------
 
 function module:TRAINER_SHOW()
-	SetTrainerServiceTypeFilter( "unavailable", 0 )
-	SetTrainerServiceTypeFilter( "used", 0 )
+	SetTrainerServiceTypeFilter("unavailable", 0)
+	SetTrainerServiceTypeFilter("used", 0)
 end
 
 ------------------------------------------------------------------------
