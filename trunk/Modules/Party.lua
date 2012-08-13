@@ -14,6 +14,8 @@
 	  leader.
 ----------------------------------------------------------------------]]
 
+local WoW5 = select(4, GetBuildInfo()) >= 50000
+
 local _, core = ...
 
 local L = core.L
@@ -35,8 +37,8 @@ function module:CheckState()
 		self:Debug("Enable module: Party")
 		self:RegisterEvent("CHAT_MSG_ADDON")
 		self:RegisterEvent("PARTY_INVITE_REQUEST")
-		if not IsAddonMessagePrefixRegistered( "HydraParty" ) then
-			RegisterAddonMessagePrefix( "HydraParty" )
+		if not IsAddonMessagePrefixRegistered("HydraParty") then
+			RegisterAddonMessagePrefix("HydraParty")
 		end
 	else
 		self:Debug("Disable module: Party")
@@ -46,41 +48,61 @@ end
 
 ------------------------------------------------------------------------
 
-function module:CHAT_MSG_ADDON( prefix, message, channel, sender )
+function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 	if prefix ~= "HydraParty" or sender == playerName then return end
 
-	if message:match( "INVITE" ) and channel == "WHISPER" then
-		if not core:IsTrusted( sender ) then
-			return SendChatMessage( L["I cannot invite you, because you are not on my trusted list."], "WHISPER", nil, sender )
+	if message:match("INVITE") and channel == "WHISPER" then
+		if not core:IsTrusted(sender) then
+			return SendChatMessage(L["I cannot invite you, because you are not on my trusted list."], "WHISPER", nil, sender)
 		end
-		if GetNumPartyMembers() > 0 and not IsPartyLeader() then
-			return SendChatMessage( L["I cannot invite you, because I am not the module leader."], "WHISPER", nil, sender )
+
+		if WoW5 then
+			if GetNumGroupMembers() > 0 and not UnitIsGroupLeader("player") then
+				return SendChatMessage(L["I cannot invite you, because I am not the group leader."], "WHISPER", nil, sender)
+			end
+		else
+			if (GetNumRaidMembers() > 0 and not IsRaidLeader()) or (GetNumPartyMembers() > 0 and not IsPartyLeader()) then
+				return SendChatMessage(L["I cannot invite you, because I am not the group leader."], "WHISPER", nil, sender)
+			end
 		end
-		if message:match( "PROMOTE" ) then
+
+		if message:match("PROMOTE") then
 			remote = sender
-			self:RegisterEvent( "PARTY_LEADER_CHANGED" )
+			self:RegisterEvent("PARTY_LEADER_CHANGED")
 		end
 		InviteUnit(sender)
 
-	elseif message:match( "PROMOTE" ) then
+	elseif message:match("PROMOTE") then
 		if not core:IsTrusted(sender) then
-			return SendChatMessage( L["I cannot promote you, because you are not on my trusted list."], "WHISPER", nil, sender )
+			return SendChatMessage(L["I cannot promote you, because you are not on my trusted list."], "WHISPER", nil, sender)
 		end
-		if GetNumPartyMembers() > 0 and not IsPartyLeader() then
-			return SendChatMessage( L["I cannot promote you, because I am not the party leader."], "WHISPER", nil, sender )
+
+		if WoW5 then
+			if GetNumGroupMembers() > 0 and not UnitIsGroupLeader("player") then
+				return SendChatMessage(L["I cannot promote you, because I am not the group leader."], "WHISPER", nil, sender)
+			end
+			if GetNumGroupMembers() == 0 then
+				-- we're not in a group, invite instead
+				return self:CHAT_MSG_ADDON("HydraParty", "INVITE", "WHISPER", sender)
+			end
+		else
+			if (GetNumRaidMembers() > 0 and not IsRaidLeader()) or (GetNumPartyMembers() > 0 and not IsPartyLeader()) then
+				return SendChatMessage(L["I cannot promote you, because I am not the group leader."], "WHISPER", nil, sender)
+			end
+			if GetNumRaidMembers() == 0 and GetNumPartyMembers() == 0 then
+				-- we're not in a group, invite instead
+				return self:CHAT_MSG_ADDON("HydraParty", "INVITE", "WHISPER", sender)
+			end
 		end
-		if GetNumPartyMembers() == 0 then
-			-- we're not in a party, invite instead
-			return self:CHAT_MSG_ADDON( "HydraParty", "INVITE", "WHISPER", sender )
-		end
-		PromoteToLeader( sender )
+
+		PromoteToLeader(sender)
 	end
 end
 
 function module:PARTY_LEADER_CHANGED()
 	if GetNumPartyMembers() > 0 and IsPartyLeader() then
-		self:UnregisterEvent( "PARTY_LEADER_CHANGED" )
-		PromoteToLeader( remote )
+		self:UnregisterEvent("PARTY_LEADER_CHANGED")
+		PromoteToLeader(remote)
 		remote = nil
 	end
 end
@@ -119,21 +141,25 @@ end
 SLASH_HYDRA_INVITEME1 = "/ime"
 SLASH_HYDRA_INVITEME2 = "/inviteme"
 do
-	local slash = rawget( core.L, "SLASH_HYDRA_INVITEME3" )
+	local slash = rawget(core.L, "SLASH_HYDRA_INVITEME3")
 	if slash and slash ~= SLASH_HYDRA_INVITEME1 and slash ~= SLASH_HYDRA_INVITEME2 then
 		SLASH_HYDRA_INVITEME3 = slash
 	end
 end
 
 SlashCmdList.HYDRA_INVITEME = function(target)
-	if GetNumPartyMembers() > 0 or GetNumRaidMembers() > 0 then return end
-	target = string.trim(target or ""):lower()
+	if WoW5 then
+		if GetNumGroupMembers() == 0 then return end
+	elseif GetNumPartyMembers() > 0 or GetNumRaidMembers() > 0 then
+		return
+	end
+	target = strlower(strtrim(target or ""))
 
 	local nopromote
 
-	if target:match("nopromote") then
+	if strmatch(target, "nopromote") then
 		nopromote = true
-		target = target:replace("nopromote", ""):trim()
+		target = strtrim(gsub(target, "nopromote", ""))
 	end
 
 	if target == "" then
@@ -155,18 +181,22 @@ end
 SLASH_HYDRA_PROMOTEME1 = "/pme"
 SLASH_HYDRA_PROMOTEME2 = "/promoteme"
 do
-	local slash = rawget( core.L, "SLASH_HYDRA_PROMOTEME3" )
+	local slash = rawget(core.L, "SLASH_HYDRA_PROMOTEME3")
 	if slash and slash ~= SLASH_HYDRA_PROMOTEME1 and slash ~= SLASH_HYDRA_PROMOTEME2 then
 		SLASH_HYDRA_PROMOTEME3 = slash
 	end
 end
 
 SlashCmdList.HYDRA_PROMOTEME = function()
-	if GetNumPartyMembers() == 0 or GetNumRaidMembers() > 0 then return end
+	if WoW5 then
+		if GetNumGroupMembers() == 0 then return end
+	elseif GetNumPartyMembers() > 0 or GetNumRaidMembers() > 0 then
+		return
+	end
 
 	module:Debug("PROMOTEME")
 
-	SendAddonMessage("HydraParty", "PROMOTE", "PARTY")
+	SendAddonMessage("HydraParty", "PROMOTE", "RAID")
 end
 
 ------------------------------------------------------------------------

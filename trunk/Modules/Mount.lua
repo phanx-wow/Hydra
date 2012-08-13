@@ -31,8 +31,8 @@ function module:CheckState()
 		self:Debug("Enable module: Mount")
 		self:RegisterEvent("CHAT_MSG_ADDON")
 		self:RegisterEvent("UNIT_SPELLCAST_SENT")
-		if not IsAddonMessagePrefixRegistered( "HydraMount" ) then
-			RegisterAddonMessagePrefix( "HydraMount" )
+		if not IsAddonMessagePrefixRegistered("HydraMount") then
+			RegisterAddonMessagePrefix("HydraMount")
 		end
 	else
 		self:Debug("Disable module: Mount")
@@ -43,16 +43,17 @@ end
 ------------------------------------------------------------------------
 
 function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
-	if prefix ~= "HydraMount" or channel ~= "PARTY" or sender == playerName or not core:IsTrusted(sender) then return end
+	if prefix ~= "HydraMount" or sender == playerName or (channel ~= "PARTY" and channel ~= "RAID") or not core:IsTrusted(sender) then return end
 	self:Debug("CHAT_MSG_ADDON", prefix, message, channel, sender)
 
 	if message == "ERROR" then
-		self:Print( L["ERROR: %s is missing that mount!"], sender )
+		self:Print(L["ERROR: %s is missing that mount!"], sender)
 		return
 	end
 
-	local remoteID, remoteName = message:match("^(%d+) (.+)$")
+	local remoteID, remoteName = strmatch(message, "^(%d+) (.+)$")
 	if not remoteID or not remoteName then return end
+
 	remoteID = tonumber(remoteID)
 	self:Debug(sender, "mounted on", remoteID, remoteName)
 
@@ -86,7 +87,7 @@ function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 		end
 	end
 
-	SendAddonMessage("HydraMount", "ERROR", "PARTY")
+	SendAddonMessage("HydraMount", "ERROR", "RAID")
 	responding = nil
 end
 
@@ -96,9 +97,9 @@ function module:UNIT_SPELLCAST_SENT(unit, spell)
 	if responding or unit ~= "player" or core.state == SOLO or UnitAffectingCombat("player") then return end
 	for i = 1, GetNumCompanions("MOUNT") do
 		local _, name, id = GetCompanionInfo("MOUNT", i)
-		if name == spell or (GetSpellInfo(id)) == spell then -- stupid paladin mount summon spell doesn't match companion name
+		if name == spell or GetSpellInfo(id) == spell then -- stupid paladin mount summon spell doesn't match companion name
 			self:Debug("Summoning mount", name, id)
-			SendAddonMessage("HydraMount", id .. " " .. name, "PARTY")
+			SendAddonMessage("HydraMount", id .. " " .. name, "RAID")
 		end
 	end
 end
@@ -108,7 +109,7 @@ hooksecurefunc("CallCompanion", function(type, i)
 	if type == "MOUNT" then
 		local _, name, id = GetCompanionInfo(type, i)
 		module:Debug("CallCompanion", type, i, name, id)
-		SendAddonMessage("HydraMount", id .. " " .. name, "PARTY")
+		SendAddonMessage("HydraMount", id .. " " .. name, "RAID")
 	end
 end)
 

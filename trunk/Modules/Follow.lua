@@ -27,7 +27,7 @@ module:SetScript("OnEvent", function(f, e, ...) return f[e] and f[e](f, ...) end
 
 module.defaults = { enable = true, verbose = true }
 
-if GetLocale():match( "^en" ) then
+if GetLocale():match("^en") then
 	L["release"] = "re?l?e?a?s?e?"
 	L["accept"] = "ac?c?e?p?t?"
 end
@@ -44,8 +44,8 @@ function module:CheckState()
 		self:RegisterEvent("AUTOFOLLOW_BEGIN")
 		self:RegisterEvent("AUTOFOLLOW_END")
 		self:RegisterEvent("CHAT_MSG_ADDON")
-		if not IsAddonMessagePrefixRegistered( "HydraFollow" ) then
-			RegisterAddonMessagePrefix( "HydraFollow" )
+		if not IsAddonMessagePrefixRegistered("HydraFollow") then
+			RegisterAddonMessagePrefix("HydraFollow")
 		end
 	end
 end
@@ -58,44 +58,47 @@ function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 	if prefix == "HydraFollow" then
 		if message == playerName then -- sender is following me
 			if self.db.verbose then
-				self:Print( L["%s is now following you."], sender )
+				self:Print(L["%s is now following you."], sender)
 			end
 			followers[sender] = GetTime()
+
 		elseif message == "END" and followers[sender] then -- sender stopped following me
 			if GetTime() - followers[sender] > 2 then
 				if self.db.verbose then
-					self:Print( L["%s is no longer following you."], sender )
+					self:Print(L["%s is no longer following you."], sender)
 				end
 				if not CheckInteractDistance(sender, 2) and not UnitOnTaxi("player") then
-					self:Alert( string.format(  L["%s is no longer following you!"], sender ) )
+					self:Alert(format(L["%s is no longer following you!"], sender))
 				end
 			end
 			followers[sender] = nil
+
 		elseif message == "ME" and core:IsTrusted(sender) and self.db.enable then -- sender wants me to follow them
 			if CheckInteractDistance(sender, 4) then
 				self:Debug(sender, "has sent a follow request.")
 				FollowUnit(sender)
 			else
 				if self.db.verbose then
-					self:Print( L["%s is too far away to follow!"], sender )
+					self:Print(L["%s is too far away to follow!"], sender)
 				end
 			end
 		end
-		return
+
 	elseif prefix == "HydraCorpse" then
 		if message == "release" and UnitIsDead("player") and not UnitIsGhost("player") and core:IsTrusted(sender) then
 			local ss = HasSoulstone()
 			if ss then
 				if ss == L["Use Soulstone"] then
-					SendChatMessage( L["I have a soulstone."], "PARTY") -- #TODO: use comms
+					SendChatMessage(L["I have a soulstone."], "PARTY") -- #TODO: use comms
 				elseif ss == L["Reincarnate"] then
-					SendChatMessage( L["I can reincarnate."], "PARTY") -- #TODO: use comms
+					SendChatMessage(L["I can reincarnate."], "PARTY") -- #TODO: use comms
 				else -- probably "Twisting Nether"
-					SendChatMessage( L["I can resurrect myself."], "PARTY") -- #TODO: use comms
+					SendChatMessage(L["I can resurrect myself."], "PARTY") -- #TODO: use comms
 				end
 			else
 				RepopMe()
 			end
+
 		elseif message == "accept" and core:IsTrusted(sender) then
 			if UnitIsGhost("player") then
 				RetrieveCorpse()
@@ -103,7 +106,7 @@ function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 				UseSoulstone()
 			end
 			if CannotBeResurrected() then
-				SendChatMessage( L["I cannot resurrect!"], "PARTY") -- #TODO: use comms
+				SendChatMessage(L["I cannot resurrect!"], "PARTY") -- #TODO: use comms
 			end
 		end
 	end
@@ -127,7 +130,7 @@ end
 SLASH_HYDRA_FOLLOWME1 = "/fme"
 SLASH_HYDRA_FOLLOWME2 = "/followme"
 do
-	local slash = rawget( L, "SLASH_HYDRA_FOLLOWME3" )
+	local slash = rawget(L, "SLASH_HYDRA_FOLLOWME3")
 	if slash and slash ~= SLASH_HYDRA_FOLLOWME1 and slash ~= SLASH_HYDRA_FOLLOWME2 then
 		SLASH_FOLLOWME3 = slash
 	end
@@ -136,11 +139,11 @@ end
 function SlashCmdList.HYDRA_FOLLOWME(names)
 	if core.state == SOLO then return end
 	local target = UnitName("target")
-	if names and names:len() > 0 then
+	if names and strlen(names) > 0 then
 		local sent = 0
-		for name in names:gmatch("%S+") do
-			name = name:lower():gsub("%a", string.upper, 1)
-			if UnitInParty(name) and core:IsTrusted(name) then
+		for name in gmatch(names, "%S+") do
+			name = gsub(strlower(name), "%a", strupper, 1)
+			if core:IsTrusted(name) and (UnitInParty(name) or UnitInRaid(name)) then
 				module:Debug("Sending follow command to:", name)
 				SendAddonMessage("HydraFollow", "ME", "WHISPER", name)
 				sent = sent + 1
@@ -150,12 +153,12 @@ function SlashCmdList.HYDRA_FOLLOWME(names)
 			return
 		end
 	end
-	if target and module.db.targetedFollowMe and UnitInParty("target") and core:IsTrusted(target) then
+	if target and module.db.targetedFollowMe and core:IsTrusted(target) and (UnitInParty(name) or UnitInRaid(name)) then
 		module:Debug("Sending follow command to target:", target)
 		SendAddonMessage("HydraFollow", "ME", "WHISPER", target)
 	else
 		module:Debug("Sending follow command to party")
-		SendAddonMessage("HydraFollow", "ME", "PARTY")
+		SendAddonMessage("HydraFollow", "ME", "RAID")
 	end
 end
 
@@ -163,7 +166,7 @@ end
 
 SLASH_HYDRA_CORPSE1 = "/corpse"
 do
-	local slash = rawget( L, "SLASH_HYDRA_CORPSE2" )
+	local slash = rawget(L, "SLASH_HYDRA_CORPSE2")
 	if slash and slash ~= SLASH_HYDRA_CORPSE1 then
 		SLASH_HYDRA_CORPSE2 = slash
 	end
@@ -171,20 +174,20 @@ end
 
 function SlashCmdList.HYDRA_CORPSE(command)
 	if core.state == SOLO then return end
-	command = command and command:trim():lower() or ""
-	if command:match( L["release"] ) or command:match( "^r" ) then
-		SendAddonMessage("HydraCorpse", "release", "PARTY")
-	elseif command:match( L["accept"] ) or command:match( "^a" ) then
-		SendAddonMessage("HydraCorpse", "accept", "PARTY")
+	command = command and strlower(strtrim(command)) or ""
+	if strmatch(command, L["release"]) or strmatch(command, "^r") then
+		SendAddonMessage("HydraCorpse", "release", "RAID")
+	elseif strmatch(command, L["accept"]) or strmatch(command, "^a") then
+		SendAddonMessage("HydraCorpse", "accept", "RAID")
 	end
 end
 
 ------------------------------------------------------------------------
 
-BINDING_NAME_HYDRA_FOLLOW_TARGET = rawget( L, "BINDING_NAME_HYDRA_FOLLOW_TARGET" ) or "Follow target"
-BINDING_NAME_HYDRA_FOLLOW_ME = rawget( L, "BINDING_NAME_HYDRA_FOLLOW_ME" ) or "Request follow"
-BINDING_NAME_HYDRA_RELEASE_CORPSE = rawget( L, "BINDING_NAME_HYDRA_RELEASE_CORPSE" ) or "Release spirit"
-BINDING_NAME_HYDRA_ACCEPT_CORPSE = rawget( L, "BINDING_NAME_HYDRA_ACCEPT_CORPSE" ) or "Resurrect"
+BINDING_NAME_HYDRA_FOLLOW_TARGET = rawget(L, "BINDING_NAME_HYDRA_FOLLOW_TARGET") or "Follow target"
+BINDING_NAME_HYDRA_FOLLOW_ME = rawget(L, "BINDING_NAME_HYDRA_FOLLOW_ME") or "Request follow"
+BINDING_NAME_HYDRA_RELEASE_CORPSE = rawget(L, "BINDING_NAME_HYDRA_RELEASE_CORPSE") or "Release spirit"
+BINDING_NAME_HYDRA_ACCEPT_CORPSE = rawget(L, "BINDING_NAME_HYDRA_ACCEPT_CORPSE") or "Resurrect"
 
 ------------------------------------------------------------------------
 

@@ -7,6 +7,8 @@
 	http://www.curse.com/addons/wow/hydra
 ----------------------------------------------------------------------]]
 
+local WoW5 = select(4, GetBuildInfo()) >= 50000
+
 local HYDRA, core = ...
 
 local L = setmetatable(core.L or {}, { __index = function(t, k)
@@ -32,7 +34,7 @@ function core:Debug(str, ...)
 	if not str or (not self.debug and not core.debugall) then return end
 	str = tostring(str)
 	if str:match("%%[dsx%d%.]") then
-		print("|cffff9999Hydra:|r", str:format(...))
+		print("|cffff9999Hydra:|r", format(str, ...))
 	else
 		print("|cffff9999Hydra:|r", str, ...)
 	end
@@ -40,7 +42,7 @@ end
 
 function core:Print(str, ...)
 	if str:match("%%[dsx%d%.]") then
-		str = str:format(...)
+		str = format(str, ...)
 	end
 	print("|cffffcc00Hydra:|r", str)
 end
@@ -52,10 +54,10 @@ end
 ------------------------------------------------------------------------
 
 function core:IsTrusted(name, realm)
-	if realm and realm:len() > 0 and realm ~= myRealm then
+	if realm and strlen(realm) > 0 and realm ~= myRealm then
 		return
 	end
-	if name:match("%-") then
+	if strmatch(name, "%-") then
 		return
 	end
 	local trusted = self.trusted[name]
@@ -67,7 +69,7 @@ function core:AddTrusted(name, realm)
 	if realm and realm:len() > 0 and realm ~= myRealm then
 		return
 	end
-	assert(type(name) == "string" and name:len() >= 2 and name:len() <= 12 and name:sub(1,1):upper() == name:sub(1,1), "Invalid name.")
+	assert(type(name) == "string" and strlen(name) >= 2 and strlen(name) <= 12 and strupper(strsub(name, 1, 1)) == strsub(name,1, 1), "Invalid name.")
 	self.trusted[name] = name
 	HydraTrustList[myRealm][name] = name
 	self:Print("%s has been added to the trusted list.", name)
@@ -75,7 +77,7 @@ function core:AddTrusted(name, realm)
 end
 
 function core:RemoveTrusted(name, realm)
-	if realm and realm:len() > 0 and realm ~= myRealm then
+	if realm and strlen(realm) > 0 and realm ~= myRealm then
 		return
 	end
 	assert(type(name) == "string" and self.trusted[name], "Invalid name.")
@@ -145,43 +147,80 @@ function f:PLAYER_LOGIN()
 		end
 	end
 
+	if WoW5 then
+		f:RegisterEvent("GROUP_ROSTER_UPDATE")
+	else
+		f:RegisterEvent("PARTY_MEMBERS_CHANGED")
+		f:RegisterEvent("RAID_ROSTER_UPDATE")
+	end
 	f:RegisterEvent("PARTY_LEADER_CHANGED")
 	f:RegisterEvent("PARTY_LOOT_METHOD_CHANGED")
-	f:RegisterEvent("PARTY_MEMBERS_CHANGED")
 	f:RegisterEvent("UNIT_NAME_UPDATE")
 
-	f:PARTY_LEADER_CHANGED()
+	f:CheckParty()
 end
 
 ------------------------------------------------------------------------
 
-function f:PARTY_LEADER_CHANGED(unit)
-	if unit and not unit:match("^party%d$") then return end
+function f:CheckParty(unit)
+	if unit and not strmatch(unit, "^party%d$") then return end -- irrelevant UNIT_NAME_UPDATE
 
 	local newstate = SOLO
-	if GetNumPartyMembers() > 0 then
-		for i = 1, GetNumPartyMembers() do
-			if not core:IsTrusted(UnitName("party" .. i)) then
-				newstate = INSECURE
-				break
+	if WoW5 then
+		if IsInGroup() then
+			local u = IsInRaid() and "raid" or "party"
+			for i = 1, GetNumGroupMembers() do
+				if not core:IsTrusted(UnitName(u .. i)) then
+					newstate = INSECURE
+					break
+				end
+			end
+			if newstate == SOLO then
+				newstate = IsGroupLeader() and LEADER or SECURE
 			end
 		end
-		if newstate == SOLO then
-			newstate = IsPartyLeader() and LEADER or SECURE
+	else
+		if GetNumRaidMembers() > 0 then
+			for i = 1, GetNumRaidMembers() do
+				if not core:IsTrusted(UnitName("raid" .. i)) then
+					newstate = INSECURE
+					break
+				end
+			end
+			if newstate == SOLO then
+				newstate = IsPartyLeader() and LEADER or SECURE
+			end
+		elseif GetNumPartyMembers() > 0 then
+			for i = 1, GetNumPartyMembers() do
+				if not core:IsTrusted(UnitName("party" .. i)) then
+					newstate = INSECURE
+					break
+				end
+			end
+			if newstate == SOLO then
+				newstate = IsPartyLeader() and LEADER or SECURE
+			end
 		end
 	end
 
 	core:Debug("Party changed:", core.state, "->", newstate)
 
-	if IsPartyLeader() then
+	local UnitIsGroupLeader
+	if WoW5 then
+		UnitIsGroupLeader = _G.UnitIsGroupLeader
+	else
+		UnitIsGroupLeader = GetNumRaidMembers() > 0 and UnitIsRaidLeader or UnitIsPartyLeader
+	end
+
+	if UnitIsGroupLeader("player") then
 		local loot = GetLootMethod()
 		if newstate >= SECURE then
-			if IsPartyLeader() and loot ~= "freeforall" then
+			if loot ~= "freeforall" then
 				core:Debug("Setting loot method to Free For All.")
 				SetLootMethod("freeforall")
 			end
 		elseif newstate > SOLO then
-			if IsPartyLeader() and loot == "freeforall" then
+			if loot == "freeforall" then
 				core:Debug("Setting loot method to Group.")
 				SetLootMethod("group")
 			end
@@ -197,9 +236,15 @@ function f:PARTY_LEADER_CHANGED(unit)
 	end
 end
 
-f.PARTY_LOOT_METHOD_CHANGED = f.PARTY_LEADER_CHANGED
-f.PARTY_MEMBERS_CHANGED = f.PARTY_LEADER_CHANGED
-f.UNIT_NAME_UPDATE = f.PARTY_LEADER_CHANGED
+if WoW5 then
+	f.GROUP_ROSTER_UPDATE = f.CheckParty
+else
+	f.PARTY_MEMBERS_CHANGED = f.CheckParty
+	f.RAID_ROSTER_UPDATE = f.CheckParty
+end
+f.PARTY_LEADER_CHANGED = f.CheckParty
+f.PARTY_LOOT_METHOD_CHANGED = f.CheckParty
+f.UNIT_NAME_UPDATE = f.CheckParty
 
 ------------------------------------------------------------------------
 
@@ -220,8 +265,8 @@ function core:SetupOptions(panel)
 	add:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
 	add:SetPoint("TOPRIGHT", notes, "BOTTOM", -8, -12)
 	add.OnValueChanged = function(self, name)
-		name = name and name:trim():gsub("%a", string.upper, 1)
-		if name:len() > 1 then
+		name = name and gsub(strtrim(name), "%a", strupper, 1)
+		if strlen(name) > 1 then
 			core:AddTrusted(name)
 		end
 		self:SetText("")
@@ -230,9 +275,23 @@ function core:SetupOptions(panel)
 	local addParty = LibStub("PhanxConfig-Button").CreateButton(panel, L["Add Party"], L["Add all the characters in your current party group to your trusted list."])
 	addParty:SetPoint("BOTTOMLEFT", add, "BOTTOMRIGHT", 20, 8)
 	addParty.OnClick = function(self)
-		for i = 1, GetNumPartyMembers() do
-			local name, realm = UnitName("party"..i)
-			if not realm or realm == myRealm or realm:len() == 0 then
+		local n, u = 0, "party"
+		if WoW5 then
+			n = GetNumGroupMembers()
+			if IsInRaid() then
+				u = "raid"
+			end
+		else
+			if GetNumRaidMembers() > 0 then
+				n = GetNumRaidMembers()
+				u = "party"
+			elseif GetNumPartyMembers() > 0 then
+				n = GetNumPartyMembers()
+			end
+		end
+		for i = 1, n do
+			local name, realm = UnitName(u..i)
+			if not realm or realm == myRealm or strlen(realm) == 0 then
 				core:AddTrusted(name)
 			end
 		end
@@ -244,7 +303,7 @@ function core:SetupOptions(panel)
 	remove:SetPoint("TOPRIGHT", add, "BOTTOMRIGHT", 0, -16)
 	do
 		local info, temp = {}, {}
-		local sort = function(a, b)
+		local sortNames = function(a, b)
 			if a == myName then
 				return false
 			elseif b == myName then
@@ -259,7 +318,7 @@ function core:SetupOptions(panel)
 			for name in pairs(core.trusted) do
 				temp[#temp + 1] = name
 			end
-			table.sort(temp, sort)
+			sort(temp, sortNames)
 			for i = 1, #temp do
 				local name = temp[i]
 				info.text  = name
@@ -290,7 +349,7 @@ function core:SetupOptions(panel)
 	help:SetText(L.HELP_TRUST)
 
 	function panel:refresh()
-		local buttonWidth = math.max(addParty:GetTextWidth(), removeAll:GetTextWidth()) + 48
+		local buttonWidth = max(addParty:GetTextWidth(), removeAll:GetTextWidth()) + 48
 		addParty:SetSize(buttonWidth, 26)
 		removeAll:SetSize(buttonWidth, 26)
 	end

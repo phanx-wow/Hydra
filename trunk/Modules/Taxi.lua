@@ -34,8 +34,8 @@ function module:CheckState()
 		self:Debug("Enable module: Taxi")
 		self:RegisterEvent("CHAT_MSG_ADDON")
 		self:RegisterEvent("TAXIMAP_OPENED")
-		if not IsAddonMessagePrefixRegistered( "HydraTaxi" ) then
-			RegisterAddonMessagePrefix( "HydraTaxi" )
+		if not IsAddonMessagePrefixRegistered("HydraTaxi") then
+			RegisterAddonMessagePrefix("HydraTaxi")
 		end
 	end
 	taxiNode, taxiNodeName, taxiTime = nil, nil, 0
@@ -44,18 +44,18 @@ end
 ------------------------------------------------------------------------
 
 function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
-	if prefix ~= "HydraTaxi" or channel ~= "PARTY" or sender == playerName or not core:IsTrusted(sender) then return end
+	if prefix ~= "HydraTaxi" or (channel ~= "PARTY" and channel ~= "RAID") or sender == playerName or not core:IsTrusted(sender) then return end
 	self:Debug("Comm received from", sender, "->", message)
 
 	if message == "TIMEOUT" then
-		return core:Print( L["ERROR: %s: Taxi timeout reached."], sender )
+		return core:Print(L["ERROR: %s: Taxi timeout reached."], sender)
 	elseif message == "MISMATCH" then
-		return core:Print( L["ERROR: %s: Taxi node mismatch."], sender )
+		return core:Print(L["ERROR: %s: Taxi node mismatch."], sender)
 	end
 
-	local node, nodeName = message:trim():match("^(%d+) (.+)$")
+	local node, nodeName = strmatch(strtrim(message), "^(%d+) (.+)$")
 	if node and nodeName then
-		core:Print( L["%1$s set the party taxi to %2$s."], sender, nodeName )
+		core:Print(L["%1$s set the party taxi to %2$s."], sender, nodeName)
 		taxiNode, taxiNodeName, taxiTime = node, nodeName, GetTime()
 	end
 end
@@ -66,7 +66,7 @@ function module:TAXIMAP_OPENED()
 
 	if GetTime() - taxiTime > self.db.timeout then
 		taxiNode, taxiNodeName, taxiTime = nil, nil, 0
-		return SendAddonMessage("HydraTaxi", "TIMEOUT", "PARTY")
+		return SendAddonMessage("HydraTaxi", "TIMEOUT", "RAID")
 	end
 
 	if TaxiNodeName(taxiNode) ~= taxiNodeName then
@@ -79,7 +79,7 @@ function module:TAXIMAP_OPENED()
 		end
 		if not found then
 			taxiNode, taxiNodeName, taxiTime = nil, nil, 0
-			return SendAddonMessage("HydraTaxi", "MISMATCH", "PARTY")
+			return SendAddonMessage("HydraTaxi", "MISMATCH", "RAID")
 		end
 	end
 
@@ -95,14 +95,14 @@ hooksecurefunc("TakeTaxiNode", function(i)
 	if IsShiftKeyDown() then return end -- we're doing something else
 	local name = TaxiNodeName(i)
 	module:Debug("Broadcasting taxi node", i, name)
-	SendAddonMessage("HydraTaxi", i .. " " .. name, "PARTY")
+	SendAddonMessage("HydraTaxi", i .. " " .. name, "RAID")
 end)
 
 ------------------------------------------------------------------------
 
 SLASH_HYDRA_CLEARTAXI1 = "/cleartaxi"
 do
-	local slash = rawget( core.L, "SLASH_HYDRA_CLEARTAXI2" )
+	local slash = rawget(core.L, "SLASH_HYDRA_CLEARTAXI2")
 	if slash and slash ~= SLASH_HYDRA_CLEARTAXI1 then
 		SLASH_HYDRACLEARTAXI2 = slash
 	end
@@ -131,7 +131,7 @@ function module:SetupOptions(panel)
 	timeout:SetPoint("TOPLEFT", enable, "BOTTOMLEFT", 0, -16)
 	timeout:SetPoint("TOPRIGHT", notes, "BOTTOM", -8, -28 - enable:GetHeight())
 	timeout.OnValueChanged = function(_, value)
-		value = math.floor((value + 1) / 30) * 30
+		value = floor((value + 1) / 30) * 30
 		self.db.timeout = value
 		return value
 	end

@@ -48,19 +48,24 @@ function module:CheckState()
 		self:Debug("Disable module: Chat")
 		self:UnregisterAllEvents()
 		self:Hide()
+
 	else
 		self:Debug("Enable module: Chat")
 		if self.db.mode == "appfocus" then
 			self:Show()
 		end
+
 		self:RegisterEvent("CHAT_MSG_ADDON")
 		self:RegisterEvent("CHAT_MSG_PARTY")
 		self:RegisterEvent("CHAT_MSG_PARTY_LEADER")
+		self:RegisterEvent("CHAT_MSG_RAID")
+		self:RegisterEvent("CHAT_MSG_RAID_LEADER")
 		self:RegisterEvent("CHAT_MSG_SYSTEM")
 		self:RegisterEvent("CHAT_MSG_WHISPER")
 		self:RegisterEvent("CHAT_MSG_BN_WHISPER")
-		if not IsAddonMessagePrefixRegistered( "HydraChat" ) then
-			RegisterAddonMessagePrefix( "HydraChat" )
+
+		if not IsAddonMessagePrefixRegistered("HydraChat") then
+			RegisterAddonMessagePrefix("HydraChat")
 		end
 	end
 end
@@ -70,32 +75,33 @@ end
 local playerToken = "@" .. playerName
 
 function module:CHAT_MSG_PARTY(message, sender)
-	if sender == playerName then return end
-	if message:match("^!") then return end -- command or error response
+	if sender == playerName or strmatch(message, "^!") then return end -- command or error response
 
 	self:Debug("CHAT_MSG_PARTY", sender, message)
 
-	if message:match("^>> .-: .+$") then
-		if not message:match("POSSIBLE SPAM") then
+	if strmatch(message, "^>> .-: .+$") then
+		if not strmatch(message, "POSSIBLE SPAM") then
 			-- someone else forwarded a whisper, our conversation is no longer the active one
 			self:Debug("Someone else forwarded a whisper.")
 			hasActiveConversation = nil
 		end
+
 	elseif hasActiveConversation and not message:match("^@") then
 		-- someone responding to our last forwarded whisper
 		self:Debug("hasActiveConversation")
 		if GetTime() - partyForwardTime > self.db.timeout then
 			-- it's been a while
 			hasActiveConversation = nil
-			SendChatMessage( L["!ERROR: Party forwarding timeout reached."], "PARTY")
+			SendChatMessage(L["!ERROR: Party forwarding timeout reached."], "PARTY")
 		else
 			-- forwarding response to whisper sender
 			SendChatMessage(message, "WHISPER", nil, partyForwardFrom)
 			partyForwardTime = GetTime()
 		end
+
 	elseif partyForwardFrom then
 		-- we forwarded something earlier
-		local text = message:match(playerToken .. " (.+)$")
+		local text = strmatch(message, playerToken .. " (.+)$")
 		if text then
 			-- someone responding to our last forward
 			self:Debug("Detected response to old forward.")
@@ -105,6 +111,8 @@ function module:CHAT_MSG_PARTY(message, sender)
 end
 
 module.CHAT_MSG_PARTY_LEADER = module.CHAT_MSG_PARTY
+module.CHAT_MSG_RAID = module.CHAT_MSG_PARTY
+module.CHAT_MSG_RAID_LEADER = module.CHAT_MSG_PARTY
 
 ------------------------------------------------------------------------
 
@@ -140,22 +148,24 @@ local ignorewords = {
 function module:CHAT_MSG_WHISPER(message, sender, _, _, _, flag, _, _, _, _, _, guid)
 	self:Debug("CHAT_MSG_WHISPER", guid, flag, sender, message)
 
-	if UnitInParty(sender) then
-		self:Debug("UnitInParty")
+	if UnitInRaid(sender) or UnitInParty(sender) then
+		self:Debug("unit in party/raid")
 
 		-- a party member whispered me "@Someone Hello!"
-		local target, text = message:match("^@(.-) (.+)$")
+		local target, text = strmatch(message, "^@(.-) (.+)$")
 
 		if target and text then
 			-- sender wants us to whisper target with text
 			whisperForwardTo, whisperForwardTime = target, GetTime()
 			SendChatMessage(text, "WHISPER", nil, target)
+
 		elseif whisperForwardTo then
 			-- we've forwarded to whisper recently
 			if GetTime() - whisperForwardTime > self.db.timeout then
 				-- it's been a while since our last forward to whisper
 				whisperForwardTo = nil
 				SendChatMessage(L["!ERROR: Whisper timeout reached."], "WHISPER", nil, sender)
+
 			else
 				-- whisper last forward target
 				whisperForwardTime = GetTime()
@@ -167,13 +177,14 @@ function module:CHAT_MSG_WHISPER(message, sender, _, _, _, flag, _, _, _, _, _, 
 		self:Debug(active and "Active" or "Not active")
 		if not active then -- someone outside the party whispered me
 			if flag == "GM" then
-				SendAddonMessage("HydraChat", format("GM |cff00ccff%s|r %s", sender, message), "PARTY")
-				SendChatMessage(format(">> GM %s: %s", sender, message), "PARTY")
+				SendAddonMessage("HydraChat", format("GM |cff00ccff%s|r %s", sender, message), "RAID")
+				SendChatMessage(format(">> GM %s: %s", sender, message), "RAID")
+
 			else
 				local spamwords = 0
-				local searchstring = message:lower():gsub("%W", "")
+				local searchstring = gsub(strlower(message), "%W", "")
 				for _, word in ipairs(ignorewords) do
-					if searchstring:find(word) then
+					if strfind(searchstring, word) then
 						spamwords = spamwords + 1
 					end
 				end
@@ -189,8 +200,8 @@ function module:CHAT_MSG_WHISPER(message, sender, _, _, _, flag, _, _, _, _, _, 
 						color = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[class]
 					end
 				end
-				SendAddonMessage("HydraChat", format("W %s %s", (color and format("\124cff%02x%02x%02x%s\124r", color.r * 255, color.g * 255, color.b * 255, sender) or sender), message), "PARTY")
-				SendChatMessage(format(">> %s: %s", sender, message), "PARTY")
+				SendAddonMessage("HydraChat", format("W %s %s", (color and format("\124cff%02x%02x%02x%s\124r", color.r * 255, color.g * 255, color.b * 255, sender) or sender), message), "RAID")
+				SendChatMessage(format(">> %s: %s", sender, message), "RAID")
 			end
 		end
 	end
@@ -207,20 +218,22 @@ end
 ------------------------------------------------------------------------
 
 function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
-	if prefix ~= "HydraChat" or channel ~= "PARTY" or sender == playerName or not core:IsTrusted(sender) then return end
+	if prefix ~= "HydraChat" or (channel ~= "PARTY" and channel ~= "RAID") or sender == playerName or not core:IsTrusted(sender) then return end
 
-	local ftype, fsender, fmessage = message:trim():match("^(%S+) (%S+) (.+)$")
+	local ftype, fsender, fmessage = strmatch(strtrim(message), "^(%S+) (%S+) (.+)$")
 	self:Debug("HydraChat", sender, ftype, fsender, fmessage)
 
 	if type == "GM" then
-		local message = string.format( L["|TInterface\\ChatFrame\\UI-ChatIcon-Blizz.blp:0:2:0:-3|t %s has received a whisper from a GM!"], sender )
-		self:Debug( message )
-		self:Alert( message, true )
-		self:Print( message )
+		local message = format(L["\124TInterface\\ChatFrame\\UI-ChatIcon-Blizz.blp:0:2:0:-3\124t %s has received a whisper from a GM!"], sender)
+		self:Debug(message)
+		self:Alert(message, true)
+		self:Print(message)
+
 	elseif type == "BN" then
-		self:Print( L["%1$s has received a Battle.net whisper from %2$s."], sender, fsender )
+		self:Print(L["%1$s has received a Battle.net whisper from %2$s."], sender, fsender)
+
 	elseif type == "W" then
-		self:Debug( L["%1$s received a whisper from %2$s."], sender, fsender )
+		self:Debug(L["%1$s received a whisper from %2$s."], sender, fsender)
 	end
 end
 
@@ -275,7 +288,7 @@ function module:SetupOptions(panel)
 	timeout:SetPoint("TOPLEFT", mode, "BOTTOMLEFT", 0, -16)
 	timeout:SetPoint("TOPRIGHT", mode, "BOTTOMRIGHT", 0, -16)
 	timeout.OnValueChanged = function(_, value)
-		value = math.floor((value + 1) / 30) * 30
+		value = floor((value + 1) / 30) * 30
 		self.db.timeout = value
 		return value
 	end
