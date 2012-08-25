@@ -34,7 +34,7 @@ module.defaults = {
 	repairWithGuildFunds = false,
 	sellJunk = true,
 }
-
+--module.debug = true
 ------------------------------------------------------------------------
 
 function module:CheckState()
@@ -219,9 +219,9 @@ function module:SetupOptions(panel)
 	panel.CreateCheckbox = LibStub("PhanxConfig-Checkbox").CreateCheckbox
 
 	local function OnClick(self, checked)
-		self.db[self.key] = checked
-		if checkbox.key ~= "verbose" then
-			self:CheckState()
+		module.db[self.key] = checked
+		if self.key ~= "verbose" then
+			module:CheckState()
 		end
 	end
 

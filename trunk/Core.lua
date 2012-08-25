@@ -66,14 +66,21 @@ function core:IsTrusted(name, realm)
 end
 
 function core:AddTrusted(name, realm)
+	self:Debug("AddTrusted", name, realm)
 	if realm and realm:len() > 0 and realm ~= myRealm then
 		return
 	end
-	assert(type(name) == "string" and strlen(name) >= 2 and strlen(name) <= 12 and strupper(strsub(name, 1, 1)) == strsub(name,1, 1), "Invalid name.")
+	assert(type(name) == "string" and strlen(name) >= 2 and strlen(name) <= 12 and strupper(strsub(name, 1, 1)) == strsub(name, 1, 1), "Invalid name.")
 	self.trusted[name] = name
 	HydraTrustList[myRealm][name] = name
 	self:Print("%s has been added to the trusted list.", name)
-	self:TriggerEvent("PARTY_MEMBERS_CHANGED")
+	if WoW5 then
+		self:TriggerEvent("GROUP_ROSTER_UPDATE")
+	elseif GetNumRaidMembers() > 0 then
+		self:TriggerEvent("RAID_ROSTER_UPDATE")
+	else
+		self:TriggerEvent("PARTY_MEMBERS_CHANGED")
+	end
 end
 
 function core:RemoveTrusted(name, realm)
@@ -83,8 +90,14 @@ function core:RemoveTrusted(name, realm)
 	assert(type(name) == "string" and self.trusted[name], "Invalid name.")
 	self.trusted[name] = nil
 	HydraTrustList[myRealm][name] = nil
-	self:print("%s has been removed from the trusted list.", name)
-	self:TriggerEvent("PARTY_MEMBERS_CHANGED")
+	self:Print("%s has been removed from the trusted list.", name)
+	if WoW5 then
+		self:TriggerEvent("GROUP_ROSTER_UPDATE")
+	elseif GetNumRaidMembers() > 0 then
+		self:TriggerEvent("RAID_ROSTER_UPDATE")
+	else
+		self:TriggerEvent("PARTY_MEMBERS_CHANGED")
+	end
 end
 
 ------------------------------------------------------------------------
@@ -168,15 +181,20 @@ function f:CheckParty(unit)
 	local newstate = SOLO
 	if WoW5 then
 		if IsInGroup() then
-			local u = IsInRaid() and "raid" or "party"
-			for i = 1, GetNumGroupMembers() do
+			local u, n = "party", GetNumGroupMembers()
+			if IsInRaid() then
+				u = "raid"
+			else
+				n = n - 1
+			end
+			for i = 1, n do
 				if not core:IsTrusted(UnitName(u .. i)) then
 					newstate = INSECURE
 					break
 				end
 			end
 			if newstate == SOLO then
-				newstate = IsGroupLeader() and LEADER or SECURE
+				newstate = UnitIsGroupLeader("player") and LEADER or SECURE
 			end
 		end
 	else
@@ -188,7 +206,7 @@ function f:CheckParty(unit)
 				end
 			end
 			if newstate == SOLO then
-				newstate = IsPartyLeader() and LEADER or SECURE
+				newstate = UnitIsRaidLeader("player") and LEADER or SECURE
 			end
 		elseif GetNumPartyMembers() > 0 then
 			for i = 1, GetNumPartyMembers() do
@@ -198,7 +216,7 @@ function f:CheckParty(unit)
 				end
 			end
 			if newstate == SOLO then
-				newstate = IsPartyLeader() and LEADER or SECURE
+				newstate = UnitIsPartyLeader("player") and LEADER or SECURE
 			end
 		end
 	end
@@ -275,11 +293,13 @@ function core:SetupOptions(panel)
 	local addParty = LibStub("PhanxConfig-Button").CreateButton(panel, L["Add Party"], L["Add all the characters in your current party group to your trusted list."])
 	addParty:SetPoint("BOTTOMLEFT", add, "BOTTOMRIGHT", 20, 8)
 	addParty.OnClick = function(self)
-		local n, u = 0, "party"
+		local u, n = "party"
 		if WoW5 then
 			n = GetNumGroupMembers()
 			if IsInRaid() then
 				u = "raid"
+			else
+				n = n - 1
 			end
 		else
 			if GetNumRaidMembers() > 0 then
@@ -289,13 +309,15 @@ function core:SetupOptions(panel)
 				n = GetNumPartyMembers()
 			end
 		end
-		for i = 1, n do
-			local name, realm = UnitName(u..i)
-			if not realm or realm == myRealm or strlen(realm) == 0 then
-				core:AddTrusted(name)
+		if n > 0 then
+			for i = 1, n do
+				local name, realm = UnitName(u..i)
+				if not realm or realm == myRealm or strlen(realm) == 0 then
+					core:AddTrusted(name)
+				end
 			end
+			core:TriggerEvent("PARTY_MEMBERS_CHANGED")
 		end
-		core:TriggerEvent("PARTY_MEMBERS_CHANGED")
 	end
 
 	local remove = LibStub("PhanxConfig-Dropdown").CreateDropdown(panel, L["Remove Name"], nil, L["Remove a name from your trusted list."])
