@@ -173,7 +173,13 @@ function module:CHAT_MSG_WHISPER(message, sender, _, _, _, flag, _, _, _, _, _, 
 			end
 		end
 	else
-		local active = self.db.mode == "appfocus" and GetTime() - frametime < 0.25 or IsPartyLeader()
+		local isLeader
+		if IsPartyLeader then
+			isLeader = IsPartyLeader()
+		else
+			isLeader = UnitIsGroupLeader("player")
+		end
+		local active = self.db.mode == "appfocus" and GetTime() - frametime < 0.25 or isLeader
 		self:Debug(active and "Active" or "Not active")
 		if not active then -- someone outside the party whispered me
 			if flag == "GM" then
