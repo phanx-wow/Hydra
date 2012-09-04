@@ -18,7 +18,7 @@ core.L = L
 -- Core --
 ----------
 
-L["Hydra is a multibox leveling helper that aims to minimize the need to actively control secondary characters."] = "Hydra es un ayudante para la nivelación multibox que tiene como objetivo reducir al mínimo la necesidad de controlar activamente personajes secundarios."
+L["Hydra is a multibox leveling helper that aims to minimize the need to actively control secondary characters."] = "Hydra es un ayudante para el multibox y la subir en grupo que tiene como objetivo reducir al mínimo la necesidad de controlar activamente personajes secundarios."
 L["Trust List"] = "Lista de confianza"
 L["Add Name"] = "Añadir nombre"
 L["Add a name to your trusted list."] = "Añadir a la lista de confianza un nombre."
@@ -32,9 +32,9 @@ L["Remove all names from your trusted list for this server."] = "Eliminar de la 
 L["Added %s to the trusted list."] = "Añadido %s a la lista de confianza."
 L["Removed %s from the trusted list."] = "Eliminado %s de la lista de confianza."
 
-L.HELP_TRUST = [[Hydra opera sobre la base de "confianza". Te añada una lista de personajes de tu confianza, si son tus personajes multibox, o tus amigos, y las funciones se activan o desactivan si estás en una grupo con personajes de confianza o no.
+L.HELP_TRUST = [[Hydra opera sobre la base de "confianza". Añada una lista de personajes de tu confianza, si son tus personajes multibox, o tus amigos, y las funciones se activan o desactivan si estás en una grupo con personajes de confianza o no.
 
-Por ejemplo, los susurros son sólo reenvió al chat de grupo si todos en el grupo que está en la lista de confianza.]]
+Por ejemplo, los susurros son solo mandados al chat de grupo si todos los del mismo estan en la lista de confiables.]]
 
 ------------
 -- Common --
@@ -46,7 +46,7 @@ L["Enable this module."] = "Activar este módulo."
 L["Verbose mode"] = "Verboso"
 L["Enable notification messages from this module."] = "Activar mensajes de notificación de este módulo."
 
-L["Timeout"] = "Tiempo de espera"
+L["Timeout"] = "Tiempo expirado"
 
 ----------------
 -- Automation --
@@ -75,8 +75,8 @@ L["Declined an arena team invitation from %s."] = "Rechazó una invitación a eq
 L["Declined an arena team petition from %s."] = "Rechazó una petición de equipo de arena de %s."
 L["Declined a guild invitation from %s."] = "Rechazó una invitación a hermandad de %s"
 L["Declined a guild petition from %s."] = "Rechazó una petición de hermandad de %s."
-L["Declined a duel request from %s."] = "Rechazó una invitación a duelo de X."
-L["Sold %1$d junk |4item:items; for %2$s."] = "Vendió %1$d |4artículo:artículos; chatarra por %2$s."
+L["Declined a duel request from %s."] = "Rechazó una invitación a duelo de %s."
+L["Sold %1$d junk |4item:items; for %2$s."] = "Vendió %1$d chatarra |4artículo:artículos; por %2$s."
 L["Repaired all items with guild bank funds for %s."] = "Reparado todos los objetos con dinero del banco de hermandad por %s."
 L["Insufficient guild bank funds to repair!"] = "Insuficiente dinero en el banco de hermandad para reparar!"
 L["Repaired all items for %s."] = "Reparado todos los objetos por %s."
@@ -93,7 +93,7 @@ L.HELP_AUTO = [[]]
 ----------
 
 L["Chat"] = "Chat"
-L["Forwards whispers sent to inactive characters to party chat, and forwards replies to the original sender."] = "Reenvía susurros enviado a los personajes inactivos por el chat del grupo, y reenvía las respuestas al remitente original."
+L["Forwards whispers sent to inactive characters to party chat, and forwards replies to the original sender."] = "Reenvía susurros enviados a los personajes inactivos por el chat del grupo, y reenvía las respuestas al remitente original."
 L["Detection method"] = "Método de detección"
 L["Select the method to use for detecting the primary character."] = "Elegir el método a utilizar para detectar el personaje principal."
 L["If you are multiboxing on multiple physical machines, or are running multiple copies of WoW in windowed mode, the \"Application Focus\" mode will probably not work for you, and you should make sure that your primary character is the party leader."] = "Si estás jugando en más de una computadora, o estás ejecutando varias copias de WoW en modo ventana en la misma computadora, el modo de \"Programa en primer plano\" probablemente no funciona, y tendrá que promover tu personaje principal al líder del grupo."
@@ -102,33 +102,33 @@ L["Party Leader"] = "Líder del grupo"
 L["If this many seconds have elapsed since the last forwarded message, don't forward messages typed in party chat to the last whisperer unless the target is explicitly specified."] = "Si esta cantidad de segundos transcurridos desde el mensaje reenviado pasado, no reenviar mensajes escritos en el chat de grupo al remitente susurro última a menos que el objetivo se especifica explícitamente."
 
 L["|TInterface\\ChatFrame\\UI-ChatIcon-Blizz.blp:0:2:0:-3|t %s has received a whisper from a GM!"] = "|TInterface\\ChatFrame\\UI-ChatIcon-Blizz.blp:0:2:0:-3|t %s ha recibido un susurro de un GM!"
-L["%1$s has received a Battle.net whisper from %2$s."] = "%1$s ha recibido un susurro de Battle.net por %2$s."
-L["%1$s has received a whisper from %2$s."] = "%1$s ha recibido un susurro por %2$s."
-L["!ERROR: Party timeout reached."] = "!ERROR: Tiempo de espira caducado para reenvíar respuestas por el chat de grupo."
-L["!ERROR: Whisper timeout reached."] = "!ERROR: Tiempo de espira caducado para reenvíar susurros."
+L["%1$s has received a Battle.net whisper from %2$s."] = "%1$s ha recibido un susurro de Battle.net de %2$s."
+L["%1$s has received a whisper from %2$s."] = "%1$s ha recibido un susurro de %2$s."
+L["!ERROR: Party timeout reached."] = "!ERROR: Tiempo caducado chat de grupo."
+L["!ERROR: Whisper timeout reached."] = "!ERROR: Tiempo caducado para reenvíar susurros."
 
-L.HELP_CHAT = [[Tipo un mensaje en el chat de grupo para repuesta a la última susurro enviado desde cualquier personaje.
+L.HELP_CHAT = [[Escribe un mensaje en el chat de grupo para repuesta a la última susurro enviado desde cualquier personaje.
 
-Tipo "|cffffffff@nombre Tu mensaje aquí|r" en el chat de grupo para repuesta a la última susurro enviado desde el personaje "nombre".
+Escribe "|cffffffff@nombre Tu mensaje aquí|r" en el chat de grupo para repuesta a la última susurro enviado desde el personaje "nombre".
 
-Tipo "|cffffffff@name Tu mensaje aquí|r" en un susurro a un personaje para ordenándole enviar el mensaje por un susurro a "nombre".]]
+Escribe "|cffffffff@name Tu mensaje aquí|r" en un susurro a un personaje para ordenándole enviar el mensaje por un susurro a "nombre".]]
 
 ------------
 -- Follow --
 ------------
 
 L["Follow"] = "Seguir"
-L["Responds to follow requests from trusted party members."] = "Responde a las peticiones para seguimientar de los miembros del partido que están en tu lista de confianza."
+L["Responds to follow requests from trusted party members."] = "Responde a las peticiones de seguir de los miembros del grupo que están en tu lista de confianza."
 L["Set a key binding to follow your current target."] = "Asignar una tecla para seguir el objetivo actual."
 L["Set a key binding to direct all characters in your party to follow you."] = "Asignar una tecla para dirigir a tu grupo para siguir."
 L["Set a key binding to direct all dead characters in your party to release their spirit."] = "Asignar una tecla para dirigir a tu grupo para liberar los espíritus."
 L["Set a key binding to direct all ghost characters in your party to accept resurrection to their corpse."] = "Asignar una tecla para dirigir a tu grupo para recuperar los cadáveres."
 
-L["%s is now following you."] = "%s te siguiendo."
-L["%s is no longer following you."] = "%s ha dejado de seguir a tu."
-L["%s is no longer following you!"] = "%s ha dejado de seguir a tu!"
+L["%s is now following you."] = "%s te esta siguiendo."
+L["%s is no longer following you."] = "%s ha dejado de seguirte."
+L["%s is no longer following you!"] = "%s ha dejado de seguirte!"
 L["%s is too far away to follow!"] = "%s está demasiado lejos para seguir."
-L["Use Soulstone"] = "Uso Piedra de alma"
+L["Use Soulstone"] = "Usa Piedra de alma" -- Needs check
 L["Reincarnate"] = "Reencarnarse"
 L["I have a soulstone."] = "Tengo una piedra de alma."
 L["I can reincarnate."] = "Puedo reencarnarme."
@@ -145,7 +145,7 @@ L.SLASH_HYDRA_FOLLOWME3 = "/seguirme"
 
 L.SLASH_HYDRA_CORPSE2 = "/cadaver"
 L["release"] = "li?b?e?r?a?r?" -- liberar
-L["accept"] = "re?[cs]?u?[pc]?[ei]?[rt]?a?r?" -- recuperar o resucitar
+L["accept"] = "[ar]e?[cs]?[eu]?[pc]?[ei]?[rt]?a?r?" -- acpetar, recuperar o resucitar
 
 L.BINDING_NAME_HYDRA_FOLLOW_TARGET = "Seguir objetivo"
 L.BINDING_NAME_HYDRA_FOLLOW_ME = "Dirigir: Sígueme"
@@ -156,8 +156,8 @@ L.BINDING_NAME_HYDRA_ACCEPT_CORPSE = "Dirigir: Recuperar cadáver"
 -- Mount --
 -----------
 
-L["Mount"] = "Monte"
-L["Summons your mount when another party member mounts."] = "Invoca tu montura cuando otro miembro del partido se monta."
+L["Mount"] = "Montura"
+L["Summons your mount when another party member mounts."] = "Invoca tu montura cuando otro miembro del grupo se monta."
 
 L["ERROR: %s is missing that mount!"] = "ERROR: %s no tiene este montura."
 
@@ -181,8 +181,8 @@ Escriba "|cffffffff/invitarme Nombre|r" para solicitar una invitación de grupo 
 
 Escriba "|cffffffff/ascenderme|r" mientras que en un grupo de solicitar un ascenso a líder del grupo.]]
 
-L.SLASH_HYDRA_INVITEME3 = "/invitarme"
-L.SLASH_HYDRA_PROMOTEME3 = "/ascenderme"
+L.SLASH_HYDRA_INVITEME3 = "/invitame"
+L.SLASH_HYDRA_PROMOTEME3 = "/asciendeme"
 
 -----------
 -- Quest --
@@ -197,11 +197,11 @@ L["Accept quests shared by party members, quests from NPCs that other party memb
 L["Share quests"] = "Compartir misiones"
 L["Share quests you accept from NPCs."] = "Compartir misiones aceptadas a partir del PNJ."
 L["Abandon quests"] = "Abandonar misiones"
-L["Abandon quests abandoned by trusted party members."] = "Abandonar misiones que otros miembros del grupo ya han abandonado."
+L["Abandon quests abandoned by trusted party members."] = "Abandonar misiones abandonadas por los mienbros del grupo confiable."
 
 L["%1$s accepted %2$s."] = "%1$s aceptó %2$s."
 L["%1$s turned in %2$s."] = "%1$s entregó %2$s."
-L["%1$s abandoned %2$s."] = "%1$s abandonó %2$s."
+L["%1$s abandoned %2$s."] = "%1$s abandonado %2$s."
 L["That quest cannot be shared."] = "No puedes compartir esa misión."
 
 L.HELP_QUEST = [[]]
