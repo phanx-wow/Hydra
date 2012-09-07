@@ -1,6 +1,6 @@
 <Bindings>
 	<Binding name="HYDRA_FOLLOW_TARGET" header="HYDRA">
-		if UnitIsPlayer("target") and UnitIsFriend("target") and CheckInteractDistance("target", 4) then
+		if UnitIsPlayer("target") and UnitIsFriend("player", "target") and CheckInteractDistance("target", 4) then
 			FollowUnit("target")
 		end
 	</Binding>
