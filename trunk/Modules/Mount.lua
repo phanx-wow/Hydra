@@ -87,7 +87,7 @@ function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 		end
 	end
 
-	SendAddonMessage("HydraMount", "ERROR", "RAID")
+	self:SendAddonMessage("HydraMount", "ERROR", "RAID")
 	responding = nil
 end
 
@@ -99,7 +99,7 @@ function module:UNIT_SPELLCAST_SENT(unit, spell)
 		local _, name, id = GetCompanionInfo("MOUNT", i)
 		if name == spell or GetSpellInfo(id) == spell then -- stupid paladin mount summon spell doesn't match companion name
 			self:Debug("Summoning mount", name, id)
-			SendAddonMessage("HydraMount", id .. " " .. name, "RAID")
+			self:SendAddonMessage("HydraMount", id .. " " .. name, "RAID")
 		end
 	end
 end
@@ -109,7 +109,7 @@ hooksecurefunc("CallCompanion", function(type, i)
 	if type == "MOUNT" then
 		local _, name, id = GetCompanionInfo(type, i)
 		module:Debug("CallCompanion", type, i, name, id)
-		SendAddonMessage("HydraMount", id .. " " .. name, "RAID")
+		self:SendAddonMessage("HydraMount", id .. " " .. name, "RAID")
 	end
 end)
 

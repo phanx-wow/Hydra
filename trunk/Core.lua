@@ -7,8 +7,6 @@
 	http://www.curse.com/addons/wow/hydra
 ----------------------------------------------------------------------]]
 
-local WoW5 = select(4, GetBuildInfo()) >= 50000
-
 local HYDRA, core = ...
 
 local L = setmetatable(core.L or {}, { __index = function(t, k)
@@ -51,6 +49,26 @@ function core:Alert(message, flash, r, g, b)
 	UIErrorsFrame:AddMessage(message, r or 1, g or 1, b or 0, 1, UIERRORS_HOLD_TIME)
 end
 
+function core:SendAddonMessage(message, channel, target)
+	if channel == "RAID" and not IsInRaid() then
+		channel = "PARTY"
+	end
+	if channel == "PARTY" and not IsInGroup() then
+		return
+	end
+	SendAddonMessage(prefix, message, channel, target)
+end
+
+function core:SendChatMessage(message, channel, _, target)
+	if channel == "RAID" and not IsInRaid() then
+		channel = "PARTY"
+	end
+	if channel == "PARTY" and not IsInGroup() then
+		return
+	end
+	SendChatMessage(prefix, message, channel, target)
+end
+
 ------------------------------------------------------------------------
 
 function core:IsTrusted(name, realm)
@@ -74,13 +92,7 @@ function core:AddTrusted(name, realm)
 	self.trusted[name] = name
 	HydraTrustList[myRealm][name] = name
 	self:Print("%s has been added to the trusted list.", name)
-	if WoW5 then
-		self:TriggerEvent("GROUP_ROSTER_UPDATE")
-	elseif GetNumRaidMembers() > 0 then
-		self:TriggerEvent("RAID_ROSTER_UPDATE")
-	else
-		self:TriggerEvent("PARTY_MEMBERS_CHANGED")
-	end
+	self:TriggerEvent("GROUP_ROSTER_UPDATE")
 end
 
 function core:RemoveTrusted(name, realm)
@@ -91,13 +103,7 @@ function core:RemoveTrusted(name, realm)
 	self.trusted[name] = nil
 	HydraTrustList[myRealm][name] = nil
 	self:Print("%s has been removed from the trusted list.", name)
-	if WoW5 then
-		self:TriggerEvent("GROUP_ROSTER_UPDATE")
-	elseif GetNumRaidMembers() > 0 then
-		self:TriggerEvent("RAID_ROSTER_UPDATE")
-	else
-		self:TriggerEvent("PARTY_MEMBERS_CHANGED")
-	end
+	self:TriggerEvent("GROUP_ROSTER_UPDATE")
 end
 
 ------------------------------------------------------------------------
@@ -109,7 +115,7 @@ function core:RegisterModule(name, module)
 
 	module.name = name
 	module.CheckState = noop
-	module.Alert, module.Debug, module.Print = self.Alert, self.Debug, self.Print
+	module.Alert, module.Debug, module.Print, module.SendMessage = self.Alert, self.Debug, self.Print, self.SendMessage
 
 	self.modules[name] = module
 
@@ -160,12 +166,7 @@ function f:PLAYER_LOGIN()
 		end
 	end
 
-	if WoW5 then
-		f:RegisterEvent("GROUP_ROSTER_UPDATE")
-	else
-		f:RegisterEvent("PARTY_MEMBERS_CHANGED")
-		f:RegisterEvent("RAID_ROSTER_UPDATE")
-	end
+	f:RegisterEvent("GROUP_ROSTER_UPDATE")
 	f:RegisterEvent("PARTY_LEADER_CHANGED")
 	f:RegisterEvent("PARTY_LOOT_METHOD_CHANGED")
 	f:RegisterEvent("UNIT_NAME_UPDATE")
@@ -179,56 +180,25 @@ function f:CheckParty(unit)
 	if unit and not strmatch(unit, "^party%d$") then return end -- irrelevant UNIT_NAME_UPDATE
 
 	local newstate = SOLO
-	if WoW5 then
-		if IsInGroup() then
-			local u, n = "party", GetNumGroupMembers()
-			if IsInRaid() then
-				u = "raid"
-			else
-				n = n - 1
-			end
-			for i = 1, n do
-				if not core:IsTrusted(UnitName(u .. i)) then
-					newstate = INSECURE
-					break
-				end
-			end
-			if newstate == SOLO then
-				newstate = UnitIsGroupLeader("player") and LEADER or SECURE
+	if IsInGroup() then
+		local u, n = "party", GetNumGroupMembers()
+		if IsInRaid() then
+			u = "raid"
+		else
+			n = n - 1
+		end
+		for i = 1, n do
+			if not core:IsTrusted(UnitName(u .. i)) then
+				newstate = INSECURE
+				break
 			end
 		end
-	else
-		if GetNumRaidMembers() > 0 then
-			for i = 1, GetNumRaidMembers() do
-				if not core:IsTrusted(UnitName("raid" .. i)) then
-					newstate = INSECURE
-					break
-				end
-			end
-			if newstate == SOLO then
-				newstate = UnitIsRaidLeader("player") and LEADER or SECURE
-			end
-		elseif GetNumPartyMembers() > 0 then
-			for i = 1, GetNumPartyMembers() do
-				if not core:IsTrusted(UnitName("party" .. i)) then
-					newstate = INSECURE
-					break
-				end
-			end
-			if newstate == SOLO then
-				newstate = UnitIsPartyLeader("player") and LEADER or SECURE
-			end
+		if newstate == SOLO then
+			newstate = UnitIsGroupLeader("player") and LEADER or SECURE
 		end
 	end
 
 	core:Debug("Party changed:", core.state, "->", newstate)
-
-	local UnitIsGroupLeader
-	if WoW5 then
-		UnitIsGroupLeader = _G.UnitIsGroupLeader
-	else
-		UnitIsGroupLeader = GetNumRaidMembers() > 0 and UnitIsRaidLeader or UnitIsPartyLeader
-	end
 
 	if UnitIsGroupLeader("player") then
 		local loot = GetLootMethod()
@@ -254,12 +224,7 @@ function f:CheckParty(unit)
 	end
 end
 
-if WoW5 then
-	f.GROUP_ROSTER_UPDATE = f.CheckParty
-else
-	f.PARTY_MEMBERS_CHANGED = f.CheckParty
-	f.RAID_ROSTER_UPDATE = f.CheckParty
-end
+f.GROUP_ROSTER_UPDATE = f.CheckParty
 f.PARTY_LEADER_CHANGED = f.CheckParty
 f.PARTY_LOOT_METHOD_CHANGED = f.CheckParty
 f.UNIT_NAME_UPDATE = f.CheckParty
@@ -293,21 +258,11 @@ function core:SetupOptions(panel)
 	local addParty = LibStub("PhanxConfig-Button").CreateButton(panel, L["Add Party"], L["Add all the characters in your current party group to your trusted list."])
 	addParty:SetPoint("BOTTOMLEFT", add, "BOTTOMRIGHT", 20, 8)
 	addParty.OnClick = function(self)
-		local u, n = "party"
-		if WoW5 then
-			n = GetNumGroupMembers()
-			if IsInRaid() then
-				u = "raid"
-			else
-				n = n - 1
-			end
+		local u, n = "party", GetNumGroupMembers()
+		if IsInRaid() then
+			u = "raid"
 		else
-			if GetNumRaidMembers() > 0 then
-				n = GetNumRaidMembers()
-				u = "party"
-			elseif GetNumPartyMembers() > 0 then
-				n = GetNumPartyMembers()
-			end
+			n = n - 1
 		end
 		if n > 0 then
 			for i = 1, n do

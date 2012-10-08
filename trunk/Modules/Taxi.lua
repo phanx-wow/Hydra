@@ -66,7 +66,7 @@ function module:TAXIMAP_OPENED()
 
 	if GetTime() - taxiTime > self.db.timeout then
 		taxiNode, taxiNodeName, taxiTime = nil, nil, 0
-		return SendAddonMessage("HydraTaxi", "TIMEOUT", "RAID")
+		return self:SendAddonMessage("HydraTaxi", "TIMEOUT", "RAID")
 	end
 
 	if TaxiNodeName(taxiNode) ~= taxiNodeName then
@@ -79,7 +79,7 @@ function module:TAXIMAP_OPENED()
 		end
 		if not found then
 			taxiNode, taxiNodeName, taxiTime = nil, nil, 0
-			return SendAddonMessage("HydraTaxi", "MISMATCH", "RAID")
+			return self:SendAddonMessage("HydraTaxi", "MISMATCH", "RAID")
 		end
 	end
 
@@ -95,7 +95,7 @@ hooksecurefunc("TakeTaxiNode", function(i)
 	if IsShiftKeyDown() then return end -- we're doing something else
 	local name = TaxiNodeName(i)
 	module:Debug("Broadcasting taxi node", i, name)
-	SendAddonMessage("HydraTaxi", i .. " " .. name, "RAID")
+	module:SendAddonMessage("HydraTaxi", i .. " " .. name, "RAID")
 end)
 
 ------------------------------------------------------------------------
