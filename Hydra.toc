@@ -1,5 +1,5 @@
 ## Interface: 50001
-## Version: 5.0.4.wowi:revision
+## Version: 5.0.5.wowi:revision
 
 ## Title: Hydra
 ## Notes: Multibox leveling helper.
@@ -19,7 +19,7 @@
 ## X-WoWI-ID: 17572
 
 ## DefaultState: disabled
-## OptionalDependencies: Ace3, LibMounts-1.0, PhanxConfigWidgets
+## OptionalDependencies: Ace3, BadBoy, BadBoy_Guilded, BadBoy_Levels, LibMounts-1.0, PhanxConfigWidgets
 ## SavedVariables: HydraTrustList
 ## SavedVariablesPerCharacter: HydraSettings
 

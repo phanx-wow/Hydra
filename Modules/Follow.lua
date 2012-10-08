@@ -25,7 +25,7 @@ local followers, following = { }
 local module = core:RegisterModule("Follow", CreateFrame("Frame"))
 module:SetScript("OnEvent", function(f, e, ...) return f[e] and f[e](f, ...) end)
 
-module.defaults = { enable = true, verbose = true }
+module.defaults = { enable = true, verbose = true } module.debug = true
 
 if GetLocale():match("^en") then
 	L["release"] = "re?l?e?a?s?e?"
@@ -44,6 +44,9 @@ function module:CheckState()
 		self:RegisterEvent("AUTOFOLLOW_BEGIN")
 		self:RegisterEvent("AUTOFOLLOW_END")
 		self:RegisterEvent("CHAT_MSG_ADDON")
+		if not IsAddonMessagePrefixRegistered("HydraCorpse") then
+			RegisterAddonMessagePrefix("HydraCorpse")
+		end
 		if not IsAddonMessagePrefixRegistered("HydraFollow") then
 			RegisterAddonMessagePrefix("HydraFollow")
 		end
@@ -89,11 +92,11 @@ function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 			local ss = HasSoulstone()
 			if ss then
 				if ss == L["Use Soulstone"] then
-					SendChatMessage(L["I have a soulstone."], "PARTY") -- #TODO: use comms
+					self:SendChatMessage(L["I have a soulstone."], "RAID") -- #TODO: use comms
 				elseif ss == L["Reincarnate"] then
-					SendChatMessage(L["I can reincarnate."], "PARTY") -- #TODO: use comms
+					self:SendChatMessage(L["I can reincarnate."], "RAID") -- #TODO: use comms
 				else -- probably "Twisting Nether"
-					SendChatMessage(L["I can resurrect myself."], "PARTY") -- #TODO: use comms
+					self:SendChatMessage(L["I can resurrect myself."], "RAID") -- #TODO: use comms
 				end
 			else
 				RepopMe()
@@ -106,7 +109,7 @@ function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 				UseSoulstone()
 			end
 			if CannotBeResurrected() then
-				SendChatMessage(L["I cannot resurrect!"], "PARTY") -- #TODO: use comms
+				self:SendChatMessage(L["I cannot resurrect!"], "RAID") -- #TODO: use comms
 			end
 		end
 	end
@@ -114,14 +117,14 @@ end
 
 function module:AUTOFOLLOW_BEGIN(name)
 	self:Debug("Now following", name)
-	SendAddonMessage("HydraFollow", name, "WHISPER", name)
+	self:SendAddonMessage("HydraFollow", name, "WHISPER", name)
 	following = name
 end
 
 function module:AUTOFOLLOW_END()
 	if not following then return end -- we don't know who we were following!
 	self:Debug("No longer following", following)
-	SendAddonMessage("HydraFollow", "END", "WHISPER", following)
+	self:SendAddonMessage("HydraFollow", "END", "WHISPER", following)
 	following = nil
 end
 
@@ -145,7 +148,7 @@ function SlashCmdList.HYDRA_FOLLOWME(names)
 			name = gsub(strlower(name), "%a", strupper, 1)
 			if core:IsTrusted(name) and (UnitInParty(name) or UnitInRaid(name)) then
 				module:Debug("Sending follow command to:", name)
-				SendAddonMessage("HydraFollow", "ME", "WHISPER", name)
+				module:SendAddonMessage("HydraFollow", "ME", "WHISPER", name)
 				sent = sent + 1
 			end
 		end
@@ -155,10 +158,10 @@ function SlashCmdList.HYDRA_FOLLOWME(names)
 	end
 	if target and module.db.targetedFollowMe and core:IsTrusted(target) and (UnitInParty(name) or UnitInRaid(name)) then
 		module:Debug("Sending follow command to target:", target)
-		SendAddonMessage("HydraFollow", "ME", "WHISPER", target)
+		module:SendAddonMessage("HydraFollow", "ME", "WHISPER", target)
 	else
 		module:Debug("Sending follow command to party")
-		SendAddonMessage("HydraFollow", "ME", "RAID")
+		module:SendAddonMessage("HydraFollow", "ME", "RAID")
 	end
 end
 
@@ -176,9 +179,9 @@ function SlashCmdList.HYDRA_CORPSE(command)
 	if core.state == SOLO then return end
 	command = command and strlower(strtrim(command)) or ""
 	if strmatch(command, L["release"]) or strmatch(command, "^r") then
-		SendAddonMessage("HydraCorpse", "release", "RAID")
+		module:SendAddonMessage("HydraCorpse", "release", "RAID")
 	elseif strmatch(command, L["accept"]) or strmatch(command, "^a") then
-		SendAddonMessage("HydraCorpse", "accept", "RAID")
+		module:SendAddonMessage("HydraCorpse", "accept", "RAID")
 	end
 end
 
