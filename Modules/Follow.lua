@@ -117,14 +117,14 @@ end
 
 function module:AUTOFOLLOW_BEGIN(name)
 	self:Debug("Now following", name)
-	self:SendAddonMessage("HydraFollow", name, "WHISPER", name)
+	self:SendComm("HydraFollow", name, "WHISPER", name)
 	following = name
 end
 
 function module:AUTOFOLLOW_END()
 	if not following then return end -- we don't know who we were following!
 	self:Debug("No longer following", following)
-	self:SendAddonMessage("HydraFollow", "END", "WHISPER", following)
+	self:SendComm("HydraFollow", "END", "WHISPER", following)
 	following = nil
 end
 
@@ -148,7 +148,7 @@ function SlashCmdList.HYDRA_FOLLOWME(names)
 			name = gsub(strlower(name), "%a", strupper, 1)
 			if core:IsTrusted(name) and (UnitInParty(name) or UnitInRaid(name)) then
 				module:Debug("Sending follow command to:", name)
-				module:SendAddonMessage("HydraFollow", "ME", "WHISPER", name)
+				module:SendComm("HydraFollow", "ME", "WHISPER", name)
 				sent = sent + 1
 			end
 		end
@@ -158,10 +158,10 @@ function SlashCmdList.HYDRA_FOLLOWME(names)
 	end
 	if target and module.db.targetedFollowMe and core:IsTrusted(target) and (UnitInParty(name) or UnitInRaid(name)) then
 		module:Debug("Sending follow command to target:", target)
-		module:SendAddonMessage("HydraFollow", "ME", "WHISPER", target)
+		module:SendComm("HydraFollow", "ME", "WHISPER", target)
 	else
 		module:Debug("Sending follow command to party")
-		module:SendAddonMessage("HydraFollow", "ME", "RAID")
+		module:SendComm("HydraFollow", "ME", "RAID")
 	end
 end
 
@@ -179,9 +179,9 @@ function SlashCmdList.HYDRA_CORPSE(command)
 	if core.state == SOLO then return end
 	command = command and strlower(strtrim(command)) or ""
 	if strmatch(command, L["release"]) or strmatch(command, "^r") then
-		module:SendAddonMessage("HydraCorpse", "release", "RAID")
+		module:SendComm("HydraCorpse", "release", "RAID")
 	elseif strmatch(command, L["accept"]) or strmatch(command, "^a") then
-		module:SendAddonMessage("HydraCorpse", "accept", "RAID")
+		module:SendComm("HydraCorpse", "accept", "RAID")
 	end
 end
 

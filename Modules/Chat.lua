@@ -118,7 +118,7 @@ module.CHAT_MSG_RAID_LEADER = module.CHAT_MSG_PARTY
 
 function module:CHAT_MSG_BN_WHISPER(message, sender)
 	self:Debug("CHAT_MSG_WHISPER", sender, message)
-	self:SendAddonMessage("HydraChat", format("BN %s %s", sender, message))
+	self:SendComm("HydraChat", format("BN %s %s", sender, message))
 end
 
 ------------------------------------------------------------------------
@@ -182,7 +182,7 @@ function module:CHAT_MSG_WHISPER(message, sender, _, _, _, flag, _, _, _, _, _, 
 		self:Debug(active and "Active" or "Not active")
 		if not active then -- someone outside the party whispered me
 			if flag == "GM" then
-				self:SendAddonMessage("HydraChat", format("GM |cff00ccff%s|r %s", sender, message), "RAID")
+				self:SendComm("HydraChat", format("GM |cff00ccff%s|r %s", sender, message), "RAID")
 				self:SendChatMessage(format(">> GM %s: %s", sender, message), "RAID")
 
 			else
@@ -205,7 +205,7 @@ function module:CHAT_MSG_WHISPER(message, sender, _, _, _, flag, _, _, _, _, _, 
 						color = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[class]
 					end
 				end
-				self:SendAddonMessage("HydraChat", format("W %s %s", (color and format("\124cff%02x%02x%02x%s\124r", color.r * 255, color.g * 255, color.b * 255, sender) or sender), message), "RAID")
+				self:SendComm("HydraChat", format("W %s %s", (color and format("\124cff%02x%02x%02x%s\124r", color.r * 255, color.g * 255, color.b * 255, sender) or sender), message), "RAID")
 				self:SendChatMessage(format(">> %s: %s", sender, message), "RAID")
 			end
 		end

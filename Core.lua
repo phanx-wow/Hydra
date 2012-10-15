@@ -49,7 +49,7 @@ function core:Alert(message, flash, r, g, b)
 	UIErrorsFrame:AddMessage(message, r or 1, g or 1, b or 0, 1, UIERRORS_HOLD_TIME)
 end
 
-function core:SendAddonMessage(message, channel, target)
+function core:SendComm(message, channel, target)
 	if channel == "RAID" and not IsInRaid() then
 		channel = "PARTY"
 	end
@@ -59,7 +59,7 @@ function core:SendAddonMessage(message, channel, target)
 	SendAddonMessage(prefix, message, channel, target)
 end
 
-function core:SendChatMessage(message, channel, _, target)
+function core:SendChat(message, channel, _, target)
 	if channel == "RAID" and not IsInRaid() then
 		channel = "PARTY"
 	end
@@ -115,7 +115,7 @@ function core:RegisterModule(name, module)
 
 	module.name = name
 	module.CheckState = noop
-	module.Alert, module.Debug, module.Print, module.SendMessage = self.Alert, self.Debug, self.Print, self.SendMessage
+	module.Alert, module.Debug, module.Print, module.SendChat, module.SendComm = self.Alert, self.Debug, self.Print, self.SendChat, self.SendComm
 
 	self.modules[name] = module
 
