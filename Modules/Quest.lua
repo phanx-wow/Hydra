@@ -14,8 +14,12 @@
 	* Turns in completed quests
 	* Abandons quests abandoned by party members
 
+	To do:
+	* Hide "X has already completed that quest" messages for autoshared quests
+
 	Credits:
 	* Industrial - idQuestAutomation
+	* p3lim - Monomyth
 	* Shadowed - GetToThePoint
 	* Tekkub - Quecho
 ----------------------------------------------------------------------]]
@@ -32,28 +36,35 @@ local accept, accepted = {}, {}
 local module = core:RegisterModule("Quest", CreateFrame("Frame"))
 module:SetScript("OnEvent", function(f, e, ...) return f[e] and f[e](f, ...) end)
 
-module.defaults = { share = true, accept = true, turnin = true, abandon = true }
+module.defaults = { enable = true, accept = true, acceptOnlyShared = false, turnin = true, share = true, abandon = true }
 
 ------------------------------------------------------------------------
 
 function module:CheckState()
 	self:UnregisterAllEvents()
-	self:Debug("Enable module: Quest")
+	if self.db.enable then
+		self:Debug("Enable module: Quest")
 
-	self:RegisterEvent("GOSSIP_SHOW")
-	self:RegisterEvent("QUEST_COMPLETE")
-	self:RegisterEvent("QUEST_DETAIL")
-	self:RegisterEvent("QUEST_GREETING")
-	self:RegisterEvent("QUEST_PROGRESS")
+		self:RegisterEvent("GOSSIP_SHOW")
+		self:RegisterEvent("QUEST_GREETING")
+		self:RegisterEvent("QUEST_DETAIL")
+		self:RegisterEvent("QUEST_PROGRESS")
+		self:RegisterEvent("QUEST_COMPLETE")
+		self:RegisterEvent("QUEST_ITEM_UPDATE")
+		self:RegisterEvent("QUEST_FINISHED")
+		self:RegisterEvent("QUEST_AUTOCOMPLETE")
 
-	if core.state > SOLO then
-		self:RegisterEvent("CHAT_MSG_ADDON")
-		self:RegisterEvent("QUEST_ACCEPT_CONFIRM")
-		self:RegisterEvent("QUEST_LOG_UPDATE")
+		if core.state > SOLO then
+			self:RegisterEvent("CHAT_MSG_ADDON")
+			self:RegisterEvent("QUEST_ACCEPT_CONFIRM")
+			self:RegisterEvent("QUEST_LOG_UPDATE")
 
-		if not IsAddonMessagePrefixRegistered("HydraQuest") then
-			RegisterAddonMessagePrefix("HydraQuest")
+			if not IsAddonMessagePrefixRegistered("HydraQuest") then
+				RegisterAddonMessagePrefix("HydraQuest")
+			end
 		end
+	else
+		self:Debug("Quest module disabled.")
 	end
 end
 
@@ -113,33 +124,50 @@ end
 --	Accept quests accepted by other party members
 ------------------------------------------------------------------------
 
-local function IsQuestComplete(text)
-	module:Debug("IsQuestComplete", text)
-	for i = 1, GetNumQuestLogEntries() do
-		local qname, _, _, _, _, _, complete = GetQuestLogTitle(i)
-		if text == strip(qname):lower() then
-			if (complete and complete > 0) or GetNumQuestLeaderBoards(i) == 0 then
-				module:Debug("true")
-				return true
-			end
+local function IsTrackingTrivial()
+	for i = 1, GetNumTrackingTypes() do
+		local name, _, active = GetTrackingInfo(i)
+		if name == MINIMAP_TRACKING_TRIVIAL_QUESTS then
+			return active
 		end
 	end
-	module:Debug("false")
+end
+
+local function GetGossipAvailableQuestTitle(i)
+	return (select(((i * 6) - 6) + 1, GetGossipAvailableQuests()))
+end
+
+local function IsGossipAvailableQuestTrivial(i)
+	return not not select(((i * 6) - 6) + 3, GetGossipAvailableQuests())
+end
+
+local function IsGossipActiveQuestCompleted(i)
+	return not not select(((i * 5) - 5) + 4, GetGossipActiveQuests())
 end
 
 function module:GOSSIP_SHOW()
 	self:Debug("GOSSIP_SHOW")
-	if not GossipFrame.buttonIndex or IsShiftKeyDown() then return end
+	if IsShiftKeyDown() then return end
 
-	for i = 1, 32 do
-		local button = _G["GossipTitleButton" .. i]
-		if button and button:IsVisible() then
-			local text = strlower(strip(button:GetText()))
-			self:Debug(i, button.type, "=", button:GetText(), "->", text)
-			if (button.type == "Available" and accept[text] and self.db.accept) or (button.type == "Active" and IsQuestComplete(text) and self.db.turnin) then
-				self:Debug(button.type == "Active" and "Completing quest" or "Accepting quest", strip(button:GetText()))
-				return button:Click()
+	-- Turn in complete quests:
+	if self.db.turnin then
+		for i = 1, GetNumGossipActiveQuests() do
+			if IsGossipActiveQuestCompleted(i) then
+				SelectGossipActiveQuest(i)
 			end
+		end
+	end
+
+	-- Pick up available quests:
+	for i = 1, GetNumGossipAvailableQuests() do
+		local go
+		if self.db.acceptOnlyShared then
+			go = accept[strlower(GetGossipAvailableQuestTitle(i))]
+		elseif self.db.accept then
+			go = IsTrackingTrivial() or not IsGossipQuestTrivial(i)
+		end
+		if go then
+			SelectGossipAvailableQuest(i)
 		end
 	end
 end
@@ -148,15 +176,31 @@ function module:QUEST_GREETING()
 	self:Debug("QUEST_GREETING")
 	if IsShiftKeyDown() then return end
 
-	for i = 1, 32 do
-		local button = _G["QuestTitleButton" .. i]
-		if button and button:IsVisible() then
-			local text = strlower(strip(button:GetText()))
-			self:Debug(i, button:GetText(), "->", text)
-			if (IsQuestComplete(text) and self.db.turnin) or (accept[text] and self.db.accept) then
-				self:Debug(IsQuestComplete(text) and "Completing quest" or "Accepting quest", strip(button:GetText()))
-				return button:Click()
+	-- Turn in complete quests:
+	if self.db.turnin then
+		for i = 1, GetNumActiveQuests() do
+			local title, complete = strip(GetActiveTitle(i))
+			if complete then
+				self:Debug("Selecting complete quest", title)
+				SelectActiveQuest(i)
 			end
+		end
+	end
+
+	-- Pick up available quests:
+	for i = 1, GetNumAvailableQuests() do
+		local title = strip(GetActiveTitle(i))
+
+		local go
+		if self.db.acceptOnlyShared then
+			go = accept[strlower(title)]
+		elseif self.db.accept then
+			go = IsTrackingTrivial() or not IsAvailableQuestTrivial(i)
+		end
+
+		if go then
+			self:Debug("Selecting available quest", (GetActiveTitle(i)))
+			SelectAvailableQuest(i)
 		end
 	end
 end
@@ -165,13 +209,45 @@ function module:QUEST_DETAIL()
 	self:Debug("QUEST_DETAIL")
 	if IsShiftKeyDown() then return end
 
-	local qname = strlower(strip(GetTitleText()))
-	if accept[qname] and (UnitInParty("questnpc") or UnitInRaid("questnpc")) then
-		accepted[qname] = true
-		self:Debug("Accepting quest", strip(GetTitleText()), "from", (UnitName("questnpc")))
-		AcceptQuest()
+	local title = strip(GetTitleText())
+	local giver = UnitName("questnpc")
+
+	if QuestGetAutoAccept() then
+		self:Debug("Hiding window for auto-accepted quest", title)
+		QuestFrame:Hide()
+	else
+		local go
+		if self.db.acceptOnlyShared then
+			go = accept[strlower(title)]
+			accepted[strlower(title)] = true
+		elseif self.db.accept then
+			local item, _, _, _, minLevel = GetItemInfo(giver)
+			if item and minLevel then
+				-- Guess based on the item's required level.
+				go = IsTrackingTrivial() or (UnitLevel("player") - minLevel <= GetQuestGreenRange())
+			else
+				-- No way to check the level from here.
+				go = true
+			end
+		end
+
+		if go then
+			self:Debug("Accepting quest", title, "from", giver)
+			AcceptQuest()
+		end
 	end
 end
+
+------------------------------------------------------------------------
+--	Start quests from items
+------------------------------------------------------------------------
+
+local ignoreItems = {
+	[79340] = true, -- Inscribed Crane Staff
+	[79341] = true, -- Inscribed Serpent Staff
+	[79343] = true, -- Inscribed Tiger Staff
+	[74034] = true, -- Pit Fighter
+}
 
 ------------------------------------------------------------------------
 --	Turn in completed quests
@@ -179,21 +255,72 @@ end
 
 function module:QUEST_PROGRESS()
 	self:Debug("QUEST_PROGRESS")
-	if IsShiftKeyDown() then return end
+	if not self.db.turnin or IsShiftKeyDown() then return end
 
 	if IsQuestCompletable() then
+		self:Debug("Completing quest", strip(GetTitleText()))
 		CompleteQuest()
 	end
 end
 
-function module:QUEST_COMPLETE()
-	self:Debug("QUEST_COMPLETE")
-	if IsShiftKeyDown() then return end
+local choicePending, choiceFinished
 
-	if GetNumQuestChoices() <= 1 then
-		GetQuestReward(QuestFrameRewardPanel.itemChoice or 1)
-	else
+function module:QUEST_ITEM_UPDATE()
+	if choicePending then
+		self:QUEST_COMPLETE("QUEST_ITEM_UPDATE")
+	end
+end
+
+function module:QUEST_COMPLETE(source)
+	if source ~= "QUEST_ITEM_UPDATE" then
+		self:Debug("QUEST_COMPLETE")
+		if not self.db.turnin or IsShiftKeyDown() then return end
+	end
+
+	local choices = GetNumQuestChoices()
+	if choices > 1 then
+		self:Debug("Quest has multiple rewards, not automating")
 		QuestRewardScrollFrame:SetVerticalScroll(QuestRewardScrollFrame:GetVerticalScrollRange())
+
+		local best, id
+		for i = 1, choices do
+			local link = GetQuestItemLink("choice", i)
+			if link then
+				local _, _, _, _, _, _, _, _, _, _, value = GetItemInfo(link)
+				if strmatch(link, "item:45724") then
+					-- Champion's Purse, 10g
+					value = 100000
+				end
+				if value > best then
+					best, id = value, i
+				end
+			else
+				choicePending = true
+				return GetQuestItemInfo("choice", i)
+			end
+		end
+		if best then
+			choiceFinished = true
+			_G["QuestInfoItem"..id]:Click()
+		end
+	else
+		self:Debug("Completing quest", strip(GetTitleText()), choices == 1 and "with only reward" or "with no reward")
+		GetQuestReward(1)
+	end
+end
+
+function module:QUEST_FINISHED()
+	self:Debug("QUEST_FINISHED")
+	if choiceFinished then
+		choicePending = false
+	end
+end
+
+function module:QUEST_AUTOCOMPLETE(id)
+	self:Debug("QUEST_AUTOCOMPLETE", id)
+	local index = GetQuestLogIndexByID(id)
+	if GetQuestLogIsAutoComplete(index) then
+		ShowQuestComplete(index)
 	end
 end
 
@@ -229,10 +356,10 @@ function module:QUEST_LOG_UPDATE()
 		if not currentquests[id] then
 			if abandoning then
 				self:Debug("Abandoned quest", link)
-				self:SendAddonMessage("HydraQuest", "ABANDON " .. link, "RAID")
+				self:SendComm("HydraQuest", "ABANDON " .. link, "RAID")
 			else
 				self:Debug("Turned in quest", link)
-				self:SendAddonMessage("HydraQuest", "TURNIN " .. link, "RAID")
+				self:SendComm("HydraQuest", "TURNIN " .. link, "RAID")
 			end
 		end
 	end
@@ -242,7 +369,7 @@ function module:QUEST_LOG_UPDATE()
 	for id, link in pairs(currentquests) do
 		if not oldquests[ id ] then
 			self:Debug("Accepted quest", link)
-			self:SendAddonMessage("HydraQuest", "ACCEPT " .. link, "RAID")
+			self:SendComm("HydraQuest", "ACCEPT " .. link, "RAID")
 
 			local qname = link:match("%[(.-)%]"):lower()
 			if self.db.share and not accept[ qname ] and not accepted[ qname ] then
@@ -274,33 +401,53 @@ function module:SetupOptions(panel)
 	local title, notes = LibStub("PhanxConfig-Header").CreateHeader(panel, panel.name,
 		L["Helps keep party members' quests in sync."])
 
+	local enable, accept, acceptOnlyShared, turnin, share, abandon
+
+	local CreateCheckbox = LibStub("PhanxConfig-Checkbox").CreateCheckbox
 	local CreateCheckbox = LibStub("PhanxConfig-Checkbox").CreateCheckbox
 
 	local function OnClick(box, checked)
 		self.db[ box.key ] = checked
+
+		if box.key == "enable" then
+			accept:SetEnabled( checked )
+			acceptOnlyShared:SetEnabled( checked )
+			turnin:SetEnabled( checked )
+			share:SetEnabled( checked )
+			abandon:SetEnabled( checked )
+			module:CheckState()
+
+		elseif box.key == "accept" then
+			acceptOnlyShared:SetEnabled( checked )
+		end
 	end
 
-	local enable = CreateCheckbox(panel, L["Enable"])
-	enable:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
+	enable = CreateCheckbox(panel, L["Enable"])
+	enable:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -8)
 	enable.OnClick = OnClick
 	enable.key = "enable"
 
-	local turnin = CreateCheckbox(panel, L["Turn in quests"], L["Turn in complete quests to NPCs."])
-	turnin:SetPoint("TOPLEFT", enable, "BOTTOMLEFT", 0, -8)
-	turnin.OnClick = OnClick
-	turnin.key = "turnin"
-
-	local accept = CreateCheckbox(panel, L["Accept quests"], L["Accept quests shared by party members, quests from NPCs that other party members have already accepted, and escort-type quests started by another party member."])
-	accept:SetPoint("TOPLEFT", turnin, "BOTTOMLEFT", 0, -8)
+	accept = CreateCheckbox(panel, L["Accept quests"], L["Accept all quests."])
+	accept:SetPoint("TOPLEFT", enable, "BOTTOMLEFT", 0, -8)
 	accept.OnClick = OnClick
 	accept.key = "accept"
 
-	local share = CreateCheckbox(panel, L["Share quests"], L["Share quests you accept from NPCs."])
-	share:SetPoint("TOPLEFT", accept, "BOTTOMLEFT", 0, -8)
+	acceptOnlyShared = CreateCheckbox(panel, L["Only shared quests"], L["Only accept quests shared by group members, escort quests started by group members, and quests from NPCs that trusted group members have already accepted."])
+	acceptOnlyShared:SetPoint("TOPLEFT", accept, "BOTTOMLEFT", 26, -8)
+	acceptOnlyShared.OnClick = OnClick
+	acceptOnlyShared.key = "acceptOnlyShared"
+
+	turnin = CreateCheckbox(panel, L["Turn in quests"], L["Turn in complete quests to NPCs."])
+	turnin:SetPoint("TOPLEFT", acceptOnlyShared, "BOTTOMLEFT", -26, -8)
+	turnin.OnClick = OnClick
+	turnin.key = "turnin"
+
+	share = CreateCheckbox(panel, L["Share quests"], L["Share quests you accept from NPCs."])
+	share:SetPoint("TOPLEFT", turnin, "BOTTOMLEFT", 0, -8)
 	share.OnClick = OnClick
 	share.key = "share"
 
-	local abandon = CreateCheckbox(panel, L["Abandon quests"], L["Abandon quests abandoned by trusted party members."])
+	abandon = CreateCheckbox(panel, L["Abandon quests"], L["Abandon quests abandoned by trusted group members."])
 	abandon:SetPoint("TOPLEFT", share, "BOTTOMLEFT", 0, -8)
 	abandon.OnClick = OnClick
 	abandon.key = "abandon"
@@ -314,10 +461,19 @@ function module:SetupOptions(panel)
 	help:SetText(L.HELP_QUEST)
 
 	panel.refresh = function()
-		enable:SetChecked(self.db.enable)
-		turnin:SetChecked(self.db.turnin)
+		local enabled = self.db.enable
+
+		enable:SetChecked(enabled)
 		accept:SetChecked(self.db.accept)
+		acceptOnlyShared:SetChecked(self.db.acceptOnlyShared)
+		turnin:SetChecked(self.db.turnin)
 		share:SetChecked(self.db.share)
 		abandon:SetChecked(self.db.abandon)
+
+		accept:SetEnabled(enabled)
+		acceptOnlyShared:SetEnabled(enabled and self.db.accept)
+		turnin:SetEnabled(enabled)
+		share:SetEnabled(enabled)
+		abandon:SetEnabled(enabled)
 	end
 end
