@@ -164,7 +164,7 @@ function module:GOSSIP_SHOW()
 		if self.db.acceptOnlyShared then
 			go = accept[strlower(GetGossipAvailableQuestTitle(i))]
 		elseif self.db.accept then
-			go = IsTrackingTrivial() or not IsGossipQuestTrivial(i)
+			go = not IsGossipAvailableQuestTrivial(i) or IsTrackingTrivial()
 		end
 		if go then
 			SelectGossipAvailableQuest(i)
@@ -195,7 +195,7 @@ function module:QUEST_GREETING()
 		if self.db.acceptOnlyShared then
 			go = accept[strlower(title)]
 		elseif self.db.accept then
-			go = IsTrackingTrivial() or not IsAvailableQuestTrivial(i)
+			go = not IsAvailableQuestTrivial(i) or not IsTrackingTrivial()
 		end
 
 		if go then
@@ -221,7 +221,7 @@ function module:QUEST_DETAIL()
 			go = accept[strlower(title)]
 			accepted[strlower(title)] = true
 		elseif self.db.accept then
-			local item, _, _, _, minLevel = GetItemInfo(giver)
+			local item, _, _, _, minLevel = GetItemInfo(giver or "")
 			if item and minLevel then
 				-- Guess based on the item's required level.
 				go = IsTrackingTrivial() or (UnitLevel("player") - minLevel <= GetQuestGreenRange())
@@ -282,7 +282,7 @@ function module:QUEST_COMPLETE(source)
 		self:Debug("Quest has multiple rewards, not automating")
 		QuestRewardScrollFrame:SetVerticalScroll(QuestRewardScrollFrame:GetVerticalScrollRange())
 
-		local best, id
+		local best, id = 0
 		for i = 1, choices do
 			local link = GetQuestItemLink("choice", i)
 			if link then
@@ -291,7 +291,7 @@ function module:QUEST_COMPLETE(source)
 					-- Champion's Purse, 10g
 					value = 100000
 				end
-				if value > best then
+				if value and value > best then
 					best, id = value, i
 				end
 			else

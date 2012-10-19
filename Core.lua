@@ -49,22 +49,26 @@ function core:Alert(message, flash, r, g, b)
 	UIErrorsFrame:AddMessage(message, r or 1, g or 1, b or 0, 1, UIERRORS_HOLD_TIME)
 end
 
-function core:SendComm(message, channel, target)
-	if channel == "RAID" and not IsInRaid() then
-		channel = "PARTY"
-	end
-	if channel == "PARTY" and not IsInGroup() then
-		return
+local groupTypes = { GROUP = true, PARTY = true, RAID = true }
+
+function core:SendComm(prefix, message, channel, target)
+	if groupTypes[channel] then
+		if IsInGroup() then
+			channel = IsInRaid() and "RAID" or "PARTY"
+		else
+			return
+		end
 	end
 	SendAddonMessage(prefix, message, channel, target)
 end
 
 function core:SendChat(message, channel, _, target)
-	if channel == "RAID" and not IsInRaid() then
-		channel = "PARTY"
-	end
-	if channel == "PARTY" and not IsInGroup() then
-		return
+	if groupTypes[channel] then
+		if IsInGroup() then
+			channel = IsInRaid() and "RAID" or "PARTY"
+		else
+			return
+		end
 	end
 	SendChatMessage(prefix, message, channel, target)
 end
