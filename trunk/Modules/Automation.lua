@@ -24,12 +24,12 @@ local module = core:RegisterModule("Automation", CreateFrame("Frame"))
 module:SetScript("OnEvent", function(f, e, ...) return f[e] and f[e](f, ...) end)
 
 module.defaults = {
-	acceptResurrections = true,
-	acceptResurrectionsInCombat = true,
-	acceptSummons = true,
-	declineArenaTeams = true,
-	declineDuels = true,
-	declineGuilds = true,
+	acceptArenaTeams = {},
+	acceptDuels = {},
+	acceptGuilds = {},
+	acceptResurrections = {},
+	acceptResurrectionsInCombat = {},
+	acceptSummons = {},
 	repairEquipment = true,
 	repairWithGuildFunds = false,
 	sellJunk = true,
@@ -42,22 +42,22 @@ function module:CheckState()
 
 	self:Debug("Enable module: Automation")
 
-	if self.db.declineArenaTeams then
+	if self.db.acceptArenaTeams then
 		self:RegisterEvent("ARENA_TEAM_INVITE_REQUEST")
 	end
 	if self.db.acceptSummons then
 		self:RegisterEvent("CONFIRM_SUMMON")
 	end
-	if self.db.declineDuels then
+	if self.db.acceptDuels then
 		self:RegisterEvent("DUEL_REQUESTED")
 	end
-	if self.db.declineGuilds then
+	if self.db.acceptGuilds then
 		self:RegisterEvent("GUILD_INVITE_REQUEST")
 	end
 	if self.db.repairEquipment or self.db.sellJunk then
 		self:RegisterEvent("MERCHANT_SHOW")
 	end
-	if self.db.declineArenaTeams or self.db.declineGuilds then
+	if self.db.acceptArenaTeams or self.db.acceptGuilds then
 		self:RegisterEvent("PETITION_SHOW")
 	end
 	if self.db.acceptResurrections then
@@ -114,7 +114,7 @@ function module:PETITION_SHOW()
 	local type, _, _, _, sender, mine = GetPetitionInfo()
 	if not mine then
 		if type == "arena" then
-			for k, v in pairs(self.db.declineArenaTeams) do
+			for k, v in pairs(self.db.acceptArenaTeams) do
 				if v and allow[k](sender) then
 					return
 				end
@@ -122,7 +122,7 @@ function module:PETITION_SHOW()
 			self:Print(L["Declined an arena team petition from %s."], sender)
 			ClosePetition()
 		elseif type == "guild" then
-			for k, v in pairs(self.db.declineArenaTeams) do
+			for k, v in pairs(self.db.acceptArenaTeams) do
 				if v and allow[k](sender) then
 					return
 				end
@@ -134,7 +134,7 @@ function module:PETITION_SHOW()
 end
 
 function module:ARENA_TEAM_INVITE_REQUEST(sender)
-	for k, v in pairs(self.db.declineArenaTeams) do
+	for k, v in pairs(self.db.acceptArenaTeams) do
 		if v and allow[k](sender) then
 			return
 		end
@@ -145,7 +145,7 @@ function module:ARENA_TEAM_INVITE_REQUEST(sender)
 end
 
 function module:DUEL_REQUESTED(sender)
-	for k, v in pairs(self.db.declineDuels) do
+	for k, v in pairs(self.db.acceptDuels) do
 		if v and allow[k](sender) then
 			return
 		end
@@ -156,7 +156,7 @@ function module:DUEL_REQUESTED(sender)
 end
 
 function module:GUILD_INVITE_REQUEST(sender)
-	for k, v in pairs(self.db.declineGuilds) do
+	for k, v in pairs(self.db.acceptGuilds) do
 		if v and allow[k](sender) then
 			return
 		end
@@ -283,7 +283,7 @@ end
 function module:SetupOptions(panel)
 	local title, notes = LibStub("PhanxConfig-Header").CreateHeader(panel, panel.name, L["Automates simple repetetive tasks, such as clicking common dialogs."])
 
-	panel.CreateCheckbox = LibStub("PhanxConfig-Checkbox").CreateCheckbox
+	local CreateCheckbox = LibStub("PhanxConfig-Checkbox").CreateCheckbox
 
 	local function row_OnEnter(self)
 		if self.desc then
@@ -304,9 +304,11 @@ function module:SetupOptions(panel)
 	end
 
 	local options = {}
+
 	local flags = { "trusted", "friends", "guild", "group" }
 	local function CreateOptionsRow(key, name, desc)
 		local row = CreateFrame("Frame", nil, panel)
+		row:SetHeight(26)
 		if #options > 0 then
 			row:SetPoint("TOPLEFT", options[#options], "BOTTOMLEFT", 0, -8)
 			row:SetPoint("TOPRIGHT", options[#options], "BOTTOMRIGHT", 0, -8)
@@ -319,8 +321,9 @@ function module:SetupOptions(panel)
 		label:SetPoint("TOPLEFT")
 		label:SetText(name)
 
-		for i, flag in ipairs(flags) do
-			local check = panel:CreateCheckbox(L[flag])
+		for i = 1, #flags do
+			local flag = flags[i]
+			local check = CreateCheckbox(row, L[flag])
 			check.flag = flag
 			check.key = key
 			check.OnClick = check_OnClick
@@ -340,32 +343,41 @@ function module:SetupOptions(panel)
 		return row
 	end
 
-	local declineArenaTeams = CreateOptionsRow("declineArenas", L["Decline arena teams"], L["Decline arena team invitations and petitions."])
+	local acceptArenaTeams = CreateOptionsRow("declineArenas", L["Accept arena teams"],
+		L["Accept arena team invitations and petitions."])
 
-	local declineDuels = CreateOptionsRow("declineDuels", L["Decline duels"], L["Decline duel requests."])
+	local acceptDuels = CreateOptionsRow("acceptDuels", L["Decline duels"],
+		L["Accept duel requests."])
 
-	local declineGuilds = CreateOptionsRow("declineGuilds", L["Decline guilds"], L["Decline guild invitations and petitions."])
+	local acceptGuilds = CreateOptionsRow("acceptGuilds", L["Decline guilds"],
+		L["Accept guild invitations and petitions."])
 
-	local acceptSummons = CreateOptionsRow("acceptSummons", L["Accept summons"], L["Accept summons from warlocks and meeting stones."])
+	local acceptSummons = CreateOptionsRow("acceptSummons", L["Accept summons"],
+		L["Accept summons from warlocks and meeting stones."])
 
-	local acceptResurrections = CreateOptionsRow("acceptResurrections", L["Accept resurrections"], L["Accept resurrections from players out of combat."])
+	local acceptResurrections = CreateOptionsRow("acceptResurrections", L["Accept resurrections"],
+		L["Accept resurrections from players out of combat."])
 
-	local acceptResurrectionsInCombat = panel:CreateCheckbox(L["Accept combat resurrections"], L["Accept resurrections from players in combat."])
+	local acceptResurrectionsInCombat = CreateCheckbox(panel, L["Accept combat resurrections"],
+		L["Accept resurrections from players in combat."])
 	acceptResurrectionsInCombat:SetPoint("TOPLEFT", acceptResurrections, "BOTTOMLEFT", 0, -8)
 	acceptResurrectionsInCombat.OnClick = check_OnClick
 	acceptResurrectionsInCombat.key = "acceptResurrectionsInCombat"
 
-	local repairEquipment = panel:CreateCheckbox(L["Repair equipment"], L["Repair all equipment when interacting with a repair vendor."])
+	local repairEquipment = CreateCheckbox(panel, L["Repair equipment"],
+		L["Repair all equipment when interacting with a repair vendor."])
 	repairEquipment:SetPoint("TOPLEFT", acceptResurrectionsInCombat, "BOTTOMLEFT", 0, -8)
 	repairEquipment.OnClick = check_OnClick
 	repairEquipment.key = "repairEquipment"
 
-	local sellJunk = panel:CreateCheckbox(L["Sell junk"], L["Sell all junk (gray) items when interacting with a vendor."])
+	local sellJunk = CreateCheckbox(panel, L["Sell junk"],
+		L["Sell all junk (gray) items when interacting with a vendor."])
 	sellJunk:SetPoint("TOPLEFT", repairEquipment, "BOTTOMLEFT", 0, -8)
 	sellJunk.OnClick = check_OnClick
 	sellJunk.key = "sellJunk"
 
-	local verbose = panel:CreateCheckbox(L["Verbose mode"], L["Enable notification messages from this module."])
+	local verbose = CreateCheckbox(panel, L["Verbose mode"],
+		L["Enable notification messages from this module."])
 	verbose:SetPoint("TOPLEFT", sellJunk, "BOTTOMLEFT", 0, -24)
 	verbose.OnClick = check_OnClick
 	verbose.key = "verbose"
