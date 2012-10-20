@@ -48,6 +48,7 @@ function module:CheckState()
 		self:RegisterEvent("GOSSIP_SHOW")
 		self:RegisterEvent("QUEST_GREETING")
 		self:RegisterEvent("QUEST_DETAIL")
+		self:RegisterEvent("QUEST_ACCEPTED")
 		self:RegisterEvent("QUEST_PROGRESS")
 		self:RegisterEvent("QUEST_COMPLETE")
 		self:RegisterEvent("QUEST_ITEM_UPDATE")
@@ -235,6 +236,12 @@ function module:QUEST_DETAIL()
 			self:Debug("Accepting quest", title, "from", giver)
 			AcceptQuest()
 		end
+	end
+end
+
+function module:QUEST_ACCEPTED(id)
+	if GetCVarBool("autoQuestWatch") and not IsQuestWatched(id) and GetNumQuestWatches() < MAX_WATCHABLE_QUESTS then
+		AddQuestWatch(id)
 	end
 end
 
