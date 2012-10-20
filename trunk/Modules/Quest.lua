@@ -164,7 +164,7 @@ function module:GOSSIP_SHOW()
 		if self.db.acceptOnlyShared then
 			go = accept[strlower(GetGossipAvailableQuestTitle(i))]
 		elseif self.db.accept then
-			go = IsTrackingTrivial() or not IsGossipQuestTrivial(i)
+			go = not IsGossipAvailableQuestTrivial(i) or IsTrackingTrivial()
 		end
 		if go then
 			SelectGossipAvailableQuest(i)
@@ -195,7 +195,7 @@ function module:QUEST_GREETING()
 		if self.db.acceptOnlyShared then
 			go = accept[strlower(title)]
 		elseif self.db.accept then
-			go = IsTrackingTrivial() or not IsAvailableQuestTrivial(i)
+			go = not IsAvailableQuestTrivial(i) or not IsTrackingTrivial()
 		end
 
 		if go then
