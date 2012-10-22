@@ -116,13 +116,6 @@ module.CHAT_MSG_RAID_LEADER = module.CHAT_MSG_PARTY
 
 ------------------------------------------------------------------------
 
-function module:CHAT_MSG_BN_WHISPER(message, sender)
-	self:Debug("CHAT_MSG_WHISPER", sender, message)
-	self:SendComm("HydraChat", format("BN %s %s", sender, message))
-end
-
-------------------------------------------------------------------------
-
 local ignorewords = {
 	"account",
 	"battle", "bonus", "buy", "blizz",
@@ -214,6 +207,19 @@ end
 
 ------------------------------------------------------------------------
 
+function module:CHAT_MSG_BN_WHISPER(message, sender, _, _, _, _, _, _, _, _, _, _, pID)
+	self:Debug("CHAT_MSG_BN_WHISPER", sender, pID, message)
+	local _, _, battleTag = BNGetFriendInfoByID(pID)
+	self:SendComm("HydraChat", strjoin("§", "BW", battleTag, message))
+end
+
+function module:CHAT_MSG_BN_CONVERSATION(message, sender, _, channel, _, _, _, channelNumber, _, _, _, _, pID)
+	self:Debug("CHAT_MSG_BN_CONVERSATION", sender, message)
+	self:SendComm("HydraChat", strjoin("§", "BC", battleTag, message, channel, channelNumber))
+end
+
+------------------------------------------------------------------------
+
 function module:CHAT_MSG_SYSTEM(message)
 	if message == ERR_FRIEND_NOT_FOUND then
 		-- the whisper couldn't be forwarded
@@ -225,20 +231,54 @@ end
 function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 	if prefix ~= "HydraChat" or (channel ~= "PARTY" and channel ~= "RAID") or sender == playerName or not core:IsTrusted(sender) then return end
 
-	local ftype, fsender, fmessage = strmatch(strtrim(message), "^(%S+) (%S+) (.+)$")
-	self:Debug("HydraChat", sender, ftype, fsender, fmessage)
+	local fwdEvent, fwdSender, fwdMessage = strmatch(message, "^([^%s§]+)[%§]([^%s§]+)[%§]?(.*)$")
+	self:Debug("HydraChat", sender, fwdEvent, fwdSender, fwdMessage)
 
-	if type == "GM" then
+	if fwdEvent == "GM" then
 		local message = format(L["\124TInterface\\ChatFrame\\UI-ChatIcon-Blizz.blp:0:2:0:-3\124t %s has received a whisper from a GM!"], sender)
 		self:Debug(message)
 		self:Alert(message, true)
 		self:Print(message)
 
-	elseif type == "BN" then
-		self:Print(L["%1$s has received a Battle.net whisper from %2$s."], sender, fsender)
+	elseif fwdEvent == "W" then
+		self:Debug(L["%1$s received a whisper from %2$s."], sender, fwdSender)
 
-	elseif type == "W" then
-		self:Debug(L["%1$s received a whisper from %2$s."], sender, fsender)
+	elseif fwdEvent == "BW" then
+		local found
+		for i = 1, BNGetNumFriends() do
+			local id, name, tag, useTag, _, _, _, _, _, _, _, _, _, useName = BNGetFriendInfo(i)
+			if tag == fwdSender then
+				found = true
+				for i = 1, 10 do
+					local frame = _G["ChatFrame"..i]
+					if frame and frame.tab:IsShown() then
+						ChatFrame_MessageEventHandler(frame, "CHAT_MSG_BN_WHISPER", fwdMessage, useName and name or tag, "", "", "", "", 0, 0, "", 0, 0, "", id)
+					end
+				end
+			end
+			if not found then
+				self:Print(L["%1$s received a Battle.net whisper from %2$s:\n%3$s"], sender, fwdSender, fwdMessage)
+			end
+		end
+
+	elseif fwdEvent == "BC" then
+		local fwdChannelNumber, fwdChannel, fwdMessage = strsplit("§", fwdMessage)
+		local found
+		for i = 1, BNGetNumFriends() do
+			local id, name, tag, useTag, _, _, _, _, _, _, _, _, _, useName = BNGetFriendInfo(i)
+			if tag == fwdSender then
+				found = true
+				for i = 1, 10 do
+					local frame = _G["ChatFrame"..i]
+					if frame and frame.tab:IsShown() then
+						ChatFrame_MessageEventHandler(frame, "CHAT_MSG_BN_CONVERSATION", fwdMessage, useName and name or tag, "", fwdChannel or "", "", "", 0, tostring(fwdChannelNumber) or 0, "", 0, 0, "", id)
+					end
+				end
+			end
+			if not found then
+				self:Print(L["%1$s received a Battle.net message from %2$s in %3$s:\n%4$s"], sender, fwdSender, fwdChannel, fwdMessage)
+			end
+		end
 	end
 end
 
