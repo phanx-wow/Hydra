@@ -61,7 +61,7 @@ function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 end
 
 function module:TAXIMAP_OPENED()
-	if not taxiNode then return end -- we're picking the taxi
+	if not taxiNode or taxiNode == "INVALID" then return end -- we're picking the taxi
 	if IsShiftKeyDown() then return end -- we're doing something else
 
 	if GetTime() - taxiTime > self.db.timeout then
