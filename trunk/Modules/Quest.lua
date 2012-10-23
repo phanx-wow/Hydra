@@ -227,7 +227,7 @@ function module:QUEST_DETAIL()
 				accepted[strlower(quest)] = true
 			else
 				local item, _, _, _, minLevel = GetItemInfo(giver or "")
-				if item and minLevel then
+				if item and minLevel and minLevel > 1 then
 					-- Guess based on the item's required level.
 					go = IsTrackingTrivial() or (UnitLevel("player") - minLevel <= GetQuestGreenRange())
 				else
@@ -263,7 +263,9 @@ function module:QUEST_ACCEPT_CONFIRM(giver, quest)
 end
 
 function module:QUEST_ACCEPTED(id)
+	self:Debug("QUEST_ACCEPTED", id)
 	if GetCVarBool("autoQuestWatch") and not IsQuestWatched(id) and GetNumQuestWatches() < MAX_WATCHABLE_QUESTS then
+		self:Debug("Adding quest to tracker")
 		AddQuestWatch(id)
 	end
 end
@@ -312,7 +314,7 @@ function module:QUEST_COMPLETE(source)
 		self:Debug("Quest has multiple rewards, not automating")
 		QuestRewardScrollFrame:SetVerticalScroll(QuestRewardScrollFrame:GetVerticalScrollRange())
 
-		local best, id = 0
+		local best, bestID = 0
 		for i = 1, choices do
 			local link = GetQuestItemLink("choice", i)
 			if link then
@@ -321,17 +323,17 @@ function module:QUEST_COMPLETE(source)
 					-- Champion's Purse, 10g
 					value = 100000
 				end
-				if value and value > best then
-					best, id = value, i
+				if value and value > 0 and value > best then
+					best, bestID = value, i
 				end
 			else
 				choicePending = true
 				return GetQuestItemInfo("choice", i)
 			end
 		end
-		if best then
+		if bestID then
 			choiceFinished = true
-			_G["QuestInfoItem"..id]:Click()
+			_G["QuestInfoItem"..bestID]:Click()
 		end
 	else
 		self:Debug("Completing quest", strip(GetTitleText()), choices == 1 and "with only reward" or "with no reward")
