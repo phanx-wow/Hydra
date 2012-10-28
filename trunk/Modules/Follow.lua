@@ -25,7 +25,7 @@ local followers, following = { }
 local module = core:RegisterModule("Follow", CreateFrame("Frame"))
 module:SetScript("OnEvent", function(f, e, ...) return f[e] and f[e](f, ...) end)
 
-module.defaults = { enable = true, verbose = true } module.debug = true
+module.defaults = { enable = true, verbose = true }
 
 if GetLocale():match("^en") then
 	L["release"] = "re?l?e?a?s?e?"

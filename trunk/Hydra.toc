@@ -19,13 +19,11 @@
 ## X-WoWI-ID: 17572
 
 ## DefaultState: disabled
-## OptionalDependencies: Ace3, BadBoy, BadBoy_Guilded, BadBoy_Levels, LibMounts-1.0, PhanxConfigWidgets
+## OptionalDependencies: BadBoy, BadBoy_Guilded, BadBoy_Levels, PhanxConfigWidgets
 ## SavedVariables: HydraTrustList
 ## SavedVariablesPerCharacter: HydraSettings
 
 Libs\LibStub\LibStub.lua
-Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
-Libs\LibMounts-1.0\lib.xml
 Libs\LibAboutPanel\LibAboutPanel.lua
 Libs\PhanxConfig-Button\PhanxConfig-Button.lua
 Libs\PhanxConfig-Checkbox\PhanxConfig-Checkbox.lua
@@ -44,12 +42,14 @@ Locales\Locale-ruRU.lua
 
 Core.lua
 
-Modules\Automation.lua
+# Modules\Assist.lua
+# Modules\Automation.lua
 Modules\Chat.lua
 Modules\Follow.lua
 Modules\Mount.lua
 Modules\Party.lua
 Modules\Quest.lua
+# Modules\StatusFrame.lua
 Modules\Taxi.lua
 
 Options.lua
