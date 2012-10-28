@@ -7,7 +7,7 @@
 	http://www.curse.com/addons/wow/hydra
 ------------------------------------------------------------------------
 	Hydra Mount
-	* Mounts other characters in the party when you mount
+	* Mount and dismount together.
 ----------------------------------------------------------------------]]
 
 local _, core = ...
@@ -56,9 +56,12 @@ function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 		if self.db.dismount then
 			responding = true
 			Dismount()
+			responding = nil
 		end
 		return
 	end
+
+	if not self.db.mount then return end
 
 	local remoteID, remoteName = strmatch(message, "^(%d+) (.+)$")
 	if not remoteID or not remoteName then return end
@@ -72,23 +75,25 @@ function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 	responding = true
 
 	-- 1. Look for same mount
-	for i = 1, GetNumCompanions("MOUNT") do
-		local _, name, id = GetCompanionInfo("MOUNT", i)
-		if id == remoteID then
-			self:Debug("Found same mount", name)
-			CallCompanion("MOUNT", i)
-			responding = nil
-			return
+	if not self.db.mountRandom then
+		for i = 1, GetNumCompanions("MOUNT") do
+			local _, name, id = GetCompanionInfo("MOUNT", i)
+			if id == remoteID then
+				self:Debug("Found same mount", name)
+				CallCompanion("MOUNT", i)
+				responding = nil
+				return
+			end
 		end
 	end
 
 	-- 2. Look for equivalent mount
-	local ground, air, water, passengers = self:GetMountInfo(remoteID)
-	local mounts = self.mountData[water and "water" or air and "air" or "ground"]
+	local mountType, passengers = self:GetMountType(remoteID)
+	local mounts = self.mountData[mountType]
 	local equivalent
 	for i = 1, GetNumCompanions("MOUNT") do
 		local _, name, id = GetCompanionInfo("MOUNT", i)
-		self:Debug("Checking mount", name)
+		--self:Debug("Checking mount", name)
 		if mounts[id] and IsUsableSpell(id) then
 			if type(equivalent) == "table" then
 				tinsert(equivalent, i)
@@ -96,11 +101,16 @@ function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 				equivalent = { equivalent, i }
 			else
 				equivalent = i
+				if not self.db.mountRandom then
+					break
+				end
 			end
 		end
 	end
+
 	local i = type(equivalent) == "table" and equivalent[math.random(#equivalent)] or equivalent
 	if i then
+		local _, name = GetCompanionInfo("MOUNT", i)
 		self:Debug("Found equivalent mount", name)
 		CallCompanion("MOUNT", i)
 		responding = nil
@@ -133,36 +143,41 @@ hooksecurefunc("CallCompanion", function(type, i)
 	end
 end)
 
-local dismounter = CreateFrame("Frame", nil, UIParent, "SecureHandlerStateTemplate")
-dismounter:SetPoint("BOTTOM", UIParent, "TOP", 0, -1000)
-dismounter:SetSize(1, 1)
-dismounter:Hide()
-RegisterStateDriver(dismounter, "visibility", "[mounted]show;hide")
-dismounter:SetScript("OnHide", function()
-	if responding then return end
-	if core.state ~= SOLO then
-		module:Debug("Dismount")
-		module:SendComm("HydraMount", "DISMOUNT", "RAID")
-	end
-	responding = nil
+hooksecurefunc("Dismount", function()
+	if responding or core.state == SOLO then return end
+	module:Debug("Dismount")
+	module:SendComm("HydraMount", "DISMOUNT", "RAID")
 end)
 
 ------------------------------------------------------------------------
 
 function module:SetupOptions(panel)
-	local title, notes = LibStub("PhanxConfig-Header").CreateHeader(panel, panel.name, L["Summons your mount when another party member mounts."])
+	local title, notes = LibStub("PhanxConfig-Header").CreateHeader(panel, panel.name,
+		L["Group mounting and dismounting."])
 
-	local mount = LibStub("PhanxConfig-Checkbox").CreateCheckbox(panel, L["Enable"])
+	local CreateCheckbox = LibStub("PhanxConfig-Checkbox").CreateCheckbox
+
+	local mount = CreateCheckbox(panel, L["Mount"],
+		L["Mount when another trusted group member mounts."])
 	mount:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
 	mount.OnClick = function(_, checked)
 		self.db.mount = checked
 		self:CheckState()
 	end
 
-	local dismount = LibStub("PhanxConfig-Checkbox").CreateCheckbox(panel, L["Dismount"])
-	dismount:SetPoint("TOPLEFT", mount, "BOTTOMLEFT", 0, -8)
+	local mountRandom = CreateCheckbox(panel, L["Randomize"],
+		L["Use a random mount of the same type as your trusted group member.\nIf this is disabled, you will use the same mount if you have it, or the first equivalent mount otherwise."])
+	mountRandom:SetPoint("TOPLEFT", mount, "BOTTOMLEFT", 0, -8)
+	mountRandom.OnClick = function(_, checked)
+		self.db.mountRandom = checked
+		self:CheckState()
+	end
+
+	local dismount = CreateCheckbox(panel, L["Dismount"],
+		L["Dismount when another trusted group member dismounts."])
+	dismount:SetPoint("TOPLEFT", mountRandom, "BOTTOMLEFT", 0, -8)
 	dismount.OnClick = function(_, checked)
-		self.db.dimount = checked
+		self.db.dismount = checked
 		self:CheckState()
 	end
 
@@ -176,6 +191,7 @@ function module:SetupOptions(panel)
 
 	panel.refresh = function()
 		mount:SetChecked(self.db.mount)
+		mountRandom:SetChecked(self.db.mountRandom)
 		dismount:SetChecked(self.db.dismount)
 	end
 end
@@ -320,6 +336,54 @@ module.mountData = {
 		[130092] = true, -- Red Flying Cloud
 		[130985] = true, -- Pandaren Kite (Alliance)
 	},
+	--[[
+	airground = {
+		[32235]  = true, -- Golden Gryphon
+		[32239]  = true, -- Ebon Gryphon
+		[32240]  = true, -- Snowy Gryphon
+		[32242]  = true, -- Swift Blue Gryphon
+		[32243]  = true, -- Tawny Wind Rider
+		[32244]  = true, -- Blue Wind Rider
+		[32245]  = true, -- Green Wind Rider
+		[32246]  = true, -- Swift Red Wind Rider
+		[32289]  = true, -- Swift Red Gryphon
+		[32290]  = true, -- Swift Green Gryphon
+		[32292]  = true, -- Swift Purple Gryphon
+		[32295]  = true, -- Swift Green Wind Rider
+		[32296]  = true, -- Swift Yellow Wind Rider
+		[32297]  = true, -- Swift Purple Wind Rider
+		[43927]  = true, -- Cenarion War Hippogryph
+		[44151]  = true, -- Turbo-Charged Flying Machine
+		[46628]  = true, -- Swift White Hawkstrider
+		[48025]  = true, -- Headless Horseman's Mount
+		[61451]  = true, -- Flying Carpet
+		[63844]  = true, -- Argent Hippogryph
+		[66087]  = true, -- Silver Covenant Hippogryph
+		[71342]  = true, -- Big Love Rocket
+		[72286]  = true, -- Invincible
+		[73313]  = true, -- Crimson Deathcharger
+		[74856]  = true, -- Blazing Hippogryph
+		[75596]  = true, -- Frosty Flying Carpet
+		[75614]  = true, -- Celestial Steed
+		[75973]  = true, -- X-53 Touring Rocket
+		[97359]  = true, -- Flameward Hippogryph
+		[98727]  = true, -- Winged Guardian
+		[102514] = true, -- Corrupted Hippogryph
+		[107203] = true, -- Tyrael's Charger
+		[107516] = true, -- Spectral Gryphon
+		[107517] = true, -- Spectral Wind Rider
+		[110051] = true, -- Heart of the Aspects
+		[124659] = true, -- Imperial Quilen
+		[126507] = true, -- Depleted-Kyparium Rocket
+		[120043] = true, -- Jeweled Onyx Panther
+		[121836] = true, -- Sapphire Panther
+		[121837] = true, -- Jade Panther
+		[121838] = true, -- Ruby Panther
+		[121839] = true, -- Sunstone Panther
+		[126508] = true, -- Geosynchronous World Spinner
+		[130092] = true, -- Red Flying Cloud
+	},
+	]]
 	ground = {
 		[458]    = true, -- Brown Horse
 		[470]    = true, -- Black Stallion
@@ -407,20 +471,6 @@ module.mountData = {
 		[26056]  = true, -- Green Qiraji Battle Tank
 		[26656]  = true, -- Black Qiraji Battle Tank
 		[30174]  = true, -- Riding Turtle
-		[32235]  = true, -- Golden Gryphon
-		[32239]  = true, -- Ebon Gryphon
-		[32240]  = true, -- Snowy Gryphon
-		[32242]  = true, -- Swift Blue Gryphon
-		[32243]  = true, -- Tawny Wind Rider
-		[32244]  = true, -- Blue Wind Rider
-		[32245]  = true, -- Green Wind Rider
-		[32246]  = true, -- Swift Red Wind Rider
-		[32289]  = true, -- Swift Red Gryphon
-		[32290]  = true, -- Swift Green Gryphon
-		[32292]  = true, -- Swift Purple Gryphon
-		[32295]  = true, -- Swift Green Wind Rider
-		[32296]  = true, -- Swift Yellow Wind Rider
-		[32297]  = true, -- Swift Purple Wind Rider
 		[33660]  = true, -- Swift Pink Hawkstrider
 		[34406]  = true, -- Brown Elekk
 		[34767]  = true, -- Summon Charger
@@ -454,10 +504,6 @@ module.mountData = {
 		[43688]  = true, -- Amani War Bear
 		[43899]  = true, -- Brewfest Ram
 		[43900]  = true, -- Swift Brewfest Ram
-		[43927]  = true, -- Cenarion War Hippogryph
-		[44151]  = true, -- Turbo-Charged Flying Machine
-		[46628]  = true, -- Swift White Hawkstrider
-		[48025]  = true, -- Headless Horseman's Mount
 		[48027]  = true, -- Black War Elekk
 		[48778]  = true, -- Acherus Deathcharger
 		[49322]  = true, -- Swift Zhevra
@@ -483,7 +529,6 @@ module.mountData = {
 		[61309]  = true, -- Magnificent Flying Carpet
 		[61425]  = true, -- Traveler's Tundra Mammoth
 		[61447]  = true, -- Traveler's Tundra Mammoth
-		[61451]  = true, -- Flying Carpet
 		[61465]  = true, -- Grand Black War Mammoth
 		[61467]  = true, -- Grand Black War Mammoth
 		[61469]  = true, -- Grand Ice Mammoth
@@ -498,7 +543,6 @@ module.mountData = {
 		[63641]  = true, -- Thunder Bluff Kodo
 		[63642]  = true, -- Silvermoon Hawkstrider
 		[63643]  = true, -- Forsaken Warhorse
-		[63844]  = true, -- Argent Hippogryph
 		[64656]  = true, -- Blue Skeletal Warhorse
 		[64657]  = true, -- White Kodo
 		[64658]  = true, -- Black Wolf
@@ -515,7 +559,6 @@ module.mountData = {
 		[65645]  = true, -- White Skeletal Warhorse
 		[65646]  = true, -- Swift Burgundy Wolf
 		[65917]  = true, -- Magic Rooster
-		[66087]  = true, -- Silver Covenant Hippogryph
 		[66090]  = true, -- Quel'dorei Steed
 		[66091]  = true, -- Sunreaver Hawkstrider
 		[66846]  = true, -- Ochre Skeletal Warhorse
@@ -529,16 +572,9 @@ module.mountData = {
 		[68188]  = true, -- Crusader's Black Warhorse
 		[69820]  = true, -- Summon Sunwalker Kodo
 		[69826]  = true, -- Summon Great Sunwalker Kodo
-		[71342]  = true, -- Big Love Rocket
-		[72286]  = true, -- Invincible
-		[73313]  = true, -- Crimson Deathcharger
 		[73629]  = true, -- Summon Exarch's Elekk
 		[73630]  = true, -- Summon Great Exarch's Elekk
-		[74856]  = true, -- Blazing Hippogryph
 		[74918]  = true, -- Wooly White Rhino
-		[75596]  = true, -- Frosty Flying Carpet
-		[75614]  = true, -- Celestial Steed
-		[75973]  = true, -- X-53 Touring Rocket
 		[84751]  = true, -- Fossilized Raptor
 		[87090]  = true, -- Goblin Trike
 		[87091]  = true, -- Goblin Turbo-Trike
@@ -553,10 +589,8 @@ module.mountData = {
 		[93644]  = true, -- Kor'kron Annihilator
 		[96491]  = true, -- Armored Razzashi Raptor
 		[96499]  = true, -- Swift Zulian Panther
-		[97359]  = true, -- Flameward Hippogryph
 		[97581]  = true, -- Savage Raptor
 		[98204]  = true, -- Amani Battle Bear
-		[98727]  = true, -- Winged Guardian
 		[100332] = true, -- Vicious War Steed
 		[100333] = true, -- Vicious War Wolf
 		[101542] = true, -- Flametalon of Alyzrazor
@@ -565,29 +599,16 @@ module.mountData = {
 		[102349] = true, -- Swift Springstrider
 		[102350] = true, -- Swift Lovebird
 		[102488] = true, -- White Riding Camel
-		[102514] = true, -- Corrupted Hippogryph
 		[103081] = true, -- Darkmoon Dancing Bear
 		[103195] = true, -- Mountain Horse
 		[103196] = true, -- Swift Mountain Horse
-		[107203] = true, -- Tyrael's Charger
-		[107516] = true, -- Spectral Gryphon
-		[107517] = true, -- Spectral Wind Rider
-		[110051] = true, -- Heart of the Aspects
 		[118089] = true, -- Azure Water Strider
-		[120043] = true, -- Jeweled Onyx Panther
 		[120395] = true, -- Green Dragon Turtle
 		[120822] = true, -- Great Red Dragon Turtle
-		[121836] = true, -- Sapphire Panther
-		[121837] = true, -- Jade Panther
-		[121838] = true, -- Ruby Panther
-		[121839] = true, -- Sunstone Panther
 		[122708] = true, -- Grand Expedition Yak
 		[123160] = true, -- Crimson Riding Crane
 		[123182] = true, -- White Riding Yak
 		[123886] = true, -- Amber Scorpion
-		[124659] = true, -- Imperial Quilen
-		[126507] = true, -- Depleted-Kyparium Rocket
-		[126508] = true, -- Geosynchronous World Spinner
 		[127174] = true, -- Azure Riding Crane
 		[127176] = true, -- Golden Riding Crane
 		[127177] = true, -- Regal Riding Crane
@@ -614,7 +635,6 @@ module.mountData = {
 		[129932] = true, -- Green Shado-Pan Riding Tiger
 		[129934] = true, -- Blue Shado-Pan Riding Tiger
 		[129935] = true, -- Red Shado-Pan Riding Tiger
-		[130092] = true, -- Red Flying Cloud
 		[130138] = true, -- Black Riding Goat
 	},
 	water = {
@@ -622,6 +642,9 @@ module.mountData = {
 		[64731] = true, -- Sea Turtle
 		[98718] = true, -- Subdued Seahorse
 	},
+}
+
+module.mountSpecial = {
 	passengers = {
 		[61467]  = 2, -- Grand Black War Mammoth (horde)
 		[61465]  = 2, -- Grand Black War Mammoth (alliance)
@@ -650,7 +673,10 @@ module.mountData = {
 	},
 }
 
-function module:GetMountInfo(id)
-	local data = self.mountData
-	return data.ground[id], data.air[id], data.water[id], data.passengers[id], data.zoneRestricted[id], data.professionRestricted[id]
+function module:GetMountType(id)
+	for mountType, mounts in pairs(self.mountData) do
+		if mounts[id] then
+			return mountType, self.mountSpecial.passengers[id]
+		end
+	end
 end
