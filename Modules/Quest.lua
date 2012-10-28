@@ -181,30 +181,30 @@ function module:QUEST_GREETING()
 	-- Turn in complete quests:
 	if self.db.turnin then
 		for i = 1, GetNumActiveQuests() do
-			local title, complete = strip(GetActiveTitle(i))
+			local title, complete = GetActiveTitle(i)
 			if complete then
-				self:Debug("Selecting complete quest", title)
+				self:Debug("Selecting complete quest", strip(title))
 				SelectActiveQuest(i)
 			end
 		end
 	end
 
 	-- Pick up available quests:
-	for i = 1, GetNumAvailableQuests() do
-		local title = strip(GetActiveTitle(i))
+	if self.db.accept then
+		for i = 1, GetNumAvailableQuests() do
+			local title = strip(GetActiveTitle(i))
 
-		local go
-		if self.db.accept then
+			local go
 			if self.db.acceptOnlyShared then
 				go = accept[strlower(title)]
 			else
 				go = not IsAvailableQuestTrivial(i) or not IsTrackingTrivial()
 			end
-		end
 
-		if go then
-			self:Debug("Selecting available quest", (GetActiveTitle(i)))
-			SelectAvailableQuest(i)
+			if go then
+				self:Debug("Selecting available quest", (GetActiveTitle(i)))
+				SelectAvailableQuest(i)
+			end
 		end
 	end
 end
@@ -219,21 +219,19 @@ function module:QUEST_DETAIL()
 	if QuestGetAutoAccept() then
 		self:Debug("Hiding window for auto-accepted quest", quest)
 		QuestFrame:Hide()
-	else
+	elseif self.db.accept then
 		local go
-		if self.db.accept then
-			if self.db.acceptOnlyShared then
-				go = accept[strlower(quest)]
-				accepted[strlower(quest)] = true
+		if self.db.acceptOnlyShared then
+			go = accept[strlower(quest)]
+			accepted[strlower(quest)] = true
+		else
+			local item, _, _, _, minLevel = GetItemInfo(giver or "")
+			if item and minLevel and minLevel > 1 then
+				-- Guess based on the item's required level.
+				go = IsTrackingTrivial() or (UnitLevel("player") - minLevel <= GetQuestGreenRange())
 			else
-				local item, _, _, _, minLevel = GetItemInfo(giver or "")
-				if item and minLevel and minLevel > 1 then
-					-- Guess based on the item's required level.
-					go = IsTrackingTrivial() or (UnitLevel("player") - minLevel <= GetQuestGreenRange())
-				else
-					-- No way to check the level from here.
-					go = true
-				end
+				-- No way to check the level from here.
+				go = true
 			end
 		end
 
@@ -246,7 +244,7 @@ end
 
 function module:QUEST_ACCEPT_CONFIRM(giver, quest)
 	self:Debug("QUEST_ACCEPT_CONFIRM", giver, quest)
-	if IsShiftKeyDown() then return end
+	if not self.db.accept or IsShiftKeyDown() then return end
 
 	local go
 	if self.db.acceptOnlyShared then
