@@ -119,7 +119,7 @@ function core:RegisterModule(name, module)
 
 	module.name = name
 	module.CheckState = noop
-	module.Alert, module.Debug, module.Print, module.SendChat, module.SendComm = self.Alert, self.Debug, self.Print, self.SendChat, self.SendComm
+	module.Alert, module.Debug, module.Print, module.SendAddonMessage, module.SendChatMessage = self.Alert, self.Debug, self.Print, self.SendAddonMessage, self.SendChatMessage
 
 	self.modules[name] = module
 
