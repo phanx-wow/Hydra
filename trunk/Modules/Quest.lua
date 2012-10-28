@@ -386,10 +386,10 @@ function module:QUEST_LOG_UPDATE()
 		if not currentquests[id] then
 			if abandoning then
 				self:Debug("Abandoned quest", link)
-				self:SendComm("HydraQuest", "ABANDON " .. link, "RAID")
+				self:SendAddonMessage("HydraQuest", "ABANDON " .. link, "RAID")
 			else
 				self:Debug("Turned in quest", link)
-				self:SendComm("HydraQuest", "TURNIN " .. link, "RAID")
+				self:SendAddonMessage("HydraQuest", "TURNIN " .. link, "RAID")
 			end
 		end
 	end
@@ -399,7 +399,7 @@ function module:QUEST_LOG_UPDATE()
 	for id, link in pairs(currentquests) do
 		if not oldquests[ id ] then
 			self:Debug("Accepted quest", link)
-			self:SendComm("HydraQuest", "ACCEPT " .. link, "RAID")
+			self:SendAddonMessage("HydraQuest", "ACCEPT " .. link, "RAID")
 
 			local qname = link:match("%[(.-)%]"):lower()
 			if self.db.share and not accept[ qname ] and not accepted[ qname ] then

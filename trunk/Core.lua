@@ -51,7 +51,7 @@ end
 
 local groupTypes = { GROUP = true, PARTY = true, RAID = true }
 
-function core:SendComm(prefix, message, channel, target)
+function core:SendAddonMessage(prefix, message, channel, target)
 	if groupTypes[channel] then
 		if IsInGroup() then
 			channel = IsInRaid() and "RAID" or "PARTY"
@@ -62,7 +62,7 @@ function core:SendComm(prefix, message, channel, target)
 	SendAddonMessage(prefix, message, channel, target)
 end
 
-function core:SendChat(message, channel, _, target)
+function core:SendChatMessage(message, channel, _, target)
 	if groupTypes[channel] then
 		if IsInGroup() then
 			channel = IsInRaid() and "RAID" or "PARTY"

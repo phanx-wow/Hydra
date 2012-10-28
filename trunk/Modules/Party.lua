@@ -153,7 +153,7 @@ SlashCmdList.HYDRA_INVITEME = function(target)
 
 	module:Debug("INVITEME", target, nopromote)
 
-	module:SendComm("HydraParty", nopromote and "INVITE" or "INVITEANDPROMOTE", "WHISPER", target)
+	module:SendAddonMessage("HydraParty", nopromote and "INVITE" or "INVITEANDPROMOTE", "WHISPER", target)
 end
 
 ------------------------------------------------------------------------
@@ -172,7 +172,7 @@ SlashCmdList.HYDRA_PROMOTEME = function()
 
 	module:Debug("PROMOTEME")
 
-	module:SendComm("HydraParty", "PROMOTE", "RAID")
+	module:SendAddonMessage("HydraParty", "PROMOTE", "RAID")
 end
 
 ------------------------------------------------------------------------
