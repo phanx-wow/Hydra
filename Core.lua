@@ -52,6 +52,12 @@ end
 local groupTypes = { GROUP = true, PARTY = true, RAID = true }
 
 function core:SendAddonMessage(prefix, message, channel, target)
+	if not message or not channel then
+		return
+	end
+	if channel == "WHISPER" and not target then
+		return
+	end
 	if groupTypes[channel] then
 		if IsInGroup() then
 			channel = IsInRaid() and "RAID" or "PARTY"
@@ -63,6 +69,12 @@ function core:SendAddonMessage(prefix, message, channel, target)
 end
 
 function core:SendChatMessage(message, channel, _, target)
+	if not message or not channel then
+		return
+	end
+	if channel == "WHISPER" and not target then
+		return
+	end
 	if groupTypes[channel] then
 		if IsInGroup() then
 			channel = IsInRaid() and "RAID" or "PARTY"

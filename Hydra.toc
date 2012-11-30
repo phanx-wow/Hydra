@@ -1,5 +1,5 @@
-## Interface: 50001
-## Version: 5.0.5.wowi:revision
+## Interface: 50100
+## Version: 5.1.0.wowi:revision
 
 ## Title: Hydra
 ## Notes: Multibox leveling helper.
@@ -43,7 +43,7 @@ Locales\Locale-ruRU.lua
 Core.lua
 
 # Modules\Assist.lua
-# Modules\Automation.lua
+Modules\Automation.lua
 Modules\Chat.lua
 Modules\Follow.lua
 Modules\Mount.lua
