@@ -82,7 +82,7 @@ function core:SendChatMessage(message, channel, _, target)
 			return
 		end
 	end
-	SendChatMessage(prefix, message, channel, target)
+	SendChatMessage(message, channel, target)
 end
 
 ------------------------------------------------------------------------
