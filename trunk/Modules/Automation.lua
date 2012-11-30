@@ -4,6 +4,39 @@ local L = core.L
 local FLAG_NONE, FLAG_TRUSTED, FLAG_GROUP, FLAG_FRIENDS, FLAG_GUILD, FLAG_ALL = 2, 4, 8, 16, 32, 64+32+16+8+4
 local PLAYER_REALM = GetRealmName()
 
+	L.FLAG_DEFAULT = "Default"
+	L.FLAG_NONE = "None"
+	L.FLAG_TRUSTED = "Trusted"
+	L.FLAG_GROUP = "Group"
+	L.FLAG_FRIENDS = "Friends"
+	L.FLAG_GUILD = "Guild"
+	L.FLAG_ALL = "All"
+
+	L.AUTO_DESC = "Automates some things."
+
+	L.AUTO_ARENA = "Allow arena teams"
+	L.AUTO_ARENA_DESC = "Allow arena teams"
+	L.AUTO_DUEL = "Allow duels"
+	L.AUTO_DUEL_DESC = "Allow duels"
+	L.AUTO_GUILD = "Allow guilds"
+	L.AUTO_GUILD_DESC = "Allow guilds"
+	L.AUTO_RES = "Accept resurrections"
+	L.AUTO_RES_DESC = "Accept resurrections"
+	L.AUTO_RESIC = "In combat"
+	L.AUTO_RESIC_DESC = "In combat"
+	L.AUTO_SUMMON = "Accept summons"
+	L.AUTO_SUMMON_DESC = "Accept summons"
+	L.AUTO_SUMMONDELAY = "Delay"
+	L.AUTO_SUMMONDELAY_DESC = "Delay"
+	L.AUTO_REPAIR = "Repair items"
+	L.AUTO_REPAIR_DESC = "Repair items"
+	L.AUTO_REPAIRGUILD = "Use guild funds"
+	L.AUTO_REPAIRGUILD_DESC = "Use guild funds"
+	L.AUTO_SELL = "Sell junk items"
+	L.AUTO_SELL_DESC = "Sell junk items"
+
+	L.VERBOSE = "Verbose"
+
 ------------------------------------------------------------------------
 
 local module = core:RegisterModule("Automation", CreateFrame("Frame"))
@@ -416,9 +449,9 @@ function module:SetupOptions(panel)
 	repair.OnClick = SetBooleanOption
 
 	local repairFromGuild = CreateCheckbox(panel, L.AUTO_REPAIRGUILD, L.AUTO_REPAIRGUILD_DESC)
-	repair:SetPoint("TOPLEFT", repair, "BOTTOMLEFT", 0, -8)
-	repair.key = "repairFromGuild"
-	repair.OnClick = SetBooleanOption
+	repairFromGuild:SetPoint("TOPLEFT", repair, "BOTTOMLEFT", 0, -8)
+	repairFromGuild.key = "repairFromGuild"
+	repairFromGuild.OnClick = SetBooleanOption
 
 	local sellJunk = CreateCheckbox(panel, L.AUTO_SELL, L.AUTO_SELL_DESC)
 	sellJunk:SetPoint("TOPLEFT", repairFromGuild, "BOTTOMLEFT", 0, -8)
@@ -446,10 +479,10 @@ function module:SetupOptions(panel)
 		RefreshFlagOptions(acceptResurrectionsInCombat)
 		RefreshFlagOptions(acceptSummons)
 		summonDelay:SetValue(module.db.summonDelay)
-		summonDelay:SetDisabled(not module.db.acceptSummons or bit.band(module.db.acceptSummons, FLAG_NONE) == FLAG_NONE)
+		summonDelay:SetEnabled(module.db.acceptSummons and bit.band(module.db.acceptSummons, FLAG_NONE) ~= FLAG_NONE)
 		repair:SetChecked(module.db.repair)
 		repairFromGuild:SetChecked(module.db.repairFromGuild)
-		repairFromGuild:SetDisabled(not module.db.repair)
+		repairFromGuild:SetEnabled(module.db.repair)
 		sellJunk:SetChecked(module.db.sellJunk)
 		verbose:SetChecked(module.db.verbose)
 	end
