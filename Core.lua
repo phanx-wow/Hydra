@@ -291,7 +291,7 @@ function core:SetupOptions(panel)
 		end
 	end
 
-	local remove = LibStub("PhanxConfig-Dropdown").CreateDropdown(panel, L["Remove Name"], nil, L["Remove a name from your trusted list."])
+	local remove = LibStub("PhanxConfig-Dropdown").CreateDropdown(panel, L["Remove Name"], L["Remove a name from your trusted list."])
 	remove:SetPoint("TOPLEFT", add, "BOTTOMLEFT", 0, -16)
 	remove:SetPoint("TOPRIGHT", add, "BOTTOMRIGHT", 0, -16)
 	do
