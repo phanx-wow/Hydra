@@ -200,13 +200,15 @@ function module:SetupOptions(panel)
 	local CreateCheckbox = LibStub("PhanxConfig-Checkbox").CreateCheckbox
 	local CreateKeyBinding = LibStub("PhanxConfig-KeyBinding").CreateKeyBinding
 
-	local enable = CreateCheckbox(panel, L["Enable"], L["Enable this module."])
+	local enable = CreateCheckbox(panel, L["Enable"],
+		L["Enable this module."])
 	enable:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
 	enable.OnClick = function(_, checked)
 		self.db.enable = checked
 	end
 
-	local verbose = CreateCheckbox(panel, L["Verbose mode"], L["Enable notification messages from this module."])
+	local verbose = CreateCheckbox(panel, L["Verbose mode"],
+		L["Enable notification messages from this module."])
 	verbose:SetPoint("TOPLEFT", enable, "BOTTOMLEFT", 0, -8)
 	verbose.OnClick = function(_, checked)
 		self.db.verbose = checked
@@ -219,23 +221,27 @@ function module:SetupOptions(panel)
 		self.db.targetedFollowMe = checked
 	end
 
-	local follow = CreateKeyBinding(panel, BINDING_NAME_HYDRA_FOLLOW_TARGET, "HYDRA_FOLLOW_TARGET",
-		L["Set a key binding to follow your current target."])
+	local follow = CreateKeyBinding(panel, BINDING_NAME_HYDRA_FOLLOW_TARGET,
+		L["Set a key binding to follow your current target."],
+		"HYDRA_FOLLOW_TARGET")
 	follow:SetPoint("TOPLEFT", notes, "BOTTOM", -8, -8)
 	follow:SetPoint("TOPRIGHT", notes, "BOTTOMRIGHT", 0, -8)
 
-	local followme = CreateKeyBinding(panel, BINDING_NAME_HYDRA_FOLLOW_ME, "HYDRA_FOLLOW_ME",
-		L["Set a key binding to direct all characters in your party to follow you."])
+	local followme = CreateKeyBinding(panel, BINDING_NAME_HYDRA_FOLLOW_ME,
+		L["Set a key binding to direct all characters in your party to follow you."],
+		"HYDRA_FOLLOW_ME")
 	followme:SetPoint("TOPLEFT", follow, "BOTTOMLEFT", 0, -8)
 	followme:SetPoint("TOPRIGHT", follow, "BOTTOMRIGHT", 0, -8)
 
-	local release = CreateKeyBinding(panel, BINDING_NAME_HYDRA_RELEASE_CORPSE, "HYDRA_RELEASE_CORPSE",
-		L["Set a key binding to direct all dead characters in your party to release their spirit."])
+	local release = CreateKeyBinding(panel, BINDING_NAME_HYDRA_RELEASE_CORPSE,
+		L["Set a key binding to direct all dead characters in your party to release their spirit."],
+		"HYDRA_RELEASE_CORPSE")
 	release:SetPoint("TOPLEFT", followme, "BOTTOMLEFT", 0, -8)
 	release:SetPoint("TOPRIGHT", followme, "BOTTOMRIGHT", 0, -8)
 
-	local acceptres = CreateKeyBinding(panel, BINDING_NAME_HYDRA_ACCEPT_CORPSE, "HYDRA_ACCEPT_CORPSE",
-		L["Set a key binding to direct all ghost characters in your party to accept resurrection to their corpse."])
+	local acceptres = CreateKeyBinding(panel, BINDING_NAME_HYDRA_ACCEPT_CORPSE,
+		L["Set a key binding to direct all ghost characters in your party to accept resurrection to their corpse."],
+		"HYDRA_ACCEPT_CORPSE")
 	acceptres:SetPoint("TOPLEFT", release, "BOTTOMLEFT", 0, -8)
 	acceptres:SetPoint("TOPRIGHT", release, "BOTTOMRIGHT", 0, -8)
 

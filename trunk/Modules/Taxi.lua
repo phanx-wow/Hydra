@@ -127,7 +127,7 @@ function module:SetupOptions(panel)
 		self:CheckState()
 	end
 
-	local timeout = LibStub("PhanxConfig-Slider").CreateSlider(panel, L["Timeout"], 30, 600, 30, nil, L["Clear the taxi selection after this many seconds."])
+	local timeout = LibStub("PhanxConfig-Slider").CreateSlider(panel, L["Timeout"], L["Clear the taxi selection after this many seconds."], 30, 600, 30)
 	timeout:SetPoint("TOPLEFT", enable, "BOTTOMLEFT", 0, -16)
 	timeout:SetPoint("TOPRIGHT", notes, "BOTTOM", -8, -28 - enable:GetHeight())
 	timeout.OnValueChanged = function(_, value)

@@ -302,7 +302,7 @@ function module:SetupOptions(panel)
 		leader = L["Party Leader"],
 	}
 
-	local mode = LibStub("PhanxConfig-Dropdown").CreateDropdown(panel, L["Detection method"], nil,
+	local mode = LibStub("PhanxConfig-Dropdown").CreateDropdown(panel, L["Detection method"],
 		L["Select the method to use for detecting the primary character."] .. "\n\n" .. L["If you are multiboxing on multiple physical machines, or are running multiple copies of WoW in windowed mode, the \"Application Focus\" mode will probably not work for you, and you should make sure that your primary character is the party leader."])
 	mode:SetPoint("TOPLEFT", enable, "BOTTOMLEFT", 0, -16)
 	mode:SetPoint("TOPRIGHT", notes, "BOTTOM", -8, -12 - enable:GetHeight() - 16)
@@ -330,8 +330,9 @@ function module:SetupOptions(panel)
 		end)
 	end
 
-	local timeout = LibStub("PhanxConfig-Slider").CreateSlider(panel, L["Timeout"], 30, 600, 30, nil,
-		L["If this many seconds have elapsed since the last forwarded message, don't forward messages typed in party chat to the last whisperer unless the target is explicitly specified."])
+	local timeout = LibStub("PhanxConfig-Slider").CreateSlider(panel, L["Timeout"],
+		L["If this many seconds have elapsed since the last forwarded message, don't forward messages typed in party chat to the last whisperer unless the target is explicitly specified."],
+		30, 600, 30)
 	timeout:SetPoint("TOPLEFT", mode, "BOTTOMLEFT", 0, -16)
 	timeout:SetPoint("TOPRIGHT", mode, "BOTTOMRIGHT", 0, -16)
 	timeout.OnValueChanged = function(_, value)
