@@ -95,7 +95,7 @@ end
 ------------------------------------------------------------------------
 
 function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
-	if prefix ~= "HydraQuest" or (channel ~= "PARTY" and channel ~= "RAID") or sender == playerName or not core:IsTrusted(sender) then return end
+	if prefix ~= "HydraQuest" or sender == playerName or not core:IsTrusted(sender) then return end
 
 	local action, qlink = message:match("^(%S+) (.+)$")
 
