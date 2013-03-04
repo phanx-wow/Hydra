@@ -44,7 +44,7 @@ end
 ------------------------------------------------------------------------
 
 function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
-	if prefix ~= "HydraTaxi" or (channel ~= "PARTY" and channel ~= "RAID") or sender == playerName or not core:IsTrusted(sender) then return end
+	if prefix ~= "HydraTaxi" or sender == playerName or not core:IsTrusted(sender) then return end
 	self:Debug("Comm received from", sender, "->", message)
 
 	if message == "TIMEOUT" then

@@ -43,7 +43,7 @@ end
 ------------------------------------------------------------------------
 
 function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
-	if prefix ~= "HydraMount" or sender == playerName or (channel ~= "PARTY" and channel ~= "RAID") or not core:IsTrusted(sender) then return end
+	if prefix ~= "HydraMount" or sender == playerName or not core:IsTrusted(sender) then return end
 	self:Debug("CHAT_MSG_ADDON", prefix, message, channel, sender)
 
 	if message == "ERROR" then
