@@ -51,11 +51,11 @@ function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 
 	if message:match("INVITE") and channel == "WHISPER" then
 		if not core:IsTrusted(sender) then
-			return self:SendChatMessage(L["I cannot invite you, because you are not on my trusted list."], "WHISPER", nil, sender)
+			return self:SendChatMessage(L["I cannot invite you, because you are not on my trusted list."], sender)
 		end
 
 		if GetNumGroupMembers() > 0 and not UnitIsGroupLeader("player") then
-			return self:SendChatMessage(L["I cannot invite you, because I am not the group leader."], "WHISPER", nil, sender)
+			return self:SendChatMessage(L["I cannot invite you, because I am not the group leader."], sender)
 		end
 
 		if message:match("PROMOTE") then
@@ -66,14 +66,14 @@ function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 
 	elseif message:match("PROMOTE") then
 		if not core:IsTrusted(sender) then
-			return self:SendChatMessage(L["I cannot promote you, because you are not on my trusted list."], "WHISPER", nil, sender)
+			return self:SendChatMessage(L["I cannot promote you, because you are not on my trusted list."], sender)
 		end
 
 		if GetNumGroupMembers() > 0 then
 			if UnitIsGroupLeader("player") then
 				return PromoteToLeader(sender)
 			else
-				return self:SendChatMessage(L["I cannot promote you, because I am not the group leader."], "WHISPER", nil, sender)
+				return self:SendChatMessage(L["I cannot promote you, because I am not the group leader."], sender)
 			end
 		else
 			-- we're not in a group, invite instead
@@ -172,7 +172,7 @@ SlashCmdList.HYDRA_PROMOTEME = function()
 
 	module:Debug("PROMOTEME")
 
-	module:SendAddonMessage("HydraParty", "PROMOTE", "RAID")
+	module:SendAddonMessage("HydraParty", "PROMOTE")
 end
 
 ------------------------------------------------------------------------

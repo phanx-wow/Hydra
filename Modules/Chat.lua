@@ -92,10 +92,10 @@ function module:CHAT_MSG_PARTY(message, sender)
 		if GetTime() - partyForwardTime > self.db.timeout then
 			-- it's been a while
 			hasActiveConversation = nil
-			self:SendChatMessage(L["!ERROR: Party forwarding timeout reached."], "RAID")
+			self:SendChatMessage(L["!ERROR: Party forwarding timeout reached."])
 		else
 			-- forwarding response to whisper sender
-			self:SendChatMessage(message, "WHISPER", nil, partyForwardFrom)
+			self:SendChatMessage(message, partyForwardFrom)
 			partyForwardTime = GetTime()
 		end
 
@@ -105,7 +105,7 @@ function module:CHAT_MSG_PARTY(message, sender)
 		if text then
 			-- someone responding to our last forward
 			self:Debug("Detected response to old forward.")
-			self:SendChatMessage(text, "WHISPER", nil, partyForwardFrom)
+			self:SendChatMessage(text, partyForwardFrom)
 		end
 	end
 end
@@ -151,19 +151,19 @@ function module:CHAT_MSG_WHISPER(message, sender, _, _, _, flag, _, _, _, _, _, 
 		if target and text then
 			-- sender wants us to whisper target with text
 			whisperForwardTo, whisperForwardTime = target, GetTime()
-			self:SendChatMessage(text, "WHISPER", nil, target)
+			self:SendChatMessage(text, target)
 
 		elseif whisperForwardTo then
 			-- we've forwarded to whisper recently
 			if GetTime() - whisperForwardTime > self.db.timeout then
 				-- it's been a while since our last forward to whisper
 				whisperForwardTo = nil
-				self:SendChatMessage(L["!ERROR: Whisper timeout reached."], "WHISPER", nil, sender)
+				self:SendChatMessage(L["!ERROR: Whisper timeout reached."], sender)
 
 			else
 				-- whisper last forward target
 				whisperForwardTime = GetTime()
-				self:SendChatMessage(message, "WHISPER", nil, whisperForwardTo)
+				self:SendChatMessage(message, whisperForwardTo)
 			end
 		end
 	else
@@ -177,8 +177,8 @@ function module:CHAT_MSG_WHISPER(message, sender, _, _, _, flag, _, _, _, _, _, 
 		self:Debug(active and "Active" or "Not active")
 		if not active then -- someone outside the party whispered me
 			if flag == "GM" then
-				self:SendAddonMessage("HydraChat", format("GM |cff00ccff%s|r %s", sender, message), "RAID")
-				self:SendChatMessage(format(">> GM %s: %s", sender, message), "RAID")
+				self:SendAddonMessage("HydraChat", format("GM |cff00ccff%s|r %s", sender, message))
+				self:SendChatMessage(format(">> GM %s: %s", sender, message))
 
 			else
 				local spamwords = 0
@@ -200,8 +200,8 @@ function module:CHAT_MSG_WHISPER(message, sender, _, _, _, flag, _, _, _, _, _, 
 						color = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[class]
 					end
 				end
-				self:SendAddonMessage("HydraChat", format("W %s %s", (color and format("\124cff%02x%02x%02x%s\124r", color.r * 255, color.g * 255, color.b * 255, sender) or sender), message), "RAID")
-				self:SendChatMessage(format(">> %s: %s", sender, message), "RAID")
+				self:SendAddonMessage("HydraChat", format("W %s %s", (color and format("\124cff%02x%02x%02x%s\124r", color.r * 255, color.g * 255, color.b * 255, sender) or sender), message))
+				self:SendChatMessage(format(">> %s: %s", sender, message))
 			end
 		end
 	end

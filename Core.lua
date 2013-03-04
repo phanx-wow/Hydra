@@ -49,40 +49,30 @@ function core:Alert(message, flash, r, g, b)
 	UIErrorsFrame:AddMessage(message, r or 1, g or 1, b or 0, 1, UIERRORS_HOLD_TIME)
 end
 
-local groupTypes = { GROUP = true, PARTY = true, RAID = true }
-
-function core:SendAddonMessage(prefix, message, channel, target)
-	if not message or not channel then
+function core:SendAddonMessage(prefix, message, target)
+	if not prefix or not message then
 		return
 	end
-	if channel == "WHISPER" and not target then
-		return
+	if target then
+		return SendAddonMessage(prefix, message, "WHISPER", target)
 	end
-	if groupTypes[channel] then
-		if IsInGroup() then
-			channel = IsInRaid() and "RAID" or "PARTY"
-		else
-			return
-		end
+	local channel = IsPartyLFG() and "INSTANCE_CHAT" or IsInRaid() and "RAID" or IsInGroup() and "PARTY"
+	if channel then
+		return SendAddonMessage(prefix, message, channel)
 	end
-	SendAddonMessage(prefix, message, channel, target)
 end
 
-function core:SendChatMessage(message, channel, _, target)
+function core:SendChatMessage(message, channel, target)
 	if not message or not channel then
 		return
 	end
-	if channel == "WHISPER" and not target then
-		return
+	if target then
+		return SendChatMessage(message, "WHISPER", nil, target)
 	end
-	if groupTypes[channel] then
-		if IsInGroup() then
-			channel = IsInRaid() and "RAID" or "PARTY"
-		else
-			return
-		end
+	local channel = IsPartyLFG() and "INSTANCE_CHAT" or IsInRaid() and "RAID" or IsInGroup() and "PARTY"
+	if channel then
+		return SendChatMessage(message, channel)
 	end
-	SendChatMessage(message, channel, target)
 end
 
 ------------------------------------------------------------------------

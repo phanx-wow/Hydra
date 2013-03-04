@@ -92,11 +92,11 @@ function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 			local ss = HasSoulstone()
 			if ss then
 				if ss == L["Use Soulstone"] then
-					self:SendChatMessage(L["I have a soulstone."], "RAID") -- #TODO: use comms
+					self:SendChatMessage(L["I have a soulstone."]) -- #TODO: use comms
 				elseif ss == L["Reincarnate"] then
-					self:SendChatMessage(L["I can reincarnate."], "RAID") -- #TODO: use comms
+					self:SendChatMessage(L["I can reincarnate."]) -- #TODO: use comms
 				else -- probably "Twisting Nether"
-					self:SendChatMessage(L["I can resurrect myself."], "RAID") -- #TODO: use comms
+					self:SendChatMessage(L["I can resurrect myself."]) -- #TODO: use comms
 				end
 			else
 				RepopMe()
@@ -109,7 +109,7 @@ function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 				UseSoulstone()
 			end
 			if CannotBeResurrected() then
-				self:SendChatMessage(L["I cannot resurrect!"], "RAID") -- #TODO: use comms
+				self:SendChatMessage(L["I cannot resurrect!"]) -- #TODO: use comms
 			end
 		end
 	end
@@ -161,7 +161,7 @@ function SlashCmdList.HYDRA_FOLLOWME(names)
 		module:SendAddonMessage("HydraFollow", "ME", "WHISPER", target)
 	else
 		module:Debug("Sending follow command to party")
-		module:SendAddonMessage("HydraFollow", "ME", "RAID")
+		module:SendAddonMessage("HydraFollow", "ME")
 	end
 end
 
@@ -179,9 +179,9 @@ function SlashCmdList.HYDRA_CORPSE(command)
 	if core.state == SOLO then return end
 	command = command and strlower(strtrim(command)) or ""
 	if strmatch(command, L["release"]) or strmatch(command, "^r") then
-		module:SendAddonMessage("HydraCorpse", "release", "RAID")
+		module:SendAddonMessage("HydraCorpse", "release")
 	elseif strmatch(command, L["accept"]) or strmatch(command, "^a") then
-		module:SendAddonMessage("HydraCorpse", "accept", "RAID")
+		module:SendAddonMessage("HydraCorpse", "accept")
 	end
 end
 
