@@ -1,7 +1,7 @@
 --[[--------------------------------------------------------------------
 	Hydra
 	Multibox leveling helper.
-	Copyright (c) 2010-2012 Phanx <addons@phanx.net>. All rights reserved.
+	Copyright (c) 2010-2013 Phanx <addons@phanx.net>. All rights reserved.
 	See the accompanying README and LICENSE files for more information.
 	http://www.wowinterface.com/downloads/info17572-Hydra.html
 	http://www.curse.com/addons/wow/hydra
@@ -77,38 +77,47 @@ end
 
 ------------------------------------------------------------------------
 
+function core:ValidateName(name, realm)
+	name = name and strtrim(name)
+	assert(type(name) == "string" and strlen(name) >= 2, "Invalid name!")
+	if not strmatch(name, "%-") then
+		realm = realm and strtrim(realm)
+		if not realm or strlen(realm) == 0 then
+			realm = myRealm
+		end
+		name = format("%s-%s", name, realm)
+	end
+	local first = strsub(name, 1, 1)
+	if strmatch(first, "%l") then
+		name = gsub(name, first, strupper, 1) -- capitalize first letter
+	end
+	return name
+end
+
 function core:IsTrusted(name, realm)
-	if realm and strlen(realm) > 0 and realm ~= myRealm then
-		return
-	end
-	if strmatch(name, "%-") then
-		return
-	end
+	name = self:ValidateName(name, realm)
+	if not name then return end
 	local trusted = self.trusted[name]
-	self:Debug("IsTrusted", name, tostring(trusted))
+	self:Debug("IsTrusted", name, not not trusted)
 	return trusted
 end
 
 function core:AddTrusted(name, realm)
-	self:Debug("AddTrusted", name, realm)
-	if realm and realm:len() > 0 and realm ~= myRealm then
-		return
-	end
-	assert(type(name) == "string" and strlen(name) >= 2 and strlen(name) <= 12 and strupper(strsub(name, 1, 1)) == strsub(name, 1, 1), "Invalid name.")
+	name = self:ValidateName(name, realm)
+	self:Debug("AddTrusted", name)
+	if not name or self.trusted[name] then return end
 	self.trusted[name] = name
 	HydraTrustList[myRealm][name] = name
-	self:Print("%s has been added to the trusted list.", name)
+	self:Print(L.AddedTrusted, name)
 	self:TriggerEvent("GROUP_ROSTER_UPDATE")
 end
 
 function core:RemoveTrusted(name, realm)
-	if realm and strlen(realm) > 0 and realm ~= myRealm then
-		return
-	end
-	assert(type(name) == "string" and self.trusted[name], "Invalid name.")
+	name = self:ValidateName(name, realm)
+	if not name or not self.trusted[name] then return end
 	self.trusted[name] = nil
 	HydraTrustList[myRealm][name] = nil
-	self:Print("%s has been removed from the trusted list.", name)
+	self:Print(L.RemovedTrusted, name)
 	self:TriggerEvent("GROUP_ROSTER_UPDATE")
 end
 
@@ -246,24 +255,23 @@ end
 ------------------------------------------------------------------------
 
 function core:SetupOptions(panel)
-	local title, notes = LibStub("PhanxConfig-Header").CreateHeader(panel, panel.name,
-		L["Hydra is a multibox leveling helper that aims to minimize the need to actively control secondary characters."])
+	local title, notes = LibStub("PhanxConfig-Header").CreateHeader(panel, panel.name, L.Hydra_Info)
 	notes:SetHeight(notes:GetHeight() * 1.5)
 
-	local add = LibStub("PhanxConfig-EditBox").CreateEditBox(panel, L["Add Name"], L["Add a name to your trusted list."], 12)
-	add:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
-	add:SetPoint("TOPRIGHT", notes, "BOTTOM", -8, -12)
-	add.OnValueChanged = function(self, name)
-		name = name and gsub(strtrim(name), "%a", strupper, 1)
-		if strlen(name) > 1 then
+	local addName = LibStub("PhanxConfig-EditBox").CreateEditBox(panel, L.AddName, L.AddName_Info, 12)
+	addName:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
+	addName:SetPoint("TOPRIGHT", notes, "BOTTOM", -8, -12)
+	function addName:OnValueChanged(name)
+		name = strtrim(name)
+		if strlen(name) > 2 then
 			core:AddTrusted(name)
 		end
 		self:SetText("")
 	end
 
-	local addParty = LibStub("PhanxConfig-Button").CreateButton(panel, L["Add Party"], L["Add all the characters in your current party group to your trusted list."])
-	addParty:SetPoint("BOTTOMLEFT", add, "BOTTOMRIGHT", 20, 8)
-	addParty.OnClick = function(self)
+	local addGroup = LibStub("PhanxConfig-Button").CreateButton(panel, L.AddGroup, L.AddGroup_Info)
+	addGroup:SetPoint("BOTTOMLEFT", addName, "BOTTOMRIGHT", 20, 8)
+	function addGroup:OnClick()
 		local u, n = "party", GetNumGroupMembers()
 		if IsInRaid() then
 			u = "raid"
@@ -272,18 +280,15 @@ function core:SetupOptions(panel)
 		end
 		if n > 0 then
 			for i = 1, n do
-				local name, realm = UnitName(u..i)
-				if not realm or realm == myRealm or strlen(realm) == 0 then
-					core:AddTrusted(name)
-				end
+				core:AddTrusted(UnitName(u..i))
 			end
-			core:TriggerEvent("PARTY_MEMBERS_CHANGED")
+			core:TriggerEvent("GROUP_ROSTER_UPDATE")
 		end
 	end
 
-	local remove = LibStub("PhanxConfig-Dropdown").CreateDropdown(panel, L["Remove Name"], L["Remove a name from your trusted list."])
-	remove:SetPoint("TOPLEFT", add, "BOTTOMLEFT", 0, -16)
-	remove:SetPoint("TOPRIGHT", add, "BOTTOMRIGHT", 0, -16)
+	local removeName = LibStub("PhanxConfig-Dropdown").CreateDropdown(panel, L.RemoveName, L.RemoveName_Info)
+	removeName:SetPoint("TOPLEFT", addName, "BOTTOMLEFT", 0, -16)
+	removeName:SetPoint("TOPRIGHT", addName, "BOTTOMRIGHT", 0, -16)
 	do
 		local info, temp = {}, {}
 		local sortNames = function(a, b)
@@ -297,7 +302,7 @@ function core:SetupOptions(panel)
 		local OnClick = function(self)
 			core:RemoveTrusted(self.value)
 		end
-		UIDropDownMenu_Initialize(remove.dropdown, function()
+		UIDropDownMenu_Initialize(removeName.dropdown, function()
 			for name in pairs(core.trusted) do
 				temp[#temp + 1] = name
 			end
@@ -315,8 +320,8 @@ function core:SetupOptions(panel)
 		end)
 	end
 
-	local removeAll = LibStub("PhanxConfig-Button").CreateButton(panel, L["Remove All"], L["Remove all names from your trusted list for this server."])
-	removeAll:SetPoint("BOTTOMLEFT", remove, "BOTTOMRIGHT", 20, 1)
+	local removeAll = LibStub("PhanxConfig-Button").CreateButton(panel, L.RemoveAll, L.RemoveAll_Info)
+	removeAll:SetPoint("BOTTOMLEFT", removeName, "BOTTOMRIGHT", 20, 1)
 	removeAll.OnClick = function(self)
 		for name in pairs(core.trusted) do
 			core:RemoveTrusted(name)
@@ -329,11 +334,11 @@ function core:SetupOptions(panel)
 	help:SetHeight(112)
 	help:SetJustifyH("LEFT")
 	help:SetJustifyV("BOTTOM")
-	help:SetText(L.HELP_TRUST)
+	help:SetText(L.CoreHelpText)
 
 	function panel:refresh()
-		local buttonWidth = max(addParty:GetTextWidth(), removeAll:GetTextWidth()) + 48
-		addParty:SetSize(buttonWidth, 26)
+		local buttonWidth = max(addGroup:GetTextWidth(), removeAll:GetTextWidth()) + 48
+		addGroup:SetSize(buttonWidth, 26)
 		removeAll:SetSize(buttonWidth, 26)
 	end
 end

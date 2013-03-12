@@ -1,7 +1,7 @@
 --[[--------------------------------------------------------------------
 	Hydra
 	Multibox leveling helper.
-	Copyright (c) 2010-2012 Phanx <addons@phanx.net>. All rights reserved.
+	Copyright (c) 2010-2013 Phanx <addons@phanx.net>. All rights reserved.
 	See the accompanying README and LICENSE files for more information.
 	http://www.wowinterface.com/downloads/info17572-Hydra.html
 	http://www.curse.com/addons/wow/hydra
@@ -104,10 +104,10 @@ function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 		if not accepted[qname] then
 			accept[qname] = qlink
 		end
-		return self:Print(L["%1$s accepted %2$s."], sender, qlink)
+		return self:Print(L.QuestAccepted, sender, qlink)
 
 	elseif action == "TURNIN" then
-		return self:Print(L["%1$s turned in %2$s."], sender, qlink)
+		return self:Print(L.QuestTurnedIn, sender, qlink)
 
 	elseif action == "ABANDON" and self.db.abandon then
 		for i = 1, GetNumQuestLogEntries() do
@@ -116,7 +116,7 @@ function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 				SelectQuestLogEntry(i)
 				SetAbandonQuest()
 				AbandonQuest()
-				return self:Print(L["%1$s abandoned %2$s."], sender, qlink)
+				return self:Print(L.QuestAbandoned, sender, qlink)
 			end
 		end
 	end
@@ -410,7 +410,7 @@ function module:QUEST_LOG_UPDATE()
 							self:Debug("Sharing quest...")
 							QuestLogPushQuest()
 						else
-							core:Print(L["That quest cannot be shared."])
+							core:Print(L.QuestNotShareable)
 						end
 					end
 				end
@@ -427,19 +427,19 @@ end
 
 ------------------------------------------------------------------------
 
+module.displayName = L.Quest
 function module:SetupOptions(panel)
-	local title, notes = LibStub("PhanxConfig-Header").CreateHeader(panel, panel.name,
-		L["Helps keep party members' quests in sync."])
+	local title, notes = LibStub("PhanxConfig-Header").CreateHeader(panel, L.Quest, L.Quest_Info)
 
 	local enable, accept, acceptOnlyShared, turnin, share, abandon
 
 	local CreateCheckbox = LibStub("PhanxConfig-Checkbox").CreateCheckbox
 	local CreateCheckbox = LibStub("PhanxConfig-Checkbox").CreateCheckbox
 
-	local function OnClick(box, checked)
-		self.db[ box.key ] = checked
+	local function OnClick(this, checked)
+		self.db[ this.key ] = checked
 
-		if box.key == "enable" then
+		if this.key == "enable" then
 			accept:SetEnabled( checked )
 			acceptOnlyShared:SetEnabled( checked )
 			turnin:SetEnabled( checked )
@@ -447,37 +447,37 @@ function module:SetupOptions(panel)
 			abandon:SetEnabled( checked )
 			module:CheckState()
 
-		elseif box.key == "accept" then
+		elseif this.key == "accept" then
 			acceptOnlyShared:SetEnabled( checked )
 		end
 	end
 
-	enable = CreateCheckbox(panel, L["Enable"])
+	enable = CreateCheckbox(panel, L.Enable, L.Enable_Info)
 	enable:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -8)
 	enable.OnClick = OnClick
 	enable.key = "enable"
 
-	accept = CreateCheckbox(panel, L["Accept quests"], L["Accept all quests."])
+	accept = CreateCheckbox(panel, L.AcceptQuests, L.AcceptQuests_Info)
 	accept:SetPoint("TOPLEFT", enable, "BOTTOMLEFT", 0, -8)
 	accept.OnClick = OnClick
 	accept.key = "accept"
 
-	acceptOnlyShared = CreateCheckbox(panel, L["Only shared quests"], L["Only accept quests shared by group members, escort quests started by group members, and quests from NPCs that trusted group members have already accepted."])
+	acceptOnlyShared = CreateCheckbox(panel, L.OnlySharedQuests, L.OnlySharedQuests_Info)
 	acceptOnlyShared:SetPoint("TOPLEFT", accept, "BOTTOMLEFT", 26, -8)
 	acceptOnlyShared.OnClick = OnClick
 	acceptOnlyShared.key = "acceptOnlyShared"
 
-	turnin = CreateCheckbox(panel, L["Turn in quests"], L["Turn in complete quests to NPCs."])
+	turnin = CreateCheckbox(panel, L.TurnInQuests, L.TurnInQuests_Info)
 	turnin:SetPoint("TOPLEFT", acceptOnlyShared, "BOTTOMLEFT", -26, -8)
 	turnin.OnClick = OnClick
 	turnin.key = "turnin"
 
-	share = CreateCheckbox(panel, L["Share quests"], L["Share quests you accept from NPCs."])
+	share = CreateCheckbox(panel, L.ShareQuests, L.ShareQuests_Info)
 	share:SetPoint("TOPLEFT", turnin, "BOTTOMLEFT", 0, -8)
 	share.OnClick = OnClick
 	share.key = "share"
 
-	abandon = CreateCheckbox(panel, L["Abandon quests"], L["Abandon quests abandoned by trusted group members."])
+	abandon = CreateCheckbox(panel, L.AbandonQuests, L.AbandonQuests_Info)
 	abandon:SetPoint("TOPLEFT", share, "BOTTOMLEFT", 0, -8)
 	abandon.OnClick = OnClick
 	abandon.key = "abandon"
@@ -488,7 +488,7 @@ function module:SetupOptions(panel)
 	help:SetHeight(112)
 	help:SetJustifyH("LEFT")
 	help:SetJustifyV("BOTTOM")
-	help:SetText(L.HELP_QUEST)
+	help:SetText(L.QuestHelpText)
 
 	panel.refresh = function()
 		local enabled = self.db.enable

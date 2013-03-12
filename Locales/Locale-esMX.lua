@@ -1,226 +1,194 @@
 --[[--------------------------------------------------------------------
 	Hydra
 	Multibox leveling helper.
-	Copyright (c) 2010-2012 Phanx <addons@phanx.net>. All rights reserved.
+	Copyright (c) 2010-2013 Phanx <addons@phanx.net>. All rights reserved.
 	See the accompanying README and LICENSE files for more information.
 	http://www.wowinterface.com/downloads/info17572-Hydra.html
 	http://www.curse.com/addons/wow/hydra
 ------------------------------------------------------------------------
-	Localization: esMX | Español (AL) | Spanish (Latin America)
-	Last updated 2012-04-22 by Phanx
+	Spanish localization
+	Last updated 2013-03-12 by Phanx
+	***
 ----------------------------------------------------------------------]]
 
-if not string.match( GetLocale(), "^es" ) then return end
-local L, _, core = { }, ...
-core.L = L
+if not strmatch(GetLocale(), "^es") then return end
+local HYDRA, core = ...
+local L = core.L
 
-----------
--- Core --
-----------
+-----------------
+-- Core/Common --
+-----------------
 
-L["Hydra is a multibox leveling helper that aims to minimize the need to actively control secondary characters."] = "Hydra es un ayudante para el multibox y la subir en grupo que tiene como objetivo reducir al mínimo la necesidad de controlar activamente personajes secundarios."
-L["Trust List"] = "Lista de confianza"
-L["Add Name"] = "Añadir nombre"
-L["Add a name to your trusted list."] = "Añadir a la lista de confianza un nombre."
-L["Add Party"] = "Añadir grupo"
-L["Add all the characters in your current party group to your trusted list."] = "Añadir a la lista de confianza los nombres de todos en tu grupo."
-L["Remove Name"] = "Eliminar nombre"
-L["Remove a name from your trusted list."] = "Eliminar de la lista de confianza un nombre."
-L["Remove All"] = "Eliminar todos"
-L["Remove all names from your trusted list for this server."] = "Eliminar de la lista de todos los nombres en este reino."
-
-L["Added %s to the trusted list."] = "Añadido %s a la lista de confianza."
-L["Removed %s from the trusted list."] = "Eliminado %s de la lista de confianza."
-
-L.HELP_TRUST = [[Hydra opera sobre la base de "confianza". Añada una lista de personajes de tu confianza, si son tus personajes multibox, o tus amigos, y las funciones se activan o desactivan si estás en una grupo con personajes de confianza o no.
-
-Por ejemplo, los susurros son solo mandados al chat de grupo si todos los del mismo estan en la lista de confiables.]]
-
-------------
--- Common --
-------------
-
-L["Enable"] = "Activar"
-L["Enable this module."] = "Activar este módulo."
-
-L["Verbose mode"] = "Verboso"
-L["Enable notification messages from this module."] = "Activar mensajes de notificación de este módulo."
-
-L["Timeout"] = "Tiempo expirado"
+--L.AddedTrusted = "%s has been added to your trusted list."
+L.AddGroup = "Añadir el grupo"
+L.AddGroup_Info = "Añadir a la lista de confianza los nombres de todos los personajes en tu grupo actual."
+L.AddName = "Añadir un nombre"
+L.AddName_Info = "Añadir a la lista de confianza un nombre de personaje."
+L.ClickForOptions = "Clic para opciones."
+L.CoreHelpText = [[Hydra functiona sobre la base de "confianza". Añada una lista de personajes de tu confianza, si son tus personajes multibox, o tus amigos, y las funciones se activan o desactivan dependiendo de si estás en una grupo con sólo personajes de confianza.\n\nPor ejemplo, los susurros sólo se reenvían al chat de grupo si todos en el grupo son de confianza.]]
+L.Enable = ENABLE
+L.Enable_Info = "Activar este módulo."
+--L.Hydra_Info = "Hydra is a multiboxing and group leveling helper that aims to minimize the need to actively control secondary characters."
+L.RemoveAll = "Quitar todos"
+L.RemoveAll_Info = "Vaciar la lista de confianza por la eliminación de todos los nombres de personajes."
+--L.RemovedTrusted = "%s has been removed from your trusted list."
+L.RemoveName = "Quitar un numbre"
+L.RemoveName_Info = "Quitar de la lista de confianza un nombre de personaje."
+L.Timeout = "Tiempo de espera"
+L.Verbose = "Verboso"
+L.Verbose_Info = "Activar mensajes de notificación de este módulo."
 
 ----------------
 -- Automation --
 ----------------
 
-L["Automation"] = "Automatización"
-L["Automates simple repetetive tasks, such as clicking common dialogs."] = "Automatiza tareas repetitivas simples, como hacer clic en los cuadros de diálogo comunes."
-L["Decline duels"] = "Rechazar duelos"
-L["Decline duel requests."] = "Rechazar invitaciones a duelos."
-L["Decline arena teams"] = "Rechazar equipos de arena"
-L["Decline arena team invitations and petitions."] = "Rechazar invitaciones y peticiones de equipos de arena."
-L["Decline guilds"] = "Rechazar invitaciones de hermandad"
-L["Decline guild invitations and petitions."] = "Rechazar invitaciones y peticiones de hermandades."
-L["Accept summons"] = "Aceptar invocaciones"
-L["Accept summon requests."] = "Aceptar invocaciones ofrecidos."
-L["Accept resurrections"] = "Aceptar resurecciones"
-L["Accept resurrections from players not in combat."] = "Aceptar resurecciones ofrecidos por jugadores que no están en combate."
-L["Accept combat resurrections"] = "Aceptar resurecciones en combate"
-L["Accept resurrections from players in combat."] = "Aceptar resurecciones ofrecidos por jugadores que están en combate."
-L["Repair equipment"] = "Reparar equipos"
-L["Repair all equipment when interacting with a repair vendor."] = "Reparar todos equipos cuando hablas con un vendedor."
-L["Sell junk"] = "Vender chatarra"
-L["Sell all junk (gray) items when interacting with a vendor."] = "Venda todas las chatarra (objetos gris) en el inventario cuando hablas con un vendedor."
-
-L["Declined an arena team invitation from %s."] = "Rechazó una invitación a equipo de arena de %s"
-L["Declined an arena team petition from %s."] = "Rechazó una petición de equipo de arena de %s."
-L["Declined a guild invitation from %s."] = "Rechazó una invitación a hermandad de %s"
-L["Declined a guild petition from %s."] = "Rechazó una petición de hermandad de %s."
-L["Declined a duel request from %s."] = "Rechazó una invitación a duelo de %s."
-L["Sold %1$d junk |4item:items; for %2$s."] = "Vendió %1$d chatarra |4artículo:artículos; por %2$s."
-L["Repaired all items with guild bank funds for %s."] = "Reparado todos los objetos con dinero del banco de hermandad por %s."
-L["Insufficient guild bank funds to repair!"] = "Insuficiente dinero en el banco de hermandad para reparar!"
-L["Repaired all items for %s."] = "Reparado todos los objetos por %s."
-L["Insufficient funds to repair!"] = "Insuficiente dinero para reparar!"
-L["Accepted a resurrection from %s."] = "Aceptada la resurrección de %s."
-L["Accepting a summon from %1$s to %2$s."] = "Aceptando invocar por %1$s a %2$s."
-L["Accepting a summon when combat ends..."] = "Aceptando invocar cuando el combate termina ..."
-L["Summon expired!"] = "Invocar caducado!"
-
-L.HELP_AUTO = [[]]
+L.AcceptCombatRes = "Aceptar resurecciones en combate"
+L.AcceptCombatRes_Info = "Aceptar resurecciones en combate por los miembres del grupo."
+L.AcceptedRes = "Aceptó una resurrección de %s."
+L.AcceptedSummon = "Aceptó invocar de %1$s a %2$s."
+L.AcceptedSummonCombat = "Aceptará invocar cuando se termina el combate ..."
+L.AcceptRes = "Aceptar resurecciones"
+L.AcceptRes_Info = "Aceptar los resurecciones ofrecidos fuera de combate por los miembres del grupo."
+L.AcceptSummons = "Aceptar invocaciones"
+L.AcceptSummons_Info = "Aceptar los invocaciones ofrecidos por los jugadores de confianza."
+L.Automation = "Automatización"
+L.Automation_Info = "Automatiza algunas tareas sencillas, como hacer clic en los cuadros de diálogo comunes."
+--L.AutomationHelpText = ""
+L.DeclineArenas = "Rechazar equipos de arena"
+L.DeclineArenas_Info = "Rechazar invitaciones y peticiones de equipos de arena de todo jugadores."
+L.DeclinedArena = "Rechazó una invitación a equipo de arena de %s."
+L.DeclinedArenaPetition = "Rechazó una petición de equipo de arena de %s."
+L.DeclinedDuel = "Rechazó una invitación a duelo de %s."
+L.DeclinedGuild = "Rechazó una invitación a hermandad de %s."
+L.DeclinedGuildPetition = "Rechazó una petición de hermandad de %s."
+L.DeclineDuels = "Rechazar duelos"
+L.DeclineDuels_Info = "Rechazar invitaciones a duelos de todos jugadores."
+L.DeclineGuilds = "Rechazar hermandades"
+L.DeclineGuilds_Info = "Rechazar invitaciones y peticiones a hermandades de todos jugadores."
+L.NoRepairMoney = "¡No tienes suficiente dinero para reparar!"
+L.NoRepairMoneyGuild = "¡La hermandad no tiene suficiente dinero para reparar!"
+L.Repair = "Reparar equipos"
+L.Repair_Info = "Reparar todos equipos cuando hablas con un mercador de reparación."
+L.Repaired = "Reparó todos los equpios por %s."
+L.RepairedGuild = "Reparó todos los equipos por %s del dinero de la hermandad."
+L.SellJunk = "Vender chatarra"
+L.SellJunk_Info = "Vender todas las chatarra (objetos gris) en el inventario cuando hablas con un vendedor."
+L.SoldJunk = "Vendió %1$d |4artículo:artículos; de chatarra por %2$s."
+L.SummonExpired = "La invocación expiró!"
 
 ----------
 -- Chat --
 ----------
 
-L["Chat"] = "Chat"
-L["Forwards whispers sent to inactive characters to party chat, and forwards replies to the original sender."] = "Reenvía susurros enviados a los personajes inactivos por el chat del grupo, y reenvía las respuestas al remitente original."
-L["Detection method"] = "Método de detección"
-L["Select the method to use for detecting the primary character."] = "Elegir el método a utilizar para detectar el personaje principal."
-L["If you are multiboxing on multiple physical machines, or are running multiple copies of WoW in windowed mode, the \"Application Focus\" mode will probably not work for you, and you should make sure that your primary character is the party leader."] = "Si estás jugando en más de una computadora, o estás ejecutando varias copias de WoW en modo ventana en la misma computadora, el modo de \"Programa en primer plano\" probablemente no funciona, y tendrá que promover tu personaje principal al líder del grupo."
-L["Application Focus"] = "Programa en primer plano"
-L["Party Leader"] = "Líder del grupo"
-L["If this many seconds have elapsed since the last forwarded message, don't forward messages typed in party chat to the last whisperer unless the target is explicitly specified."] = "Si esta cantidad de segundos transcurridos desde el mensaje reenviado pasado, no reenviar mensajes escritos en el chat de grupo al remitente susurro última a menos que el objetivo se especifica explícitamente."
-
-L["|TInterface\\ChatFrame\\UI-ChatIcon-Blizz.blp:0:2:0:-3|t %s has received a whisper from a GM!"] = "|TInterface\\ChatFrame\\UI-ChatIcon-Blizz.blp:0:2:0:-3|t %s ha recibido un susurro de un GM!"
-L["%1$s has received a Battle.net whisper from %2$s."] = "%1$s ha recibido un susurro de Battle.net de %2$s."
-L["%1$s has received a whisper from %2$s."] = "%1$s ha recibido un susurro de %2$s."
-L["!ERROR: Party timeout reached."] = "!ERROR: Tiempo caducado chat de grupo."
-L["!ERROR: Whisper timeout reached."] = "!ERROR: Tiempo caducado para reenvíar susurros."
-
-L.HELP_CHAT = [[Escribe un mensaje en el chat de grupo para repuesta a la última susurro enviado desde cualquier personaje.
-
-Escribe "|cffffffff@nombre Tu mensaje aquí|r" en el chat de grupo para repuesta a la última susurro enviado desde el personaje "nombre".
-
-Escribe "|cffffffff@name Tu mensaje aquí|r" en un susurro a un personaje para ordenándole enviar el mensaje por un susurro a "nombre".]]
+L.AppFocus = "Application focus"
+L.Chat = "Chat"
+L.Chat_Info = "Reenvía al chat del grupo los susurros que se enviaron a los personajes inactivos, y reenvía las respuestas al remitente original."
+L.ChatHelpText = [[Escribe en el chat de grupo para responder a la última susurro que se reenvió al chat de grupo por un otro personaje.\n\nEscribe "|cffffffff@Nombre Mensaje aquí|r" para responder a la última susurro que se reenvió por el personaje "Nombre".\n\nEscribe "|cffffffff@Nombre Mensaje aquí|r" en un susurro al otro personaje para enviar por ese personaje el mensaje como un susurro a "Nombre".]]
+L.DetectionMethod = "Método de detección"
+L.DetectionMethod_Info = [[Seleccione el método para utilizar para detectar el personaje principal.\n\nSi estás jugando en varios equipos, o estás ejecutando en la misma computadora múltiples copias de WoW en el modo de ventana, el método de detección "Programa en primer plano" probablemente no funcione. En este caso, debe utilizar el método "Líder del grupo" y asegúrate de que tu personaje principal es el líder del grupo.]]
+L.GroupLeader = "Líder del grupo"
+L.GroupTimeout_Info = "Después de estos segundos desde el último susurro, los mensajes escritos en el chat de grupo no se reenvían, a menos especificar explícitamente el objetivo."
+L.GroupTimeoutError = "Se ha alcanzado el tiempo de espera para el chat de grupo."
+L.WhisperFrom = "%1$s recibió un susurro de %2$s."
+L.WhisperFromBnet = "%1$s recibió un susurro de Battle.net de %2$s:\n%3$s"
+L.WhisperFromConvo = "%1$s recibió un mensaje en conversación de %2$s:\n%3$s"
+L.WhisperFromGM = "¡%s recibió un susurro de un MJ!"
+L.WhisperTimeoutError = "Se ha alcanzado el tiempo de espera para los susurros."
 
 ------------
 -- Follow --
 ------------
 
-L["Follow"] = "Seguir"
-L["Responds to follow requests from trusted party members."] = "Responde a las peticiones de seguir de los miembros del grupo que están en tu lista de confianza."
-L["Set a key binding to follow your current target."] = "Asignar una tecla para seguir el objetivo actual."
-L["Set a key binding to direct all characters in your party to follow you."] = "Asignar una tecla para dirigir a tu grupo para siguir."
-L["Set a key binding to direct all dead characters in your party to release their spirit."] = "Asignar una tecla para dirigir a tu grupo para liberar los espíritus."
-L["Set a key binding to direct all ghost characters in your party to accept resurrection to their corpse."] = "Asignar una tecla para dirigir a tu grupo para recuperar los cadáveres."
-
-L["%s is now following you."] = "%s te esta siguiendo."
-L["%s is no longer following you."] = "%s ha dejado de seguirte."
-L["%s is no longer following you!"] = "%s ha dejado de seguirte!"
-L["%s is too far away to follow!"] = "%s está demasiado lejos para seguir."
-L["Use Soulstone"] = "Usa Piedra de alma" -- Needs check
-L["Reincarnate"] = "Reencarnarse"
-L["I have a soulstone."] = "Tengo una piedra de alma."
-L["I can reincarnate."] = "Puedo reencarnarme."
-L["I can resurrect myself."] = "Puedo reencarnarme."
-L["I cannot resurrect!"] = "No puedo reencarnarme."
-
-L.HELP_FOLLOW = [[Escriba "|cffffffff/seguirme|r" para solicitar que todos en tu grupo seguirte.
-
-Escriba "|cffffffff/cadaver lib|r" para solicitar que todos en tu grupo liberar sus espíritus.
-
-Escriba "|cffffffff/cadaver res|r" para solicitar que todos en tu grupo resucitar sobre sus cadáveres.]]
-
-L.SLASH_HYDRA_FOLLOWME3 = "/seguirme"
-
-L.SLASH_HYDRA_CORPSE2 = "/cadaver"
-L["release"] = "li?b?e?r?a?r?" -- liberar
-L["accept"] = "[ar]e?[cs]?[eu]?[pc]?[ei]?[rt]?a?r?" -- acpetar, recuperar o resucitar
-
-L.BINDING_NAME_HYDRA_FOLLOW_TARGET = "Seguir objetivo"
-L.BINDING_NAME_HYDRA_FOLLOW_ME = "Dirigir: Sígueme"
-L.BINDING_NAME_HYDRA_RELEASE_CORPSE = "Dirigir: Liberar espíritu"
-L.BINDING_NAME_HYDRA_ACCEPT_CORPSE = "Dirigir: Recuperar cadáver"
+L.AcceptCorpse = "Recuperar cadáver"
+L.AcceptCorpse_Info = "Asignar una tecla para mandar los miembros muertos del grupo a recuperar los cadáveres."
+L.CanReincarnate = "%s puede usar Reencarnación."
+L.CanSelfRes = "%s puede resucitarse."
+L.CantRes = "¡%s no puede ser resucitado!"
+L.CantResDelay = "%1$s no puede ser resucitado por otros %2$d segundos!"
+L.CanUseSoulstone = "%s puede usar una Piedra de alma."
+L.CmdAccept = "[ar]e?[cs]?[eu]?[pc]?[ei]?[rt]?a?r?"
+L.CmdRelease = "libe?r?a?r?"
+L.Follow = "Seguir"
+L.Follow_Info = "Responde a los comandos de seguiente por los miembros de confianza del grupo."
+L.FollowHelpText = [[Escriba "|cffffffff/seguirme|r" para mandar los miembres cercanos del grupo a seguirte.\n\nEscriba "|cffffffff/cadaver libera|r" para mandar los miembros muertos del grupo a liberar los espíritus.\n\nEscriba "|cffffffff/cadaver recupera|r" para mandar mandar los miembros muertos del grupo a recuperar los cadáveres.]]
+L.FollowingYouStart = "%s te está siguiendo."
+L.FollowingYouStop = "%s dejó de seguirte."
+L.FollowMe = "¡Sígueme!"
+L.FollowMe_Info = "Asignar una tecla para mandar los miembres cercanos del grupo a seguirte."
+L.FollowTarget = "Seguir objetivo"
+L.FollowTarget_Info = "Asignar una tecla para seguir el objetivo actual."
+L.FollowTooFar = "%s está demasiado lejos para seguir!"
+L.ReleaseCorpse = "Liberar el espíritu"
+L.ReleaseCorpse_Info = "Asignar una tecla para mandar los miembros muertos del grupo a liberar los espíritus."
+L.Reincarnate = "Reencarnarse" -- Must match Blizzard self-res dialog!
+L.SlashCorpse = "/cadaver"
+L.SlashFollowMe = "/sigueme"
+L.TargetedFollowMe = "Enviar /sigueme al objetivo"
+L.TargetedFollowMe_Info = "Si el objetivo actual es un miembro de confianza del grupo, el comando se enviará sólo a ese personaje, en lugar del grupo entero."
+L.UseSoulstone = "Usa Piedra de alma" -- Must match Blizzard self-res dialog!
 
 -----------
 -- Mount --
 -----------
 
-L["Mount"] = "Montura"
-L["Summons your mount when another party member mounts."] = "Invoca tu montura cuando otro miembro del grupo se monta."
-
-L["ERROR: %s is missing that mount!"] = "ERROR: %s no tiene este montura."
-
-L.HELP_MOUNT = [[]]
+L.Dismount = "Desmontar juntos"
+L.Dismount_Info = "Desmontar cuando desmonta un miembro de confianza del grupo."
+L.Mount = "Montura"
+L.Mount_Info = "Montar y desmontar como un grupo."
+L.MountHelpText = ""
+L.MountMissing = "¡%s no tiene una montura equivalente!"
+L.MountRandom = "Monturas aleatorias"
+L.MountRandom_Info = "Al montar automáticamente, utilizar una montura aleatoria del mismo tipo del miembro de confianza del grupo.\nSi está desactivada, vas a utilizar la misma monutra si lo tienen, o el equivalente primero a encontrar."
+L.MountTogether = "Montar juntos"
+L.MountTogether_Info = "Montar cuando desmonta un miembro de confianza del grupo."
 
 -----------
 -- Party --
 -----------
 
-L["Party"] = "Grupo"
-L["Responds to invite and promote requests from trusted players."] = "Responde a las peticiones para invitar y promover de los jugadores que están en tu lista de confianza."
-
-L["I cannot invite you, because you are not on my trusted list."] = "No te puedo invitar, porque no están en mi lista de confianza."
-L["I cannot invite you, because I am not the party leader."] = "No te puedo invitar, porque yo no soy el líder del grupo."
-L["I cannot promote you, because you are not on my trusted list."] = "No te puedo promover, porque no están en mi lista de confianza."
-L["I cannot promote you, because I am not the party leader."] = "No te puedo promover, porque yo no soy el líder del grupo."
-
-L.HELP_PARTY = [[Escriba "|cffffffff/invitarme|r" para solicitar una invitación de grupo de tu objetivo.
-
-Escriba "|cffffffff/invitarme Nombre|r" para solicitar una invitación de grupo de "Nombre".
-
-Escriba "|cffffffff/ascenderme|r" mientras que en un grupo de solicitar un ascenso a líder del grupo.]]
-
-L.SLASH_HYDRA_INVITEME3 = "/invitame"
-L.SLASH_HYDRA_PROMOTEME3 = "/asciendeme"
+L.CantInviteNotLeader = "No te puedo invitar, porque no estoy el líder del grupo."
+L.CantInviteNotTrusted = "No te puedo invitar, porque no estás en mi lista de confianza."
+L.CantPromoteNotLeader = "No te puedo promover, porque no estoy el líder del grupo."
+L.CantPromoteNotTrusted = "No te puedo promover, porque no estás en mi lista de confianza."
+L.CmdNoPromote = "[Nn][Oo][Pp][Rr][Oo][Mm][Oo][Vv][Ee][Rr]?" -- nopromover
+L.Group = "Grupo"
+L.Group_Info = "Responde a los comandos de invitar o promover de los jugadores de confianza."
+L.GroupHelpText = [[Escribe "|cffffffff/invitarme|r" para solictar una invitación de grupo de tu objetivo.\n\nEscribe "|cffffffff/invitarme Nombre|r" para solictar una invitación de grupo del personaje "Nombre".\n\nEscribe "|cffffffff/promoverme|r" mientras estás en el grupo para solicitar una promoción al líder del grupo.]]
+L.SlashInviteMe = "/invitarme"
+L.SlashPromoteMe = "/promoverme"
 
 -----------
 -- Quest --
 -----------
 
-L["Quest"] = "Misión"
-L["Helps keep party members' quests in sync."] = "Ayuda a mantener las misiones de todos los miembros del partido en sincronía."
-L["Turn in quests"] = "Entregar misiones"
-L["Turn in complete quests to NPCs."] = "Entregar misiones completadas a PNJs."
-L["Accept quests"] = "Aceptar misiones"
-L["Accept quests shared by party members, quests from NPCs that other party members have already accepted, and escort-type quests started by another party member."] = "Aceptar misiones compartidas por los miembros del partido, misiones de PNJs que otros miembros del grupo ya han aceptado, y misiones de escolta iniciado por otro miembro del grupo."
-L["Share quests"] = "Compartir misiones"
-L["Share quests you accept from NPCs."] = "Compartir misiones aceptadas a partir del PNJ."
-L["Abandon quests"] = "Abandonar misiones"
-L["Abandon quests abandoned by trusted party members."] = "Abandonar misiones abandonadas por los mienbros del grupo confiable."
-
-L["%1$s accepted %2$s."] = "%1$s aceptó %2$s."
-L["%1$s turned in %2$s."] = "%1$s entregó %2$s."
-L["%1$s abandoned %2$s."] = "%1$s abandonado %2$s."
-L["That quest cannot be shared."] = "No puedes compartir esa misión."
-
-L.HELP_QUEST = [[]]
+L.AbandonQuests = "Abandonar las misiones"
+L.AbandonQuests_Info = "Abandonar las misiones que se abandonaron por otros miembros de confianza del grupo."
+L.AcceptQuests = "Aceptar las misiones"
+L.AcceptQuests = "Aceptar todos las misiones."
+L.OnlySharedQuests = "Sólo las misiones compartidos"
+L.OnlySharedQuests_Info = "Aceptar sólo las misiones que se compartieron por otros miembros del grupo, las misiones de escoltar que se iniciaron por otros miembros del grupo, y las misiones de PNJs que ya han compartido por los miembres de confianza del grupo."
+L.Quest = "Misión"
+L.Quest_Info = "Ayuda a mantener en sincronía las misiones de las miembros del grupo."
+L.QuestAbandoned = "%1$s abandonó %2$s."
+L.QuestAccepted = "%1$s aceptó %2$s."
+L.QuestHelpText = "Si desea una lista en la pantalla de los estados de las misiones de los miembros del grupo, te recomiendo el addon Quecho, por Tekkub."
+L.QuestNotShareable = "Esta misión no se puede compartir."
+L.QuestTurnedIn = "%1$s entregó %2$s."
+L.ShareQuests = "Compartir las misiones"
+L.ShareQuests_Info = "Compartir las misiones que lo aceptaron de PNJs."
+L.TurnInQuests = "Entregar las misiones"
+L.TurnInQuests_Info = "Entregar a PNJs las misiones completadas."
 
 ----------
 -- Taxi --
 ----------
 
-L["Taxi"] = "Transporte"
-L["Selects the same taxi destination as other party members."] = "Seleccionar el mismo destino de transporte que otros miembros del grupo."
-L["Clear the taxi selection after this many seconds."] = "Desactive la selección de ruta después de estos segundos."
-
-L["ERROR: %s: Taxi timeout reached."] = "ERROR: %s: Tiempo de espera de la ruta de vuelo alcanzar."
-L["ERROR: %s: Taxi node mismatch."] = "ERROR: %s: La ruta de vuelo no coinciden."
-L["%1$s set the party taxi to %2$s."] = "%1$s establece la ruta de vuelo del grupo a %2$s."
-L["Party taxi cleared."] = "Ruta de vuelo del grupo despejado."
-
-L.HELP_TAXI = [[Pulse la tecla Shift mientras habla con un maestro de vuelo para ignorar la auto-selección.
-
-Tipo "|cffffffff/quitartaxi|r" para quitar la selección de ruta de vuelo.]]
-
-L.SLASH_HYDRA_CLEARTAXI2 = "/quitartaxi"
+L.SlashClearTaxi = "/borrartaxi"
+L.Taxi = "Taxi"
+L.Taxi_Info = "Seleccionar el mismo destino de taxi que los otros miembros del grupo."
+L.TaxiCleared = "El destino compartido de taxi ha sido borrada."
+L.TaxiHelpText = [[Pulse la tecla Mayús cuando hablas con un maestro de vuelo para ignorar el destino seleccionado compartido.\n\nEscribe "|cffffffff/borrartaxi|r" para borrar el destino compardito antes de que el tiempo de espera se alcance.]]
+L.TaxiMismatchError = "%s: El destino no coincide."
+L.TaxiSet = "%1$s estableció el destino compartido a %2$s."
+L.TaxiTimeout_Info = "Borrar la selección del destino compartido después de estos segundos."
+L.TaxiTimeoutError = "%s: Se ha alcanzado el tiempo de espera para el taxi."

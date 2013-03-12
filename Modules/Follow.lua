@@ -1,7 +1,7 @@
 --[[--------------------------------------------------------------------
 	Hydra
 	Multibox leveling helper.
-	Copyright (c) 2010-2012 Phanx <addons@phanx.net>. All rights reserved.
+	Copyright (c) 2010-2013 Phanx <addons@phanx.net>. All rights reserved.
 	See the accompanying README and LICENSE files for more information.
 	http://www.wowinterface.com/downloads/info17572-Hydra.html
 	http://www.curse.com/addons/wow/hydra
@@ -26,11 +26,6 @@ local module = core:RegisterModule("Follow", CreateFrame("Frame"))
 module:SetScript("OnEvent", function(f, e, ...) return f[e] and f[e](f, ...) end)
 
 module.defaults = { enable = true, verbose = true }
-
-if GetLocale():match("^en") then
-	L["release"] = "re?l?e?a?s?e?"
-	L["accept"] = "ac?c?e?p?t?"
-end
 
 ------------------------------------------------------------------------
 
@@ -61,17 +56,17 @@ function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 	if prefix == "HydraFollow" then
 		if message == playerName then -- sender is following me
 			if self.db.verbose then
-				self:Print(L["%s is now following you."], sender)
+				self:Print(L.FollowingYouStart, sender)
 			end
 			followers[sender] = GetTime()
 
 		elseif message == "END" and followers[sender] then -- sender stopped following me
 			if GetTime() - followers[sender] > 2 then
 				if self.db.verbose then
-					self:Print(L["%s is no longer following you."], sender)
+					self:Print(L.FollowingYouStop, sender)
 				end
 				if not CheckInteractDistance(sender, 2) and not UnitOnTaxi("player") then
-					self:Alert(format(L["%s is no longer following you!"], sender))
+					self:Alert(format(L.FollowingYouStop, sender))
 				end
 			end
 			followers[sender] = nil
@@ -82,73 +77,92 @@ function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 				FollowUnit(sender)
 			else
 				if self.db.verbose then
-					self:Print(L["%s is too far away to follow!"], sender)
+					self:Print(L.FollowTooFar, sender)
 				end
 			end
 		end
 
-	elseif prefix == "HydraCorpse" then
-		if message == "release" and UnitIsDead("player") and not UnitIsGhost("player") and core:IsTrusted(sender) then
+	elseif prefix == "HydraCorpse" and core:IsTrusted(sender) then
+		if message == "RELEASE" and UnitIsDead("player") and not UnitIsGhost("player") then
 			local ss = HasSoulstone()
 			if ss then
-				if ss == L["Use Soulstone"] then
-					self:SendChatMessage(L["I have a soulstone."]) -- #TODO: use comms
-				elseif ss == L["Reincarnate"] then
-					self:SendChatMessage(L["I can reincarnate."]) -- #TODO: use comms
+				if ss == L.UseSoulstone then
+					self:SendAddonMessage("HydraFollow", "SS")
+				elseif ss == L.Reincarnate then
+					self:SendAddonMessage("HydraFollow", "REINC")
 				else -- probably "Twisting Nether"
-					self:SendChatMessage(L["I can resurrect myself."]) -- #TODO: use comms
+					self:SendAddonMessage("HydraFollow", "SELFRES")
 				end
 			else
 				RepopMe()
 			end
 
-		elseif message == "accept" and core:IsTrusted(sender) then
+		elseif message == "ACCEPT" then
 			if UnitIsGhost("player") then
 				RetrieveCorpse()
 			elseif HasSoulstone() then
 				UseSoulstone()
 			end
 			if CannotBeResurrected() then
-				self:SendChatMessage(L["I cannot resurrect!"]) -- #TODO: use comms
+				self:SendAddonMessage("HydraFollow", "NORES")
+			else
+				local delay = GetCorpseRecorveryDelay()
+				if delay and delay > 0 then
+					self:SendAddonMessage("HydraFollow", "WAIT " .. delay)
+				end
 			end
+
+		elseif message = "SS" then
+			self:Print(L.CanUseSoulstone, sender)
+
+		elseif message = "REINC" then
+			self:Print(L.CanReincarnate, sender)
+
+		elseif message = "SELFRES" then
+			self:Print(L.CanSelfRes, sender)
+
+		elseif message = "NORES" then
+			self:Print(L.CantRes, sender)
+
+		elseif strmatch(message, "^WAIT " then
+			local delay = strmatch(message, "%d+")
+			self:Print(L.CantResDelay, sender, delay)
 		end
 	end
 end
 
 function module:AUTOFOLLOW_BEGIN(name)
 	self:Debug("Now following", name)
-	self:SendAddonMessage("HydraFollow", name, "WHISPER", name)
+	self:SendAddonMessage("HydraFollow", name, name)
 	following = name
 end
 
 function module:AUTOFOLLOW_END()
 	if not following then return end -- we don't know who we were following!
 	self:Debug("No longer following", following)
-	self:SendAddonMessage("HydraFollow", "END", "WHISPER", following)
+	self:SendAddonMessage("HydraFollow", "END", following)
 	following = nil
 end
 
 ------------------------------------------------------------------------
 
-SLASH_HYDRA_FOLLOWME1 = "/fme"
-SLASH_HYDRA_FOLLOWME2 = "/followme"
-do
-	local slash = rawget(L, "SLASH_HYDRA_FOLLOWME3")
-	if slash and slash ~= SLASH_HYDRA_FOLLOWME1 and slash ~= SLASH_HYDRA_FOLLOWME2 then
-		SLASH_FOLLOWME3 = slash
-	end
+SLASH_HYDRA_FOLLOWME1 = "/followme"
+SLASH_HYDRA_FOLLOWME2 = "/fme"
+
+if L.SlashFollowMe ~= SLASH_HYDRA_FOLLOWME1 and L.SlashFollowMe ~= SLASH_HYDRA_FOLLOWME2 then
+	SLASH_FOLLOWME3 = L.SlashFollowMe
 end
 
 function SlashCmdList.HYDRA_FOLLOWME(names)
 	if core.state == SOLO then return end
-	local target = UnitName("target")
+
 	if names and strlen(names) > 0 then
 		local sent = 0
 		for name in gmatch(names, "%S+") do
-			name = gsub(strlower(name), "%a", strupper, 1)
-			if core:IsTrusted(name) and (UnitInParty(name) or UnitInRaid(name)) then
-				module:Debug("Sending follow command to:", name)
-				module:SendAddonMessage("HydraFollow", "ME", "WHISPER", name)
+			local trusted = core:IsTrusted(name)
+			if trusted and (UnitInParty(trusted) or UnitInRaid(trusted)) then
+				module:Debug("Sending follow command to:", trusted)
+				module:SendAddonMessage("HydraFollow", "ME", trusted)
 				sent = sent + 1
 			end
 		end
@@ -156,9 +170,12 @@ function SlashCmdList.HYDRA_FOLLOWME(names)
 			return
 		end
 	end
-	if target and module.db.targetedFollowMe and core:IsTrusted(target) and (UnitInParty(name) or UnitInRaid(name)) then
-		module:Debug("Sending follow command to target:", target)
-		module:SendAddonMessage("HydraFollow", "ME", "WHISPER", target)
+
+	local target, targetRealm = UnitName("target")
+	local trusted = core:IsTrusted(target, targetRealm)
+	if target and module.db.targetedFollowMe and trusted and (UnitInParty(trusted) or UnitInRaid(trusted)) then
+		module:Debug("Sending follow command to target:", trusted)
+		module:SendAddonMessage("HydraFollow", "ME", trusted)
 	else
 		module:Debug("Sending follow command to party")
 		module:SendAddonMessage("HydraFollow", "ME")
@@ -168,80 +185,68 @@ end
 ------------------------------------------------------------------------
 
 SLASH_HYDRA_CORPSE1 = "/corpse"
-do
-	local slash = rawget(L, "SLASH_HYDRA_CORPSE2")
-	if slash and slash ~= SLASH_HYDRA_CORPSE1 then
-		SLASH_HYDRA_CORPSE2 = slash
-	end
+
+if L.SlashCorpse ~= SLASH_HYDRA_CORPSE1 then
+	SLASH_HYDRA_CORPSE2 = L.SlashCorpse
 end
 
 function SlashCmdList.HYDRA_CORPSE(command)
 	if core.state == SOLO then return end
 	command = command and strlower(strtrim(command)) or ""
-	if strmatch(command, L["release"]) or strmatch(command, "^r") then
-		module:SendAddonMessage("HydraCorpse", "release")
-	elseif strmatch(command, L["accept"]) or strmatch(command, "^a") then
-		module:SendAddonMessage("HydraCorpse", "accept")
+	if strmatch(command, L.CmdAccept) or strmatch(command, "^re?l?e?a?s?e?") then
+		module:SendAddonMessage("HydraCorpse", "RELEASE")
+	elseif strmatch(command, L.CmdRelease) or strmatch(command, "^ac?c?e?p?t?") then
+		module:SendAddonMessage("HydraCorpse", "ACCEPT")
 	end
 end
 
 ------------------------------------------------------------------------
 
-BINDING_NAME_HYDRA_FOLLOW_TARGET = rawget(L, "BINDING_NAME_HYDRA_FOLLOW_TARGET") or "Follow target"
-BINDING_NAME_HYDRA_FOLLOW_ME = rawget(L, "BINDING_NAME_HYDRA_FOLLOW_ME") or "Request follow"
-BINDING_NAME_HYDRA_RELEASE_CORPSE = rawget(L, "BINDING_NAME_HYDRA_RELEASE_CORPSE") or "Release spirit"
-BINDING_NAME_HYDRA_ACCEPT_CORPSE = rawget(L, "BINDING_NAME_HYDRA_ACCEPT_CORPSE") or "Resurrect"
+BINDING_NAME_HYDRA_FOLLOW_TARGET = L.FollowTarget
+BINDING_NAME_HYDRA_FOLLOW_ME = L.FollowMe
+BINDING_NAME_HYDRA_RELEASE_CORPSE = L.ReleaseCorpse
+BINDING_NAME_HYDRA_ACCEPT_CORPSE = L.AcceptCorpse
 
 ------------------------------------------------------------------------
 
+module.displayName = L.Follow
 function module:SetupOptions(panel)
-	local title, notes = LibStub("PhanxConfig-Header").CreateHeader(panel, panel.name, L["Responds to follow requests from trusted party members."])
+	local title, notes = LibStub("PhanxConfig-Header").CreateHeader(panel, L.Follow, L.Follow_Info)
 
 	local CreateCheckbox = LibStub("PhanxConfig-Checkbox").CreateCheckbox
 	local CreateKeyBinding = LibStub("PhanxConfig-KeyBinding").CreateKeyBinding
 
-	local enable = CreateCheckbox(panel, L["Enable"],
-		L["Enable this module."])
+	local enable = CreateCheckbox(panel, L.Enable, L.Enable_Info)
 	enable:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
 	enable.OnClick = function(_, checked)
 		self.db.enable = checked
 	end
 
-	local verbose = CreateCheckbox(panel, L["Verbose mode"],
-		L["Enable notification messages from this module."])
+	local verbose = CreateCheckbox(panel, L.Verbose, L.Verbose_Info)
 	verbose:SetPoint("TOPLEFT", enable, "BOTTOMLEFT", 0, -8)
 	verbose.OnClick = function(_, checked)
 		self.db.verbose = checked
 	end
 
-	local targeted = CreateCheckbox(panel, L["Targeted /followme"],
-		L["Send the /followme only to your current target while targeting a trusted party member."])
+	local targeted = CreateCheckbox(panel, L.TargetedFollowMe, L.TargetedFollowMe_Info)
 	targeted:SetPoint("TOPLEFT", verbose, "BOTTOMLEFT", 0, -8)
 	targeted.OnClick = function(_, checked)
 		self.db.targetedFollowMe = checked
 	end
 
-	local follow = CreateKeyBinding(panel, BINDING_NAME_HYDRA_FOLLOW_TARGET,
-		L["Set a key binding to follow your current target."],
-		"HYDRA_FOLLOW_TARGET")
+	local follow = CreateKeyBinding(panel, L.FollowTarget, L.FollowTarget_Info, "HYDRA_FOLLOW_TARGET")
 	follow:SetPoint("TOPLEFT", notes, "BOTTOM", -8, -8)
 	follow:SetPoint("TOPRIGHT", notes, "BOTTOMRIGHT", 0, -8)
 
-	local followme = CreateKeyBinding(panel, BINDING_NAME_HYDRA_FOLLOW_ME,
-		L["Set a key binding to direct all characters in your party to follow you."],
-		"HYDRA_FOLLOW_ME")
+	local followme = CreateKeyBinding(panel, L.FollowMe, L.FollowMe_Info, "HYDRA_FOLLOW_ME")
 	followme:SetPoint("TOPLEFT", follow, "BOTTOMLEFT", 0, -8)
 	followme:SetPoint("TOPRIGHT", follow, "BOTTOMRIGHT", 0, -8)
 
-	local release = CreateKeyBinding(panel, BINDING_NAME_HYDRA_RELEASE_CORPSE,
-		L["Set a key binding to direct all dead characters in your party to release their spirit."],
-		"HYDRA_RELEASE_CORPSE")
+	local release = CreateKeyBinding(panel, L.ReleaseCorpse, L.ReleaseCorpse_Info, "HYDRA_RELEASE_CORPSE")
 	release:SetPoint("TOPLEFT", followme, "BOTTOMLEFT", 0, -8)
 	release:SetPoint("TOPRIGHT", followme, "BOTTOMRIGHT", 0, -8)
 
-	local acceptres = CreateKeyBinding(panel, BINDING_NAME_HYDRA_ACCEPT_CORPSE,
-		L["Set a key binding to direct all ghost characters in your party to accept resurrection to their corpse."],
-		"HYDRA_ACCEPT_CORPSE")
+	local acceptres = CreateKeyBinding(panel, L.AcceptCorpse, L.AcceptCorpse_Info, "HYDRA_ACCEPT_CORPSE")
 	acceptres:SetPoint("TOPLEFT", release, "BOTTOMLEFT", 0, -8)
 	acceptres:SetPoint("TOPRIGHT", release, "BOTTOMRIGHT", 0, -8)
 
@@ -251,7 +256,7 @@ function module:SetupOptions(panel)
 	help:SetHeight(112)
 	help:SetJustifyH("LEFT")
 	help:SetJustifyV("BOTTOM")
-	help:SetText(L.HELP_FOLLOW)
+	help:SetText(L.FollowHelpText)
 
 	panel.refresh = function()
 		enable:SetChecked(self.db.enable)
