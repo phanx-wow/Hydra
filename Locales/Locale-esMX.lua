@@ -8,7 +8,7 @@
 ------------------------------------------------------------------------
 	Spanish localization
 	Last updated 2013-03-12 by Phanx
-	***
+	Previous contributors: Valdesca
 ----------------------------------------------------------------------]]
 
 if not strmatch(GetLocale(), "^es") then return end

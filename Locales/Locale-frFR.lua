@@ -7,7 +7,7 @@
 	http://www.curse.com/addons/wow/hydra
 ------------------------------------------------------------------------
 	French localization
-	Last updated 2012-09-04 by Araldwenn
+	Last updated 2012-02-27 by Araldwenn
 	***
 ----------------------------------------------------------------------]]
 
