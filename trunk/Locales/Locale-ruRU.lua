@@ -1,210 +1,194 @@
 --[[--------------------------------------------------------------------
 	Hydra
 	Multibox leveling helper.
-	Copyright (c) 2010-2012 Phanx <addons@phanx.net>. All rights reserved.
+	Copyright (c) 2010-2013 Phanx <addons@phanx.net>. All rights reserved.
 	See the accompanying README and LICENSE files for more information.
 	http://www.wowinterface.com/downloads/info17572-Hydra.html
 	http://www.curse.com/addons/wow/hydra
 ------------------------------------------------------------------------
-	Russian Localization (Русский)
+	Russian localization
 	Last updated 2012-04-22 by Piton4
+	***
 ----------------------------------------------------------------------]]
 
 if GetLocale() ~= "ruRU" then return end
-local L, _, core = { }, ...
-core.L = L
+local _, core = {}
+local L = core.L
 
-----------
--- Core --
-----------
+-----------------
+-- Core/Common --
+-----------------
 
-L["Hydra is a multibox leveling helper that aims to minimize the need to actively control secondary characters."] = "Hydra - это помощник для multibox, который направлен для минимизации действий, требуемых для контроля вторичных персонажей."
-L["Trust List"] = "Список доверенных имен"
-L["Add Name"] = "Добавить имя"
-L["Add a name to your trusted list."] = "Добавить имя в список доверенных имен."
-L["Remove Name"] = "Удалить имя"
-L["Remove a name from your trusted list."] = "Удалить имя из списка доверенных имен."
-L["Add Party"] = "Добавить группу"
-L["Adds all the characters in your current party group to your trusted list."] = "Добавить всех персонажей текущей группы в список доверенных имен."
-L["Remove All"] = "Удалить все"
-L["Remove all names from your trusted list for this server."] = "Удалить все имена из списка доверенных имен."
-
-L["Added %s to the trusted list."] = "%s был добавлен в список доверенных имен."
-L["Removed %s from the trusted list."] = "%s был удален из списка доверенных имен."
-
--- L.HELP_TRUST = [[]]
-
-------------
--- Common --
-------------
-
-L["Enable"] = "Включить"
-L["Enable this module."] = "Включить этот модуль."
-
-L["Verbose mode"] = "Подробном режиме"
-L["Enable notification messages from this module."] = "Включить сообщения оповещения от этого модуля."
-
-L["Timeout"] = "Просрочка"
+L.AddedTrusted = "%s был добавлен в список доверенных имен."
+L.AddGroup = "Добавить группу"
+L.AddGroup_Info = "Добавить всех персонажей текущей группы в список доверенных имен."
+L.AddName = "Добавить имя"
+L.AddName_Info = "Добавить имя в список доверенных имен."
+--L.ClickForOptions = "Click for options."
+--L.CoreHelpText = [[Hydra operates on the basis of "trust". You tell it which characters you trust, whether they're your multibox characters or just your questing buddies, and features are enabled or disabled depending on whether you're in a party with trusted characters or not.\n\nFor example, whispers are only forwarded to party chat if everyone in the party is on your trusted list.]]
+L.Enable = ENABLE
+L.Enable_Info = "Включить этот модуль."
+L.Hydra_Info = "Hydra - это помощник для multibox, который направлен для минимизации действий, требуемых для контроля вторичных персонажей."
+L.RemoveAll = "Удалить все"
+L.RemoveAll_Info = "Удалить все имена из списка доверенных имен."
+L.RemovedTrusted = "%s был удален из списка доверенных имен."
+L.RemoveName = "Удалить имя"
+L.RemoveName_Info = "Удалить имя из списка доверенных имен."
+L.Timeout = "Просрочка"
+L.Verbose = "Подробном режиме"
+L.Verbose_Info = "Включить сообщения оповещения от этого модуля."
 
 ----------------
 -- Automation --
 ----------------
 
-L["Automation"] = "Автоматизация"
-L["Automates simple repetetive tasks, such as clicking common dialogs."] = "Автоматизация простых повторяемых заданий, таких как нажатие на стандартные диалоги."
-L["Decline duels"] = "Отказываться от дуэлей"
--- L["Decline duel requests."] = ""
-L["Decline arena teams"] = "Отказываться от приглашений в арена-команды"
--- L["Decline arena team invitations and petitions."] = ""
-L["Decline guilds"] = "Отказываться от приглашений в гильдию"
--- L["Decline guild invitations and petitions."] = ""
-L["Accept summons"] = "Принимать призывы"
--- L["Accept summon requests."] = ""
-L["Accept resurrections"] = "Принимать воскрешения(вне боя)"
--- L["Accept resurrections from players not in combat."] = ""
-L["Accept combat resurrections"] = "Принимать воскрешения в бою"
--- L["Accept resurrections from players in combat."] = ""
-L["Repair equipment"] = "Починить снаряжение"
--- L["Repair all equipment when interacting with a repair vendor."] = ""
-L["Sell junk"] = "Продать серые вещи(мусор)"
--- L["Sell all junk (gray) items when interacting with a vendor."] = ""
-
-L["Declined an arena team invitation from %s."] = "Отказался от приглашения в команду арены от %s."
-L["Declined an arena team petition from %s."] = "Отказался от регистрационной подписи команды арены от %s."
-L["Declined a guild invitation from %s."] = "Отказался от приглашения в гильдию от %s."
-L["Declined a guild petition from %s."] = "Отказался от регистрационной подписи гильдии от %s."
-L["Declined a duel request from %s."] = "Отказался от дуэли с %s."
-L["Sold %1$d junk |4item:items; for %2$s."] = ""
-L["Repaired all items with guild bank funds for %s."] = "Починил все снаряжение за счет гильдии на %s."
-L["Insufficient guild bank funds to repair!"] = "Недостаточно средств гильдии для починки!"
-L["Repaired all items for %s."] = "Починил все снаряжение на %s."
-L["Insufficient funds to repair!"] = "Недостаточно средств для починки!"
-L["Accepted a resurrection from %s."] = "Принял воскрешение от %s."
-L["Accepting a summon from %1$s to %2$s."] = "Принимаю призыв от %1$s в %2$s."
-L["Accepting a summon when combat ends..."] = "Принимаю призыв когда кончится битва..."
-L["Summon expired!"] = "Призыв истек!"
-
--- L.HELP_AUTO = [[]]
+L.AcceptCombatRes = "Принимать воскрешения в бою"
+--L.AcceptCombatRes_Info = "Accept resurrections in combat from all group members."
+L.AcceptedRes = "Принял воскрешение от %s."
+L.AcceptedSummon = "Принимаю призыв от %1$s в %2$s."
+L.AcceptedSummonCombat = "Принимаю призыв когда кончится битва..."
+L.AcceptRes = "Принимать воскрешения(вне боя)"
+--L.AcceptRes_Info = "Accept resurrections out of combat from all group members."
+L.AcceptSummons = "Принимать призывы"
+--L.AcceptSummons_Info = "Accept summons from trusted players."
+L.Automation = "Автоматизация"
+L.Automation_Info = "Автоматизация простых повторяемых заданий, таких как нажатие на стандартные диалоги."
+L.AutomationHelpText = "" -- #TODO: Add text here
+L.DeclineArenas = "Отказываться от приглашений в арена-команды"
+--L.DeclineArenas_Info = "Decline arena team invitations and petitions from all players."
+L.DeclinedArena = "Отказался от приглашения в команду арены от %s."
+L.DeclinedArenaPetition = "Отказался от регистрационной подписи команды арены от %s."
+L.DeclinedDuel = "Отказался от дуэли с %s."
+L.DeclinedGuild = "Отказался от приглашения в гильдию от %s."
+L.DeclinedGuildPetition = "Отказался от регистрационной подписи гильдии от %s."
+L.DeclineDuels = "Отказываться от дуэлей"
+--L.DeclineDuels_Info = "Decline duel requests from all players."
+L.DeclineGuilds = "Отказываться от приглашений в гильдию"
+--L.DeclineGuilds_Info = "Decline guild invitations and petitions from all players."
+L.NoRepairMoney = "Недостаточно средств для починки!"
+L.NoRepairMoneyGuild = "Недостаточно средств гильдии для починки!"
+L.Repair = "Починить снаряжение"
+--L.Repair_Info = "Repair all equipment when interacting with a repair vendor."
+L.Repaired = "Починил все снаряжение на %s."
+L.RepairedGuild = "Починил все снаряжение за счет гильдии на %s."
+L.SellJunk = "Продать серые вещи(мусор)"
+--L.SellJunk_Info = "Sell junk (gray) items when interacting with a vendor."
+--L.SoldJunk = "Sold %1$d junk |4item:items; for %2$s."
+L.SummonExpired = "Призыв истек!"
 
 ----------
 -- Chat --
 ----------
 
-L["Chat"] = "Чат"
-L["Forwards whispers sent to inactive characters to party chat, and forwards replies to the original sender."] = "Перенаправляет шепот, посланный неактивным персонажам в чат группы и перенаправляет ответы оригинальному отправителю."
-L["Detection method"] = "Метод обнаружения"
--- L["Select the method to use for detecting the primary character."] = ""
--- L["If you are multiboxing on multiple physical machines, or are running multiple copies of WoW in windowed mode, the \"Application Focus\" mode will probably not work for you, and you should make sure that your primary character is the party leader."] = ""
--- L["Application Focus"] = ""
-L["Party Leader"] = "Лидер группы"
--- L["If this many seconds have elapsed since the last forwarded message, don't forward messages typed in party chat to the last whisperer unless the target is explicitly specified."] = ""
-
-L["|TInterface\\ChatFrame\\UI-ChatIcon-Blizz.blp:0:2:0:-3|t %s has received a whisper from a GM!"] = "|TInterface\\ChatFrame\\UI-ChatIcon-Blizz.blp:0:2:0:-3|t %s получил шепот от ГМа!"
-L["%1$s has received a Battle.net whisper from %2$s."] = "%1$s получил Battle.net шепот от %2$s."
-L["%1$s has received a whisper from %2$s."] = "%1$s получил шепот от %2$s."
--- L["!ERROR: Party forwarding timeout reached."] = ""
--- L["!ERROR: Whisper timeout reached."] = ""
-
--- L.HELP_CHAT = [[]]
+--L.AppFocus = "Application focus"
+L.Chat = "Чат"
+L.Chat_Info = "Перенаправляет шепот, посланный неактивным персонажам в чат группы и перенаправляет ответы оригинальному отправителю."
+--L.ChatHelpText = [[Type a message in group chat to reply to the last forwarded whisper from any character.\n\nType "|cffffffff@name Your message here|r" in group chat to reply to the last forwarded whisper from the character "name".\n\nType "|cffffffff@name Your message here|r" in a whisper to a character to direct that character to send the message as a whisper to "name".]]
+L.DetectionMethod = "Метод обнаружения"
+--L.DetectionMethod_Info = [[Select the method to use for detecting the primary character.\n\nIf you are multiboxing on multiple physical machines, or are running multiple copies of WoW in windowed mode, the "Application Focus" mode will probably not work for you, and you should make sure that your primary character is the group leader.]]
+L.GroupLeader = "Лидер группы"
+--L.GroupTimeout_Info = "If this many seconds have elapsed since the last forwarded message, don't forward messages typed in group chat to the last whisperer unless the target is explicitly specified."
+--L.GroupTimeoutError = "Group chat forwarding timeout reached."
+L.WhisperFrom = "%1$s получил шепот от %2$s."
+L.WhisperFromBnet = "%1$s получил Battle.net шепот от %2$s:\n%3$s"
+--L.WhisperFromConvo = "%1$s received a Battle.net message from %2$s:\n%3$s"
+L.WhisperFromGM = "%s получил шепот от ГМа!"
+--L.WhisperTimeoutError = "Whisper timeout reached."
 
 ------------
 -- Follow --
 ------------
 
-L["Follow"] = "Следить"
--- L["Responds to follow requests from trusted party members."] = ""
--- L["Set a key binding to follow your current target."] = ""
--- L["Set a key binding direct all characters in your party to follow you."] = ""
--- L["Set a key binding to direct all dead characters in your party to release their spirit."] = ""
--- L["Set a key binding to direct all ghost characters in your party to accept resurrection to their corpse."] = ""
-
-L["%s is now following you."] = "%s следует за вами."
-L["%s is no longer following you."] = "%s больше не следует за вами."
-L["%s is no longer following you!"] = "%s больше не следует за вами!"
-L["%s is too far away to follow!"] = "%s слишком далеко, чтобы следовать."
--- L["Use Soulstone"] = ""
--- L["Reincarnate"] = ""
--- L["I have a soulstone."] = ""
-L["I can reincarnate."] = "Я могу переродиться."
-L["I can resurrect myself."] = "Я могу воскресить себя."
-L["I cannot resurrect!"] = "Я не могу воскреситься!"
-
--- L.HELP_FOLLOW = [[]]
-
--- L.SLASH_HYDRA_FOLLOWME3 = ""
-
--- L.SLASH_HYDRA_CORPSE2 = ""
--- L["release"] = ""
--- L["accept"] = ""
-
--- L.BINDING_NAME_HYDRA_FOLLOW_TARGET = ""
--- L.BINDING_NAME_HYDRA_FOLLOW_ME = ""
--- L.BINDING_NAME_HYDRA_RELEASE_CORPSE = ""
--- L.BINDING_NAME_HYDRA_ACCEPT_CORPSE = ""
+--L.AcceptCorpse = "Resurrect to corpse"
+--L.AcceptCorpse_Info = "Set a key binding to direct dead group members to accept resurrection to their corpse."
+--L.CanReincarnate = "%s can use Reincarnation."
+--L.CanSelfRes = "%s can self-ressurect."
+--L.CantRes = "%s cannot be resurrected!"
+--L.CantResDelay = "%1$s cannot be resurrected for %2$d more seconds!"
+--L.CanUseSoulstone = "%s can use a Soulstone."
+--L.CmdAccept = "ac?c?e?p?t?"
+--L.CmdRelease = "re?l?e?a?s?e?"
+L.Follow = "Следить"
+--L.Follow_Info = "Responds to follow requests from trusted group members."
+--L.FollowHelpText = [[Type "|cffffffff/followme|r" to direct nearby group members to follow you.\n\nType "|cffffffff/corpse release|r" to direct dead party members to release their spirits.\n\nType "|cffffffff/corpse accept|r" to direct dead group members to accept resurrection to their corpse.]]
+L.FollowingYouStart = "%s следует за вами."
+L.FollowingYouStop = "%s больше не следует за вами."
+--L.FollowMe = "Request follow"
+--L.FollowMe_Info = "Set a key binding to direct nearby group members to follow you."
+--L.FollowTarget = "Follow target"
+--L.FollowTarget_Info = "Set a key binding to follow your current target."
+L.FollowTooFar = "%s слишком далеко, чтобы следовать!"
+--L.ReleaseCorpse = "Release spirit"
+--L.ReleaseCorpse_Info = "Set a key binding to direct dead group members to release their spirit."
+--L.Reincarnate = "Reincarnate" -- Must match Blizzard self-res dialog!
+--L.SlashCorpse = "/corpse"
+--L.SlashFollowMe = "/followme"
+--L.TargetedFollowMe = "Targetable /followme"
+--L.TargetedFollowMe_Info = "If your current target is a trusted group member, your /followme command will be sent only to that target."
+--L.UseSoulstone = "Use Soulstone" -- Must match Blizzard self-res dialog!
 
 -----------
 -- Mount --
 -----------
 
-L["Mount"] = "Транспорт"
--- L["Summons your mount when another party member mounts."] = ""
-
--- L["ERROR: %s is missing that mount!"] = ""
-
--- L.HELP_MOUNT = [[]]
+--L.Dismount = "Dismount with group"
+--L.Dismount_Info = "Dismount when another trusted group member dismounts."
+L.Mount = "Транспорт"
+--L.Mount_Info = "Group mounting and dismounting."
+--L.MountHelpText = ""
+--L.MountMissing = "%s has no available mount!"
+--L.MountRandom = "Use random mount"
+--L.MountRandom_Info = "Use a random mount of the same type as your trusted group member.\nIf this is disabled, you will use the same mount if you have it, or the first equivalent mount otherwise."
+--L.MountTogether = "Mount with group"
+--L.MountTogether_Info = "Mount when another trusted group member mounts."
 
 -----------
 -- Party --
 -----------
 
-L["Party"] = "Группа"
--- L["Responds to invite and promote requests from trusted players."] = ""
-
--- L["I cannot invite you, because you are not on my trusted list."] = ""
--- L["I cannot invite you, because I am not the party leader."] = ""
--- L["I cannot promote you, because you are not on my trusted list."] = ""
--- L["I cannot promote you, because I am not the party leader."] = ""
-
--- L.HELP_PARTY = [[]]
-
--- L.SLASH_HYDRA_INVITEME3 = ""
--- L.SLASH_HYDRA_PROMOTEME3 = ""
+--L.CantInviteNotLeader = "I cannot invite you, because I am not the group leader."
+--L.CantInviteNotTrusted = "I cannot invite you, because you are not on my trusted list."
+--L.CantPromoteNotLeader = "I cannot promote you, because I am not the group leader."
+--L.CantPromoteNotTrusted = "I cannot promote you, because you are not on my trusted list."
+--L.CmdNoPromote = "[Nn][Oo][Pp][Rr][Oo][Mm][Oo][Tt][Ee]"
+L.Group = "Группа"
+--L.Group_Info = "Responds to group invite and promote requests from trusted players."
+--L.GroupHelpText = [[Type "|cffffffff/inviteme|r" to request a group invitation from your current target.\n\nType "|cffffffff/inviteme Name|r" to request a group invitation from "Name".\n\nType "|cffffffff/promoteme|r" while in a group to request to be promoted to group leader.]]
+--L.SlashInviteMe = "/inviteme"
+--L.SlashPromoteMe = "/promoteme"
 
 -----------
 -- Quest --
 -----------
 
-L["Quest"] = "Задание"
--- L["Helps keep party members' quests in sync."] = ""
-L["Turn in quests"] = "Сдавать задания"
-L["Turn in complete quests."] = "Сдавать завершенные задания."
--- L["Accept quests"] = ""
--- L["Accept quests shared by party members, quests from NPCs that other party members have already accepted, and escort-type quests started by another party member."] = ""
-L["Share quests"] = "Делиться заданиями"
-L["Share quests you accept from NPCs."] = "Делиться заданиями, полученными от NPCs."
-L["Abandon quests"] = "Отказываться от заданий"
-L["Abandon quests abandoned by a trusted party member."] = "Отказываться от заданий, которые были брошены доверенным членом группы."
-
--- L["%1$s accepted %2$s."] = ""
--- L["%1$s turned in %2$s."] = ""
--- L["%1$s abandoned %2$s."] = ""
-L["That quest cannot be shared."] = "Этим заданием невозможно поделиться."
-
--- L.HELP_QUEST = [[]]
+L.AbandonQuests = "Отказываться от заданий"
+L.AbandonQuests_Info = "Отказываться от заданий, которые были брошены доверенным членом группы."
+--L.AcceptQuests = "Accept quests"
+--L.AcceptQuests = "Automatically accept all quests."
+--L.OnlySharedQuests = "Only shared quests"
+--L.OnlySharedQuests_Info = "Only accept quests shared by group members, escort quests started by group members, and quests from NPCs that trusted group members have already accepted."
+L.Quest = "Задание"
+--L.Quest_Info = "Helps keep party members' quests in sync."
+--L.QuestAbandoned = "%1$s abandoned %2$s."
+--L.QuestAccepted = "%1$s accepted %2$s."
+--L.QuestHelpText = "If you want an on-screen list of your other characters' quests, I recommend the addon Quecho, by Tekkub."
+L.QuestNotShareable = "Этим заданием невозможно поделиться."
+--L.QuestTurnedIn = "%1$s turned in %2$s."
+L.ShareQuests = "Делиться заданиями"
+L.ShareQuests_Info = "Делиться заданиями, полученными от NPCs."
+L.TurnInQuests = "Сдавать задания"
+L.TurnInQuests_Info = "Сдавать завершенные задания."
 
 ----------
 -- Taxi --
 ----------
 
--- L["Taxi"] = ""
--- L["Selects the same taxi destination as other party members."] = ""
--- L["Clear the taxi selection after this many seconds."] = ""
-
--- L["ERROR: %s: Taxi timeout reached."] = ""
--- L["ERROR: %s: Taxi node mismatch."] = ""
--- L["%1$s set the party taxi to %2$s."] = ""
--- L["Party taxi cleared."] = ""
-
--- L.HELP_TAXI = [[]]
-
--- L.SLASH_HYDRA_CLEARTAXI2 = ""
+--L.SlashClearTaxi = "/cleartaxi"
+--L.Taxi = "Taxi"
+--L.Taxi_Info = "Selects the same taxi destination as other party members."
+--L.TaxiCleared = "Party taxi destination cleared."
+--L.TaxiHelpText = [[Hold the Shift key while speaking to a flight master to temporarily disable auto-selection.\n\nType "|cffffffff/cleartaxi|r" to clear the party taxi selection before the normal timeout.]]
+--L.TaxiMismatchError = "%s: Taxi node mismatch."
+--L.TaxiSet = "%1$s set the party taxi to %2$s."
+--L.TaxiTimeout_Info = "Clear the taxi selection after this many seconds."
+--L.TaxiTimeoutError = "%s: Taxi timeout reached."

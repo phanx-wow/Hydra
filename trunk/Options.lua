@@ -1,7 +1,7 @@
 --[[--------------------------------------------------------------------
 	Hydra
 	Multibox leveling helper.
-	Copyright (c) 2010-2012 Phanx <addons@phanx.net>. All rights reserved.
+	Copyright (c) 2010-2013 Phanx <addons@phanx.net>. All rights reserved.
 	See the accompanying README and LICENSE files for more information.
 	http://www.wowinterface.com/downloads/info17572-Hydra.html
 	http://www.curse.com/addons/wow/hydra
@@ -17,9 +17,10 @@ local CreateOptionsPanel = LibStub("PhanxConfig-OptionsPanel").CreateOptionsPane
 ------------------------------------------------------------------------
 
 if core.SetupOptions then
-	panels[#panels + 1] = CreateOptionsPanel(HYDRA, nil, function(self)
+	panels[1] = CreateOptionsPanel(HYDRA, nil, function(self)
 		core:SetupOptions(self)
 		core.SetupOptions = noop
+		core.OptionsPanel = self
 	end)
 end
 
@@ -36,9 +37,10 @@ for i = 1, #names do
 	local name = names[i]
 	local module = core.modules[name]
 	if module.SetupOptions then
-		panels[#panels + 1] = CreateOptionsPanel(module.name, HYDRA, function(self)
+		panels[#panels + 1] = CreateOptionsPanel(module.displayName or module.name, HYDRA, function(self)
 			module:SetupOptions(self)
 			module.SetupOptions = noop
+			module.OptionsPanel = self
 		end)
 	end
 end
@@ -65,7 +67,7 @@ if LDB then
 		OnClick = SlashCmdList.HYDRA,
 		OnTooltipShow = function(tooltip)
 			tooltip:AddLine(HYDRA, 1, 1, 1)
-			tooltip:AddLine(L["Click for options."])
+			tooltip:AddLine(L.ClickForOptions)
 			tooltip:Show()
 		end,
 	})

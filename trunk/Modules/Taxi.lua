@@ -1,7 +1,7 @@
 --[[--------------------------------------------------------------------
 	Hydra
 	Multibox leveling helper.
-	Copyright (c) 2010-2012 Phanx <addons@phanx.net>. All rights reserved.
+	Copyright (c) 2010-2013 Phanx <addons@phanx.net>. All rights reserved.
 	See the accompanying README and LICENSE files for more information.
 	http://www.wowinterface.com/downloads/info17572-Hydra.html
 	http://www.curse.com/addons/wow/hydra
@@ -48,14 +48,14 @@ function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 	self:Debug("Comm received from", sender, "->", message)
 
 	if message == "TIMEOUT" then
-		return core:Print(L["ERROR: %s: Taxi timeout reached."], sender)
+		return core:Print("ERROR: " .. L.TaxiTimeoutError, sender)
 	elseif message == "MISMATCH" then
-		return core:Print(L["ERROR: %s: Taxi node mismatch."], sender)
+		return core:Print("ERROR: " . L.TaxiMismatchError, sender)
 	end
 
 	local node, nodeName = strmatch(strtrim(message), "^(%d+) (.+)$")
 	if node and nodeName then
-		core:Print(L["%1$s set the party taxi to %2$s."], sender, nodeName)
+		core:Print(L.TaxiSet, sender, nodeName)
 		taxiNode, taxiNodeName, taxiTime = node, nodeName, GetTime()
 	end
 end
@@ -101,33 +101,32 @@ end)
 ------------------------------------------------------------------------
 
 SLASH_HYDRA_CLEARTAXI1 = "/cleartaxi"
-do
-	local slash = rawget(core.L, "SLASH_HYDRA_CLEARTAXI2")
-	if slash and slash ~= SLASH_HYDRA_CLEARTAXI1 then
-		SLASH_HYDRACLEARTAXI2 = slash
-	end
+
+if L.SlashClearTaxi ~= SLASH_HYDRA_CLEARTAXI1 then
+	SLASH_HYDRA_CLEARTAXI2 = L.SlashClearTaxi
 end
 
 function SlashCmdList.HYDRA_CLEARTAXI()
 	if taxiNode then
 		taxiTime, taxiNode, taxiNodeName = 0, nil, nil
-		module:Print("Party taxi cleared.")
+		module:Print(L.TaxiCleared)
 	end
 end
 
 ------------------------------------------------------------------------
 
+module.displayName = L.Taxi
 function module:SetupOptions(panel)
-	local title, notes = LibStub("PhanxConfig-Header").CreateHeader(panel, panel.name, L["Selects the same taxi destination as other party members."])
+	local title, notes = LibStub("PhanxConfig-Header").CreateHeader(panel, L.Taxi, L.Taxi_Info)
 
-	local enable = LibStub("PhanxConfig-Checkbox").CreateCheckbox(panel, L["Enable"])
+	local enable = LibStub("PhanxConfig-Checkbox").CreateCheckbox(panel, L.Enable, L.Enable_info)
 	enable:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
 	enable.OnClick = function(_, checked)
 		self.db.enable = checked
 		self:CheckState()
 	end
 
-	local timeout = LibStub("PhanxConfig-Slider").CreateSlider(panel, L["Timeout"], L["Clear the taxi selection after this many seconds."], 30, 600, 30)
+	local timeout = LibStub("PhanxConfig-Slider").CreateSlider(panel, L.Timeout, L.TaxiTimeout_Info, 30, 600, 30)
 	timeout:SetPoint("TOPLEFT", enable, "BOTTOMLEFT", 0, -16)
 	timeout:SetPoint("TOPRIGHT", notes, "BOTTOM", -8, -28 - enable:GetHeight())
 	timeout.OnValueChanged = function(_, value)
@@ -142,7 +141,7 @@ function module:SetupOptions(panel)
 	help:SetHeight(112)
 	help:SetJustifyH("LEFT")
 	help:SetJustifyV("BOTTOM")
-	help:SetText(L.HELP_TAXI)
+	help:SetText(L.TaxiHelpText)
 
 	panel.refresh = function()
 		enable:SetChecked(self.db.enable)

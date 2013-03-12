@@ -1,7 +1,7 @@
 --[[--------------------------------------------------------------------
 	Hydra
 	Multibox leveling helper.
-	Copyright (c) 2010-2012 Phanx <addons@phanx.net>. All rights reserved.
+	Copyright (c) 2010-2013 Phanx <addons@phanx.net>. All rights reserved.
 	See the accompanying README and LICENSE files for more information.
 	http://www.wowinterface.com/downloads/info17572-Hydra.html
 	http://www.curse.com/addons/wow/hydra
@@ -77,29 +77,29 @@ function module:PETITION_SHOW()
 	local type, _, _, _, sender, mine = GetPetitionInfo()
 	if not mine then
 		if type == "arena" and self.db.declineArenaTeams then
-			self:Print(L["Declined an arena team petition from %s."], sender)
+			self:Print(L.DeclinedArenaPetition, sender)
 			ClosePetition()
 		elseif type == "guild" and self.db.declineGuilds then
-			self:Print(L["Declined a guild petition from %s."], sender)
+			self:Print(L.DeclinedGuildPetition, sender)
 			ClosePetition()
 		end
 	end
 end
 
 function module:ARENA_TEAM_INVITE_REQUEST(sender)
-	self:Print(L["Declined an arena team invitation from %s"], sender)
+	self:Print(L.DeclinedArena, sender)
 	DeclineArenaTeam()
 	StaticPopup_Hide("ARENA_TEAM_INVITE")
 end
 
 function module:DUEL_REQUESTED(sender)
-	self:Print(L["Declined a duel request from %s."], sender)
+	self:Print(L.DeclinedDuel, sender)
 	CancelDuel()
 	StaticPopup_Hide("DUEL_REQUESTED")
 end
 
 function module:GUILD_INVITE_REQUEST(sender)
-	self:Print(L["Declined a guild invitation from %s."], sender)
+	self:Print(L.DeclinedGuild, sender)
 	DeclineGuild()
 	StaticPopup_Hide("GUILD_INVITE")
 end
@@ -137,7 +137,7 @@ function module:MERCHANT_SHOW()
 			end
 		end
 		if num > 0 then
-			self:Print(L["Sold %1$d junk |4item:items; for %2$s."], num, formatMoney(value))
+			self:Print(L.SoldJunk, num, formatMoney(value))
 		end
 	end
 
@@ -152,14 +152,14 @@ function module:MERCHANT_SHOW()
 
 			if guildmoney >= cost and self.db.repairWithGuildFunds and IsInGuild() then
 				RepairAllItems(1)
-				self:Print(L["Repaired all items with guild bank funds for %s."], formatMoney(cost))
+				self:Print(L.RepairedGuild, formatMoney(cost))
 			elseif self.db.repairWithGuildFunds and IsInGuild() then
-				self:Print(L["Insufficient guild bank funds to repair!"])
+				self:Print(L.NoRepairMoneyGuild)
 			elseif money > cost then
 				RepairAllItems()
-				self:Print(L["Repaired all items for %s."], formatMoney(cost))
+				self:Print(L.Repaired, formatMoney(cost))
 			else
-				self:Print(L["Insufficient funds to repair!"])
+				self:Print(L.NoRepairMoney)
 			end
 		end
 	end
@@ -167,14 +167,12 @@ end
 
 ------------------------------------------------------------------------
 
-function module:RESURRECT_REQUEST(sender)
-	if UnitInParty(sender) or UnitInRaid(sender) then
-		local _, class = UnitClass(sender)
-		if class ~= "DRUID" or self.db.acceptResurrectionsInCombat or not UnitAffectingCombat(sender) then
-			self:Print(L["Accepted a resurrection from %s."], sender)
-			AcceptResurrect()
-			StaticPopup_Hide("RESURRECT_NO_SICKNESS")
-		end
+function module:RESURRECT_REQUEST(sender) -- #TODO: Check if sender includes the server name for cross-realm players
+	local _, class = UnitClass(sender)
+	if class and class ~= "DRUID" or self.db.acceptResurrectionsInCombat or not UnitAffectingCombat(sender) then
+		self:Print(L.AcceptedRes, sender)
+		AcceptResurrect()
+		StaticPopup_Hide("RESURRECT_NO_SICKNESS")
 	end
 end
 
@@ -185,26 +183,27 @@ function module:PLAYER_REGEN_ENABLED()
 	self:CONFIRM_SUMMON()
 end
 
-function module:CONFIRM_SUMMON()
+function module:CONFIRM_SUMMON() -- #TODO: Check if sender includes the server name for cross-realm players
 	local sender, location = GetSummonConfirmSummoner(), GetSummonConfirmAreaName()
-	if sender and location then
+	if sender and location and core:IsTrusted(sender) then
 		if UnitAffectingCombat("player") or not PlayerCanTeleport() then
-			self:Print(L["Accepting a summon when combat ends..."])
+			self:Print(L.AcceptedSummonCombat)
 			self:RegisterEvent("PLAYER_REGEN_ENABLED")
 		elseif GetSummonConfirmTimeLeft() > 0 then
-			self:Print(L["Accepting a summon from %1$s to %2$s."], sender, location)
+			self:Print(L.AcceptedSummon, sender, location)
 			ConfirmSummon()
 			StaticPopup_Hide("CONFIRM_SUMMON")
 		else
-			self:Print(L["Summon expired!"])
+			self:Print(L.SummonExpired)
 		end
 	end
 end
 
 ------------------------------------------------------------------------
 
+module.displayName = L.Automation
 function module:SetupOptions(panel)
-	local title, notes = LibStub("PhanxConfig-Header").CreateHeader(panel, panel.name, L["Automates simple repetetive tasks, such as clicking common dialogs."])
+	local title, notes = LibStub("PhanxConfig-Header").CreateHeader(panel, L.Automation, L.Automation_Info)
 
 	panel.CreateCheckbox = LibStub("PhanxConfig-Checkbox").CreateCheckbox
 
@@ -215,47 +214,47 @@ function module:SetupOptions(panel)
 		end
 	end
 
-	local declineDuels = panel:CreateCheckbox(L["Decline duels"], L["Decline duel requests."])
+	local declineDuels = panel:CreateCheckbox(L.DeclineDuels, L.DeclineDuels_Info)
 	declineDuels:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
 	declineDuels.OnClick = OnClick
 	declineDuels.key = "declineDuels"
 
-	local declineGuilds = panel:CreateCheckbox(L["Decline guilds"], L["Decline guild invitations and petitions."])
+	local declineGuilds = panel:CreateCheckbox(L.DeclineGuilds, L.DeclineGuilds_Info)
 	declineGuilds:SetPoint("TOPLEFT", declineDuels, "BOTTOMLEFT", 0, -8)
 	declineGuilds.OnClick = OnClick
 	declineGuilds.key = "declineGuilds"
 
-	local declineArenaTeams = panel:CreateCheckbox(L["Decline arena teams"], L["Decline arena team invitations and petitions."])
+	local declineArenaTeams = panel:CreateCheckbox(L.DeclineArenas, L.DeclineArenas_Info)
 	declineArenaTeams:SetPoint("TOPLEFT", declineGuilds, "BOTTOMLEFT", 0, -8)
 	declineArenaTeams.OnClick = OnClick
 	declineArenaTeams.key = "declineArenaTeams"
 
-	local acceptSummons = panel:CreateCheckbox(L["Accept summons"], L["Accept summon requests."])
+	local acceptSummons = panel:CreateCheckbox(L.AcceptSummons, L.AcceptSummons_Info)
 	acceptSummons:SetPoint("TOPLEFT", declineArenaTeams, "BOTTOMLEFT", 0, -8)
 	acceptSummons.OnClick = OnClick
 	acceptSummons.key = "acceptSummons"
 
-	local acceptResurrections = panel:CreateCheckbox(L["Accept resurrections"], L["Accept resurrections from players not in combat."])
+	local acceptResurrections = panel:CreateCheckbox(L.AcceptRes, L.AcceptRes_Info)
 	acceptResurrections:SetPoint("TOPLEFT", acceptSummons, "BOTTOMLEFT", 0, -8)
 	acceptResurrections.OnClick = OnClick
 	acceptResurrections.key = "acceptResurrections"
 
-	local acceptResurrectionsInCombat = panel:CreateCheckbox(L["Accept combat resurrections"], L["Accept resurrections from players in combat."])
+	local acceptResurrectionsInCombat = panel:CreateCheckbox(L.AcceptCombatRes, L.AcceptCombatRes_Info)
 	acceptResurrectionsInCombat:SetPoint("TOPLEFT", acceptResurrections, "BOTTOMLEFT", 0, -8)
 	acceptResurrectionsInCombat.OnClick = OnClick
 	acceptResurrectionsInCombat.key = "acceptResurrectionsInCombat"
 
-	local repairEquipment = panel:CreateCheckbox(L["Repair equipment"], L["Repair all equipment when interacting with a repair vendor."])
+	local repairEquipment = panel:CreateCheckbox(L.Repair, L.Repair_Info)
 	repairEquipment:SetPoint("TOPLEFT", acceptResurrectionsInCombat, "BOTTOMLEFT", 0, -8)
 	repairEquipment.OnClick = OnClick
 	repairEquipment.key = "repairEquipment"
 
-	local sellJunk = panel:CreateCheckbox(L["Sell junk"], L["Sell all junk (gray) items when interacting with a vendor."])
+	local sellJunk = panel:CreateCheckbox(L.SellJunk, L.SellJunk_Info)
 	sellJunk:SetPoint("TOPLEFT", repairEquipment, "BOTTOMLEFT", 0, -8)
 	sellJunk.OnClick = OnClick
 	sellJunk.key = "sellJunk"
 
-	local verbose = panel:CreateCheckbox(L["Verbose mode"], L["Enable notification messages from this module."])
+	local verbose = panel:CreateCheckbox(L.Verbose, L.Verbose_Info)
 	verbose:SetPoint("TOPLEFT", sellJunk, "BOTTOMLEFT", 0, -24)
 	verbose.OnClick = OnClick
 	verbose.key = "verbose"
@@ -266,7 +265,7 @@ function module:SetupOptions(panel)
 	help:SetHeight(112)
 	help:SetJustifyH("LEFT")
 	help:SetJustifyV("BOTTOM")
-	help:SetText(L.HELP_AUTO)
+	help:SetText(L.AutomationHelpText)
 
 	function panel:refresh()
 		declineDuels:SetChecked(module.db.declineDuels)

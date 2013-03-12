@@ -11,12 +11,12 @@
 	</Binding>
 	<Binding name="HYDRA_RELEASE_CORPSE">
 		if SlashCmdList.HYDRA_CORPSE then
-			SlashCmdList.HYDRA_CORPSE("r")
+			SlashCmdList.HYDRA_CORPSE("release")
 		end
 	</Binding>
 	<Binding name="HYDRA_ACCEPT_CORPSE">
 		if SlashCmdList.HYDRA_CORPSE then
-			SlashCmdList.HYDRA_CORPSE("a")
+			SlashCmdList.HYDRA_CORPSE("accept")
 		end
 	</Binding>
 </Bindings>

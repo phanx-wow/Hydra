@@ -1,7 +1,7 @@
 --[[--------------------------------------------------------------------
 	Hydra
 	Multibox leveling helper.
-	Copyright (c) 2010-2012 Phanx <addons@phanx.net>. All rights reserved.
+	Copyright (c) 2010-2013 Phanx <addons@phanx.net>. All rights reserved.
 	See the accompanying README and LICENSE files for more information.
 	http://www.wowinterface.com/downloads/info17572-Hydra.html
 	http://www.curse.com/addons/wow/hydra
@@ -23,21 +23,21 @@ local _, core = ...
 
 local L = core.L
 
-local SOLO, PARTY, TRUSTED, LEADER = 0, 1, 2, 3
+local SOLO, GROUP, TRUSTED, LEADER = 0, 1, 2, 3
 local realmName, playerName = GetRealmName(), UnitName("player")
 
-local partyForwardTime, partyForwardFrom, hasActiveConversation = 0
+local groupForwardTime, groupForwardFrom, hasActiveConversation = 0
 local whisperForwardTime, whisperForwardTo = 0
-local frametime, hasfocus = 0
+local frameTime, hasFocus = 0
 
 local module = core:RegisterModule("Chat", CreateFrame("Frame"))
 module:SetScript("OnEvent", function(f, e, ...) return f[e] and f[e](f, ...) end)
-module:SetScript("OnUpdate", function() frametime = GetTime() end)
+module:SetScript("OnUpdate", function() frameTime = GetTime() end)
 module:Hide()
 
 module.defaults = {
 	enable = true,
-	mode = "leader", -- appfocus | leader
+	mode = "LEADER", -- APPFOCUS | LEADER
 	timeout = 300,
 }
 
@@ -51,13 +51,13 @@ function module:CheckState()
 
 	else
 		self:Debug("Enable module: Chat")
-		if self.db.mode == "appfocus" then
+		if self.db.mode == "APPFOCUS" then
 			self:Show()
 		end
 
 		self:RegisterEvent("CHAT_MSG_ADDON")
-		self:RegisterEvent("CHAT_MSG_PARTY")
-		self:RegisterEvent("CHAT_MSG_PARTY_LEADER")
+		self:RegisterEvent("CHAT_MSG_GROUP")
+		self:RegisterEvent("CHAT_MSG_GROUP_LEADER")
 		self:RegisterEvent("CHAT_MSG_RAID")
 		self:RegisterEvent("CHAT_MSG_RAID_LEADER")
 		self:RegisterEvent("CHAT_MSG_SYSTEM")
@@ -74,10 +74,10 @@ end
 
 local playerToken = "@" .. playerName
 
-function module:CHAT_MSG_PARTY(message, sender)
+function module:CHAT_MSG_GROUP(message, sender)
 	if sender == playerName or strmatch(message, "^!") then return end -- command or error response
 
-	self:Debug("CHAT_MSG_PARTY", sender, message)
+	self:Debug("CHAT_MSG_GROUP", sender, message)
 
 	if strmatch(message, "^>> .-: .+$") then
 		if not strmatch(message, "POSSIBLE SPAM") then
@@ -89,30 +89,30 @@ function module:CHAT_MSG_PARTY(message, sender)
 	elseif hasActiveConversation and not message:match("^@") then
 		-- someone responding to our last forwarded whisper
 		self:Debug("hasActiveConversation")
-		if GetTime() - partyForwardTime > self.db.timeout then
+		if GetTime() - groupForwardTime > self.db.timeout then
 			-- it's been a while
 			hasActiveConversation = nil
-			self:SendChatMessage(L["!ERROR: Party forwarding timeout reached."])
+			self:SendChatMessage("!ERROR: " .. L.GroupTimeoutError)
 		else
 			-- forwarding response to whisper sender
-			self:SendChatMessage(message, partyForwardFrom)
-			partyForwardTime = GetTime()
+			self:SendChatMessage(message, groupForwardFrom)
+			groupForwardTime = GetTime()
 		end
 
-	elseif partyForwardFrom then
+	elseif groupForwardFrom then
 		-- we forwarded something earlier
 		local text = strmatch(message, playerToken .. " (.+)$")
 		if text then
 			-- someone responding to our last forward
 			self:Debug("Detected response to old forward.")
-			self:SendChatMessage(text, partyForwardFrom)
+			self:SendChatMessage(text, groupForwardFrom)
 		end
 	end
 end
 
-module.CHAT_MSG_PARTY_LEADER = module.CHAT_MSG_PARTY
-module.CHAT_MSG_RAID = module.CHAT_MSG_PARTY
-module.CHAT_MSG_RAID_LEADER = module.CHAT_MSG_PARTY
+module.CHAT_MSG_GROUP_LEADER = module.CHAT_MSG_GROUP
+module.CHAT_MSG_RAID = module.CHAT_MSG_GROUP
+module.CHAT_MSG_RAID_LEADER = module.CHAT_MSG_GROUP
 
 ------------------------------------------------------------------------
 
@@ -143,9 +143,9 @@ function module:CHAT_MSG_WHISPER(message, sender, _, _, _, flag, _, _, _, _, _, 
 	self:Debug("CHAT_MSG_WHISPER", guid, flag, sender, message)
 
 	if UnitInRaid(sender) or UnitInParty(sender) then
-		self:Debug("unit in party/raid")
+		self:Debug("sender in group")
 
-		-- a party member whispered me "@Someone Hello!"
+		-- a group member whispered me "@Someone Hello!"
 		local target, text = strmatch(message, "^@(.-) (.+)$")
 
 		if target and text then
@@ -158,7 +158,7 @@ function module:CHAT_MSG_WHISPER(message, sender, _, _, _, flag, _, _, _, _, _, 
 			if GetTime() - whisperForwardTime > self.db.timeout then
 				-- it's been a while since our last forward to whisper
 				whisperForwardTo = nil
-				self:SendChatMessage(L["!ERROR: Whisper timeout reached."], sender)
+				self:SendChatMessage("!ERROR: " .. L.WhisperTimeoutError, sender)
 
 			else
 				-- whisper last forward target
@@ -167,15 +167,14 @@ function module:CHAT_MSG_WHISPER(message, sender, _, _, _, flag, _, _, _, _, _, 
 			end
 		end
 	else
-		local isLeader
-		if IsPartyLeader then
-			isLeader = IsPartyLeader()
+		local active
+		if self.db.mode == "APPFOCUS" then
+			active = GetTime() - frameTime < 0.1
 		else
-			isLeader = UnitIsGroupLeader("player")
+			active = UnitIsGroupLeader("player")
 		end
-		local active = self.db.mode == "appfocus" and GetTime() - frametime < 0.25 or isLeader
-		self:Debug(active and "Active" or "Not active")
-		if not active then -- someone outside the party whispered me
+		self:Debug("active", active)
+		if not active then -- someone outside the group whispered me
 			if flag == "GM" then
 				self:SendAddonMessage("HydraChat", format("GM |cff00ccff%s|r %s", sender, message))
 				self:SendChatMessage(format(">> GM %s: %s", sender, message))
@@ -190,7 +189,7 @@ function module:CHAT_MSG_WHISPER(message, sender, _, _, _, flag, _, _, _, _, _, 
 				end
 				if spamwords > 3 then
 					message = "POSSIBLE SPAM"
-					hasActiveConversation, partyForwardFrom, partyForwardTime = true, sender, GetTime()
+					hasActiveConversation, groupForwardFrom, groupForwardTime = true, sender, GetTime()
 				end
 
 				local color
@@ -231,19 +230,19 @@ end
 ------------------------------------------------------------------------
 
 function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
-	if prefix ~= "HydraChat" or (channel ~= "PARTY" and channel ~= "RAID") or sender == playerName or not core:IsTrusted(sender) then return end
+	if prefix ~= "HydraChat" or (channel ~= "GROUP" and channel ~= "RAID") or sender == playerName or not core:IsTrusted(sender) then return end
 
 	local fwdEvent, fwdSender, fwdMessage = strmatch(message, "^([^%s§]+)[%§]([^%s§]+)[%§]?(.*)$")
 	self:Debug("HydraChat", sender, fwdEvent, fwdSender, fwdMessage)
 
 	if fwdEvent == "GM" then
-		local message = format(L["\124TInterface\\ChatFrame\\UI-ChatIcon-Blizz.blp:0:2:0:-3\124t %s has received a whisper from a GM!"], sender)
+		local message = "\124TInterface\\ChatFrame\\UI-ChatIcon-Blizz.blp:0:2:0:-3\124t" .. format(L.WhisperFromGM, sender)
 		self:Debug(message)
 		self:Alert(message, true)
 		self:Print(message)
 
 	elseif fwdEvent == "W" then
-		self:Debug(L["%1$s received a whisper from %2$s."], sender, fwdSender)
+		self:Debug(L.WhisperFrom, sender, fwdSender)
 
 	elseif fwdEvent == "BW" then
 		local found
@@ -259,7 +258,7 @@ function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 				end
 			end
 			if not found then
-				self:Print(L["%1$s received a Battle.net whisper from %2$s:\n%3$s"], sender, fwdSender, fwdMessage)
+				self:Print(L.WhisperFromBnet, sender, fwdSender, fwdMessage)
 			end
 		end
 
@@ -278,7 +277,7 @@ function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 				end
 			end
 			if not found then
-				self:Print(L["%1$s received a Battle.net message from %2$s in %3$s:\n%4$s"], sender, fwdSender, fwdChannel, fwdMessage)
+				self:Print(L.WhisperFromConvo, sender, fwdSender, fwdMessage)
 			end
 		end
 	end
@@ -286,11 +285,11 @@ end
 
 ------------------------------------------------------------------------
 
+module.displayName = L.Chat
 function module:SetupOptions(panel)
-	local title, notes = LibStub("PhanxConfig-Header").CreateHeader(panel, panel.name,
-		L["Forwards whispers sent to inactive characters to party chat, and forwards replies to the original sender."])
+	local title, notes = LibStub("PhanxConfig-Header").CreateHeader(panel, L.Chat, L.Chat_Info)
 
-	local enable = LibStub("PhanxConfig-Checkbox").CreateCheckbox(panel, L["Enable"])
+	local enable = LibStub("PhanxConfig-Checkbox").CreateCheckbox(panel, L.Enable, L.Enable_info)
 	enable:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
 	enable.OnClick = function(_, checked)
 		self.db.enable = checked
@@ -298,41 +297,35 @@ function module:SetupOptions(panel)
 	end
 
 	local modes = {
-		appfocus = L["Application Focus"],
-		leader = L["Party Leader"],
+		APPFOCUS = L.ApplicationFocus,
+		LEADER = L.GroupLeader,
 	}
 
-	local mode = LibStub("PhanxConfig-Dropdown").CreateDropdown(panel, L["Detection method"],
-		L["Select the method to use for detecting the primary character."] .. "\n\n" .. L["If you are multiboxing on multiple physical machines, or are running multiple copies of WoW in windowed mode, the \"Application Focus\" mode will probably not work for you, and you should make sure that your primary character is the party leader."])
+	local mode = LibStub("PhanxConfig-Dropdown").CreateDropdown(panel, L.DetectionMethod, L.DetectionMethod_Info)
 	mode:SetPoint("TOPLEFT", enable, "BOTTOMLEFT", 0, -16)
 	mode:SetPoint("TOPRIGHT", notes, "BOTTOM", -8, -12 - enable:GetHeight() - 16)
 	do
-		local info = { }
-		local IsChecked = function(this)
-			return self.db.mode == this.value
-		end
-		local OnClick = function(this)
-			self.db.mode = this.value
-			self:CheckState()
-		end
+		local info = {
+			checked = function(this)
+				return self.db.mode == this.value
+			end,
+			func = function(this)
+				self.db.mode = this.value
+				self:CheckState()
+			end,
+		}
 		UIDropDownMenu_Initialize(mode.dropdown, function()
-			info.text = L["Application Focus"]
-			info.value = "appfocus"
-			info.checked = IsChecked
-			info.func = OnClick
+			info.text = L.ApplicationFocus
+			info.value = "APPFOCUS"
 			UIDropDownMenu_AddButton(info)
 
-			info.text = L["Party Leader"]
-			info.value = "leader"
-			info.checked = IsChecked
-			info.func = OnClick
+			info.text = L.GroupLeader
+			info.value = "LEADER"
 			UIDropDownMenu_AddButton(info)
 		end)
 	end
 
-	local timeout = LibStub("PhanxConfig-Slider").CreateSlider(panel, L["Timeout"],
-		L["If this many seconds have elapsed since the last forwarded message, don't forward messages typed in party chat to the last whisperer unless the target is explicitly specified."],
-		30, 600, 30)
+	local timeout = LibStub("PhanxConfig-Slider").CreateSlider(panel, L.Timeout, L.GroupTimeout_Info, 30, 600, 30)
 	timeout:SetPoint("TOPLEFT", mode, "BOTTOMLEFT", 0, -16)
 	timeout:SetPoint("TOPRIGHT", mode, "BOTTOMRIGHT", 0, -16)
 	timeout.OnValueChanged = function(_, value)
@@ -347,7 +340,7 @@ function module:SetupOptions(panel)
 	help:SetHeight(112)
 	help:SetJustifyH("LEFT")
 	help:SetJustifyV("BOTTOM")
-	help:SetText(L.HELP_CHAT)
+	help:SetText(L.ChatHelpText)
 
 	panel.refresh = function()
 		enable:SetChecked(self.db.enable)

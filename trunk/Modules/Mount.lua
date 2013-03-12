@@ -1,7 +1,7 @@
 --[[--------------------------------------------------------------------
 	Hydra
 	Multibox leveling helper.
-	Copyright (c) 2010-2012 Phanx <addons@phanx.net>. All rights reserved.
+	Copyright (c) 2010-2013 Phanx <addons@phanx.net>. All rights reserved.
 	See the accompanying README and LICENSE files for more information.
 	http://www.wowinterface.com/downloads/info17572-Hydra.html
 	http://www.curse.com/addons/wow/hydra
@@ -47,7 +47,7 @@ function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 	self:Debug("CHAT_MSG_ADDON", prefix, message, channel, sender)
 
 	if message == "ERROR" then
-		self:Print(L["ERROR: %s is missing that mount!"], sender)
+		self:Print("ERROR: " .. L.MountMissing, sender)
 		return
 	end
 
@@ -108,7 +108,7 @@ function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 		end
 	end
 
-	local i = type(equivalent) == "table" and equivalent[math.random(#equivalent)] or equivalent
+	local i = type(equivalent) == "table" and equivalent[random(#equivalent)] or equivalent
 	if i then
 		local _, name = GetCompanionInfo("MOUNT", i)
 		self:Debug("Found equivalent mount", name)
@@ -151,30 +151,27 @@ end)
 
 ------------------------------------------------------------------------
 
+module.displayName = L.Mount
 function module:SetupOptions(panel)
-	local title, notes = LibStub("PhanxConfig-Header").CreateHeader(panel, panel.name,
-		L["Group mounting and dismounting."])
+	local title, notes = LibStub("PhanxConfig-Header").CreateHeader(panel, L.Mount, L.Mount_Info)
 
 	local CreateCheckbox = LibStub("PhanxConfig-Checkbox").CreateCheckbox
 
-	local mount = CreateCheckbox(panel, L["Mount"],
-		L["Mount when another trusted group member mounts."])
+	local mount = CreateCheckbox(panel, L.MountTogether, L.MountTogether_Info)
 	mount:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
 	mount.OnClick = function(_, checked)
 		self.db.mount = checked
 		self:CheckState()
 	end
 
-	local mountRandom = CreateCheckbox(panel, L["Randomize"],
-		L["Use a random mount of the same type as your trusted group member.\nIf this is disabled, you will use the same mount if you have it, or the first equivalent mount otherwise."])
+	local mountRandom = CreateCheckbox(panel, L.MountRandom, L.MountRandom)
 	mountRandom:SetPoint("TOPLEFT", mount, "BOTTOMLEFT", 0, -8)
 	mountRandom.OnClick = function(_, checked)
 		self.db.mountRandom = checked
 		self:CheckState()
 	end
 
-	local dismount = CreateCheckbox(panel, L["Dismount"],
-		L["Dismount when another trusted group member dismounts."])
+	local dismount = CreateCheckbox(panel, L.Dismount, L.Dismount_Info)
 	dismount:SetPoint("TOPLEFT", mountRandom, "BOTTOMLEFT", 0, -8)
 	dismount.OnClick = function(_, checked)
 		self.db.dismount = checked
@@ -187,7 +184,7 @@ function module:SetupOptions(panel)
 	help:SetHeight(112)
 	help:SetJustifyH("LEFT")
 	help:SetJustifyV("BOTTOM")
-	help:SetText(L.HELP_MOUNT)
+	help:SetText(L.MountHelpText)
 
 	panel.refresh = function()
 		mount:SetChecked(self.db.mount)
@@ -335,6 +332,18 @@ module.mountData = {
 		[129918] = true, -- Thundering August Cloud Serpent
 		[130092] = true, -- Red Flying Cloud
 		[130985] = true, -- Pandaren Kite (Alliance)
+		[133023] = true, -- Jade Pandaren Kite
+		[134573] = true, -- Swift Windsteed
+		[135416] = true, -- Grand Armored Gryphon
+		[135418] = true, -- Grand Armored Wyvern
+		[136163] = true, -- Grand Gryphon
+		[136164] = true, -- Grand Wyvern
+		[136400] = true, -- Armored Skyscreamer
+		[136505] = true, -- Ghastly Charger
+		[139407] = true, -- Malevolent Gladiator's Cloud Serpent
+		[139442] = true, -- Thundering Cobalt Cloud Serpent
+		[139448] = true, -- Clutch of Ji-Kun
+		[139595] = true, -- Armored Bloodwing
 	},
 	--[[
 	airground = {
@@ -636,6 +645,17 @@ module.mountData = {
 		[129934] = true, -- Blue Shado-Pan Riding Tiger
 		[129935] = true, -- Red Shado-Pan Riding Tiger
 		[130138] = true, -- Black Riding Goat
+		[138423] = true, -- Cobalt Primordial Direhorn
+		[138424] = true, -- Amber Primordial Direhorn
+		[138425] = true, -- Slate Primordial Direhorn
+		[138426] = true, -- Jade Primordial Direhorn
+		[138449] = true, -- Golden Primordial Direhorn
+		[138450] = true, -- Crimson Primordial Direhorn
+		[138640] = true, -- Bone-White Primal Raptor
+		[138641] = true, -- Red Primal Raptor
+		[138642] = true, -- Black Primal Raptor
+		[138643] = true, -- Green Primal Raptor
+		[136471] = true, -- Spawn of Horridon
 	},
 	water = {
 		[75207] = true, -- Abyssal Seahorse
@@ -653,6 +673,8 @@ module.mountSpecial = {
 		[61470]  = 2, -- Grand Ice Mammoth (alliance)
 		[55531]  = 1, -- Mechano-hog
 		[60424]  = 1, -- Mekgineer's Chopper
+		[121820] = 1, -- Obsidian Nightwing
+		[93326]  = 1, -- Sandstone Drake
 		[61447]  = 2, -- Traveler's Tundra Mammoth (horde)
 		[61425]  = 2, -- Traveler's Tundra Mammoth (alliance)
 		[75973]  = 1, -- X-53 Touring Rocket
@@ -676,6 +698,7 @@ module.mountSpecial = {
 function module:GetMountType(id)
 	for mountType, mounts in pairs(self.mountData) do
 		if mounts[id] then
+			-- #TODO: Handle ground/flying combo mounts + profesion restrictions
 			return mountType, self.mountSpecial.passengers[id]
 		end
 	end
