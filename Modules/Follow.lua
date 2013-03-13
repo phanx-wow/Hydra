@@ -112,21 +112,21 @@ function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 				end
 			end
 
-		elseif message = "SS" then
-			self:Print(L.CanUseSoulstone, sender)
-
-		elseif message = "REINC" then
-			self:Print(L.CanReincarnate, sender)
-
-		elseif message = "SELFRES" then
-			self:Print(L.CanSelfRes, sender)
-
-		elseif message = "NORES" then
-			self:Print(L.CantRes, sender)
-
-		elseif strmatch(message, "^WAIT " then
+		elseif strmatch(message, "^WAIT ") then
 			local delay = strmatch(message, "%d+")
 			self:Print(L.CantResDelay, sender, delay)
+
+		elseif message == "NORES" then
+			self:Print(L.CantRes, sender)
+
+		elseif message == "SS" then
+			self:Print(L.CanUseSoulstone, sender)
+
+		elseif message == "REINC" then
+			self:Print(L.CanReincarnate, sender)
+
+		elseif message == "SELFRES" then
+			self:Print(L.CanSelfRes, sender)
 		end
 	end
 end

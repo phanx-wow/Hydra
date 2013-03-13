@@ -48,9 +48,9 @@ function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 	self:Debug("Comm received from", sender, "->", message)
 
 	if message == "TIMEOUT" then
-		return core:Print("ERROR: " .. L.TaxiTimeoutError, sender)
+		return core:Print("ERROR:", format(L.TaxiTimeoutError, sender))
 	elseif message == "MISMATCH" then
-		return core:Print("ERROR: " . L.TaxiMismatchError, sender)
+		return core:Print("ERROR:", format(L.TaxiMismatchError, sender))
 	end
 
 	local node, nodeName = strmatch(strtrim(message), "^(%d+) (.+)$")
