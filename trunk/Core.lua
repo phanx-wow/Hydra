@@ -85,11 +85,8 @@ function core:ValidateName(name, realm)
 		if not realm or strlen(realm) == 0 then
 			realm = myRealm
 		end
+		realm = gsub(realm, "%s", "") -- remove spaces
 		name = format("%s-%s", name, realm)
-	end
-	local first = strsub(name, 1, 1)
-	if strmatch(first, "%l") then
-		name = gsub(name, first, strupper, 1) -- capitalize first letter
 	end
 	return name
 end
