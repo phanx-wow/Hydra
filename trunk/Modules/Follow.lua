@@ -62,7 +62,7 @@ function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 				self:Print(L.FollowingYouStart, sender)
 			end
 			followers[sender] = GetTime()
-			if lastFollowing = sender then
+			if lastFollowing == sender then
 				-- Avoid recursion!
 				lastFollowing = nil
 			end
