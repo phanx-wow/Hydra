@@ -62,6 +62,10 @@ function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 				self:Print(L.FollowingYouStart, sender)
 			end
 			followers[sender] = GetTime()
+			if lastFollowing == sender then
+				-- Avoid recursion!
+				lastFollowing = nil
+			end
 
 		elseif message == "END" and followers[sender] then -- sender stopped following me
 			if GetTime() - followers[sender] > 2 then
