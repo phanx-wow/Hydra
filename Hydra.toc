@@ -34,11 +34,11 @@ Libs\PhanxConfig-KeyBinding\PhanxConfig-KeyBinding.lua
 Libs\PhanxConfig-OptionsPanel\PhanxConfig-OptionsPanel.lua
 Libs\PhanxConfig-Slider\PhanxConfig-Slider.lua
 
-Locales\Locale-enUS.lua
-Locales\Locale-esMX.lua
-Locales\Locale-frFR.lua
-Locales\Locale-koKR.lua
-Locales\Locale-ruRU.lua
+Locales\Locale-en.lua
+Locales\Locale-es.lua
+Locales\Locale-fr.lua
+Locales\Locale-ko.lua
+Locales\Locale-ru.lua
 
 Core.lua
 

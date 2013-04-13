@@ -20,12 +20,12 @@ local L = core.L
 local SOLO, PARTY, TRUSTED, LEADER = 0, 1, 2, 3
 local playerName = UnitName("player")
 
-local followers, following = { }
+local followers, following, lastFollowing = { }
 
 local module = core:RegisterModule("Follow", CreateFrame("Frame"))
 module:SetScript("OnEvent", function(f, e, ...) return f[e] and f[e](f, ...) end)
 
-module.defaults = { enable = true, verbose = true }
+module.defaults = { enable = true, refollowAfterCombat = false, verbose = true }
 
 ------------------------------------------------------------------------
 
@@ -39,6 +39,9 @@ function module:CheckState()
 		self:RegisterEvent("AUTOFOLLOW_BEGIN")
 		self:RegisterEvent("AUTOFOLLOW_END")
 		self:RegisterEvent("CHAT_MSG_ADDON")
+		if self.db.refollowAfterCombat then
+			self:RegisterEvent("PLAYER_REGEN_ENABLED")
+		end
 		if not IsAddonMessagePrefixRegistered("HydraCorpse") then
 			RegisterAddonMessagePrefix("HydraCorpse")
 		end
@@ -135,6 +138,7 @@ function module:AUTOFOLLOW_BEGIN(name)
 	self:Debug("Now following", name)
 	self:SendAddonMessage("HydraFollow", name, name)
 	following = name
+	lastFollowing = name
 end
 
 function module:AUTOFOLLOW_END()
@@ -142,6 +146,23 @@ function module:AUTOFOLLOW_END()
 	self:Debug("No longer following", following)
 	self:SendAddonMessage("HydraFollow", "END", following)
 	following = nil
+end
+
+function module:PLAYER_REGEN_ENABLED()
+	if not lastFollowing then
+		self:Debug("No target to re-follow")
+		return
+	end
+
+	if CheckInteractDistance(lastFollowing, 4) then
+		self:Debug("Refollowing", lastFollowing)
+		FollowUnit(lastFollowing)
+	else
+		if self.db.verbose then
+			self:Print(L.ReFollowTooFar, lastFollowing)
+			lastFollowing = nil
+		end
+	end
 end
 
 ------------------------------------------------------------------------
@@ -222,8 +243,15 @@ function module:SetupOptions(panel)
 		self.db.enable = checked
 	end
 
+	local refollow = CreateCheckbox(panel, L.RefollowAfterCombat, L.RefollowAfterCombat_Info)
+	refollow:SetPoint("TOPLEFT", enable, "BOTTOMLEFT", 0, -8)
+	refollow.OnClick = function(_, checked)
+		self.db.refollowAfterCombat = checked
+		self:CheckState()
+	end
+
 	local verbose = CreateCheckbox(panel, L.Verbose, L.Verbose_Info)
-	verbose:SetPoint("TOPLEFT", enable, "BOTTOMLEFT", 0, -8)
+	verbose:SetPoint("TOPLEFT", refollow, "BOTTOMLEFT", 0, -8)
 	verbose.OnClick = function(_, checked)
 		self.db.verbose = checked
 	end
@@ -260,6 +288,7 @@ function module:SetupOptions(panel)
 
 	panel.refresh = function()
 		enable:SetChecked(self.db.enable)
+		refollow:SetChecked(self.db.refollowAfterCombat)
 		verbose:SetChecked(self.db.verbose)
 		targeted:SetChecked(self.db.targetedFollowMe)
 		follow:RefreshValue()
