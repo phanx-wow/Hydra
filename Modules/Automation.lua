@@ -29,7 +29,7 @@ module.defaults = {
 	acceptSummons = true,
 	declineArenaTeams = true,
 	declineDuels = true,
-	declineGuilds = true,
+	declineGuilds = true, -- use GetAutoDeclineGuildInvites() == 1 instead
 	repairEquipment = true,
 	repairWithGuildFunds = false,
 	sellJunk = true,
@@ -51,13 +51,13 @@ function module:CheckState()
 	if self.db.declineDuels then
 		self:RegisterEvent("DUEL_REQUESTED")
 	end
-	if self.db.declineGuilds then
+	if GetAutoDeclineGuildInvites() == 1 then
 		self:RegisterEvent("GUILD_INVITE_REQUEST")
 	end
 	if self.db.repairEquipment or self.db.sellJunk then
 		self:RegisterEvent("MERCHANT_SHOW")
 	end
-	if self.db.declineArenaTeams or self.db.declineGuilds then
+	if self.db.declineArenaTeams or GetAutoDeclineGuildInvites() == 1 then
 		self:RegisterEvent("PETITION_SHOW")
 	end
 	if self.db.acceptResurrections then
@@ -79,7 +79,7 @@ function module:PETITION_SHOW()
 		if type == "arena" and self.db.declineArenaTeams then
 			self:Print(L.DeclinedArenaPetition, sender)
 			ClosePetition()
-		elseif type == "guild" and self.db.declineGuilds then
+		elseif type == "guild" and GetAutoDeclineGuildInvites() == 1 then
 			self:Print(L.DeclinedGuildPetition, sender)
 			ClosePetition()
 		end
@@ -221,8 +221,10 @@ function module:SetupOptions(panel)
 
 	local declineGuilds = panel:CreateCheckbox(L.DeclineGuilds, L.DeclineGuilds_Info)
 	declineGuilds:SetPoint("TOPLEFT", declineDuels, "BOTTOMLEFT", 0, -8)
-	declineGuilds.OnClick = OnClick
-	declineGuilds.key = "declineGuilds"
+	declineGuilds.OnClick = function(self, checked)
+		SetAutoDeclineGuildInvites(checked and 1 or 0)
+		module:CheckState()
+	end
 
 	local declineArenaTeams = panel:CreateCheckbox(L.DeclineArenas, L.DeclineArenas_Info)
 	declineArenaTeams:SetPoint("TOPLEFT", declineGuilds, "BOTTOMLEFT", 0, -8)
@@ -270,7 +272,7 @@ function module:SetupOptions(panel)
 	function panel:refresh()
 		declineDuels:SetChecked(module.db.declineDuels)
 		declineArenaTeams:SetChecked(module.db.declineArenaTeams)
-		declineGuilds:SetChecked(module.db.declineGuilds)
+		declineGuilds:SetChecked(GetAutoDeclineGuildInvites() == 1)
 		acceptSummons:SetChecked(module.db.acceptSummons)
 		acceptResurrections:SetChecked(module.db.acceptResurrections)
 		acceptResurrectionsInCombat:SetChecked(module.db.acceptResurrectionsInCombat)
