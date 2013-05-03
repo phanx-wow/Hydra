@@ -39,9 +39,44 @@ module:SetScript("OnEvent", function(f, e, ...) return f[e] and f[e](f, ...) end
 module.defaults = { enable = true, accept = true, acceptOnlyShared = false, turnin = true, share = true, abandon = true }
 
 ------------------------------------------------------------------------
+--	No API to see if a repeatable quest can be completed. :(
+
+local repeatableQuestComplete = {
+	-- Replenishing the Pantry
+	[64395] = function() return GetItemCount(87557) >= 1 end, -- Bundle of Groceries
+	-- Seeds of Fear
+	[64599] = function() return GetItemCount(87903) >= 6 end, -- Dread Amber Shards
+}
+
+------------------------------------------------------------------------
+--	These quests are not automated as they provide suboptimal rewards.
+
+local ignoreQuests = {
+	30382, 30419, 30425, 30388, 30412, 30437, 30406, 30431, -- Blue Feather
+	30399, 30418, 30387, 30411, 30436, 30939, 30405, 30430, -- Jade Cat
+	30398, 30189, 30417, 30423, 30380, 30410, 30392, 30429, -- Lovely Apple
+	30401, 30383, 30426, 30413, 30438, 30395, 30407, 30432, -- Marsh Lily
+	30397, 30160, 30416, 30422, 30379, 30434, 30391, 30403, -- Ruby Shard
+}
+
+------------------------------------------------------------------------
 
 function module:CheckState()
+	for k, v in pairs(ignoreQuests) do
+		if type(k) == "number" then
+			GameTooltip:SetOwner(UIParent, "ANCHOR_NONE")
+			GameTooltip:SetHyperlink(format("quest:%d", k))
+			v = GameTooltipTextLeft1:GetText()
+			GameTooltip:Hide()
+			if v then
+				ignoreQuests[v] = k
+				ignoreQuests[k] = nil
+			end
+		end
+	end
+
 	self:UnregisterAllEvents()
+
 	if self.db.enable then
 		self:Debug("Enable module: Quest")
 
@@ -135,18 +170,6 @@ local function IsTrackingTrivial()
 	end
 end
 
-local function GetGossipAvailableQuestTitle(i)
-	return (select(((i * 6) - 6) + 1, GetGossipAvailableQuests()))
-end
-
-local function IsGossipAvailableQuestTrivial(i)
-	return not not select(((i * 6) - 6) + 3, GetGossipAvailableQuests())
-end
-
-local function IsGossipActiveQuestCompleted(i)
-	return not not select(((i * 5) - 5) + 4, GetGossipActiveQuests())
-end
-
 function module:GOSSIP_SHOW()
 	self:Debug("GOSSIP_SHOW")
 	if IsShiftKeyDown() then return end
@@ -154,8 +177,9 @@ function module:GOSSIP_SHOW()
 	-- Turn in complete quests:
 	if self.db.turnin then
 		for i = 1, GetNumGossipActiveQuests() do
-			if IsGossipActiveQuestCompleted(i) then
-				SelectGossipActiveQuest(i)
+			local title, level, isLowLevel, isComplete, isLegendary = select(i * 5 - 4, GetGossipActiveQuests())
+			if isComplete and not ignoreQuests[title] then
+				return SelectGossipActiveQuest(i)
 			end
 		end
 	end
@@ -163,13 +187,19 @@ function module:GOSSIP_SHOW()
 	-- Pick up available quests:
 	for i = 1, GetNumGossipAvailableQuests() do
 		local go
-		if self.db.acceptOnlyShared then
-			go = accept[strlower(GetGossipAvailableQuestTitle(i))]
-		elseif self.db.accept then
-			go = not IsGossipAvailableQuestTrivial(i) or IsTrackingTrivial()
-		end
-		if go then
-			SelectGossipAvailableQuest(i)
+		local title, level, isLowLevel, isDaily, isRepeatable, isLegendary = select(i * 6 - 5, GetGossipAvailableQuests())
+		if not ignoreQuests[title] then
+			if isRepeatable then
+				local giver = tonumber(strsub(UnitGUID("npc"), 6, 10), 16)
+				go = not repeatableQuestComplete[giver] or repeatableQuestComplete[giver]()
+			elseif self.db.acceptOnlyShared then
+				go = accept[strlower(title)]
+			elseif self.db.accept then
+				go = not isLowLevel or IsTrackingTrivial()
+			end
+			if go then
+				return SelectGossipAvailableQuest(i)
+			end
 		end
 	end
 end
@@ -182,7 +212,7 @@ function module:QUEST_GREETING()
 	if self.db.turnin then
 		for i = 1, GetNumActiveQuests() do
 			local title, complete = GetActiveTitle(i)
-			if complete then
+			if complete and not ignoreQuests[title] then
 				self:Debug("Selecting complete quest", strip(title))
 				SelectActiveQuest(i)
 			end
@@ -201,7 +231,7 @@ function module:QUEST_GREETING()
 				go = not IsAvailableQuestTrivial(i) or not IsTrackingTrivial()
 			end
 
-			if go then
+			if go and not ignoreQuests[title] then
 				self:Debug("Selecting available quest", (GetActiveTitle(i)))
 				SelectAvailableQuest(i)
 			end
@@ -235,7 +265,7 @@ function module:QUEST_DETAIL()
 			end
 		end
 
-		if go then
+		if go and not ignoreQuests[title] then
 			self:Debug("Accepting quest", quest, "from", giver)
 			AcceptQuest()
 		end
@@ -254,7 +284,7 @@ function module:QUEST_ACCEPT_CONFIRM(giver, quest)
 		go = true
 	end
 
-	if go then
+	if go and not ignoreQuests[title] then
 		self:Debug("Accepting quest", quest, "from", giver)
 		AcceptQuest()
 	end
