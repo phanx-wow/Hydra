@@ -39,42 +39,79 @@ module:SetScript("OnEvent", function(f, e, ...) return f[e] and f[e](f, ...) end
 module.defaults = { enable = true, accept = true, acceptOnlyShared = false, turnin = true, share = true, abandon = true }
 
 ------------------------------------------------------------------------
---	No API to see if a repeatable quest can be completed. :(
+
+local function GetQuestName(id)
+	GameTooltip:SetOwner(UIParent, "ANCHOR_NONE")
+	GameTooltip:SetHyperlink(format("quest:%d", id))
+	local name = GameTooltipTextLeft1:GetText()
+	GameTooltip:Hide()
+	return name or UNKNOWN
+end
+
+------------------------------------------------------------------------
+--	No API to see if a repeatable quest can be completed.
 
 local repeatableQuestComplete = {
 	-- Replenishing the Pantry
-	[64395] = function() return GetItemCount(87557) >= 1 end, -- Bundle of Groceries
+	[GetQuestName(31535)] = function() return GetItemCount(87557) >= 1 end, -- Bundle of Groceries
 	-- Seeds of Fear
-	[64599] = function() return GetItemCount(87903) >= 6 end, -- Dread Amber Shards
+	[GetQuestName(31603)] = function() return GetItemCount(87903) >= 6 end, -- Dread Amber Shards
 }
 
 ------------------------------------------------------------------------
 --	These quests are not automated as they provide suboptimal rewards.
 
-local ignoreQuests = {
-	30382, 30419, 30425, 30388, 30412, 30437, 30406, 30431, -- Blue Feather
-	30399, 30418, 30387, 30411, 30436, 30939, 30405, 30430, -- Jade Cat
-	30398, 30189, 30417, 30423, 30380, 30410, 30392, 30429, -- Lovely Apple
-	30401, 30383, 30426, 30413, 30438, 30395, 30407, 30432, -- Marsh Lily
-	30397, 30160, 30416, 30422, 30379, 30434, 30391, 30403, -- Ruby Shard
+local ignoredQuests = {
+	-- Blue Feather
+	[GetQuestName(30382)] = true,
+	[GetQuestName(30419)] = true,
+	[GetQuestName(30425)] = true,
+	[GetQuestName(30388)] = true,
+	[GetQuestName(30412)] = true,
+	[GetQuestName(30437)] = true,
+	[GetQuestName(30406)] = true,
+	[GetQuestName(30431)] = true,
+	-- Jade Cat
+	[GetQuestName(30399)] = true,
+	[GetQuestName(30418)] = true,
+	[GetQuestName(30387)] = true,
+	[GetQuestName(30411)] = true,
+	[GetQuestName(30436)] = true,
+	[GetQuestName(30393)] = true,
+	[GetQuestName(30405)] = true,
+	[GetQuestName(30430)] = true,
+	-- Lovely Apple
+	[GetQuestName(30398)] = true,
+	[GetQuestName(30189)] = true,
+	[GetQuestName(30417)] = true,
+	[GetQuestName(30423)] = true,
+	[GetQuestName(30380)] = true,
+	[GetQuestName(30410)] = true,
+	[GetQuestName(30392)] = true,
+	[GetQuestName(30429)] = true,
+	-- Marsh Lily
+	[GetQuestName(30401)] = true,
+	[GetQuestName(30383)] = true,
+	[GetQuestName(30426)] = true,
+	[GetQuestName(30413)] = true,
+	[GetQuestName(30438)] = true,
+	[GetQuestName(30395)] = true,
+	[GetQuestName(30407)] = true,
+	[GetQuestName(30432)] = true,
+	-- Ruby Shard
+	[GetQuestName(30397)] = true,
+	[GetQuestName(30160)] = true,
+	[GetQuestName(30416)] = true,
+	[GetQuestName(30422)] = true,
+	[GetQuestName(30379)] = true,
+	[GetQuestName(30434)] = true,
+	[GetQuestName(30391)] = true,
+	[GetQuestName(30403)] = true,
 }
 
 ------------------------------------------------------------------------
 
 function module:CheckState()
-	for k, v in pairs(ignoreQuests) do
-		if type(k) == "number" then
-			GameTooltip:SetOwner(UIParent, "ANCHOR_NONE")
-			GameTooltip:SetHyperlink(format("quest:%d", k))
-			v = GameTooltipTextLeft1:GetText()
-			GameTooltip:Hide()
-			if v then
-				ignoreQuests[v] = k
-				ignoreQuests[k] = nil
-			end
-		end
-	end
-
 	self:UnregisterAllEvents()
 
 	if self.db.enable then
@@ -103,16 +140,6 @@ function module:CheckState()
 	else
 		self:Debug("Quest module disabled.")
 	end
-end
-
-------------------------------------------------------------------------
-
-local function strip(text)
-	if not text then return "" end
-	text = gsub(text, "%[.*%]%s*","")
-	text = gsub(text, "|c%x%x%x%x%x%x%x%x(.+)|r","%1")
-	text = gsub(text, "(.+) %(.+%)", "%1")
-	return strtrim(text)
 end
 
 ------------------------------------------------------------------------
@@ -161,6 +188,14 @@ end
 --	Accept quests accepted by other party members
 ------------------------------------------------------------------------
 
+local function StripTitle(text)
+	if not text then return "" end
+	text = gsub(text, "%[.*%]%s*","")
+	text = gsub(text, "|c%x%x%x%x%x%x%x%x(.+)|r","%1")
+	text = gsub(text, "(.+) %(.+%)", "%1")
+	return strtrim(text)
+end
+
 local function IsTrackingTrivial()
 	for i = 1, GetNumTrackingTypes() do
 		local name, _, active = GetTrackingInfo(i)
@@ -178,7 +213,7 @@ function module:GOSSIP_SHOW()
 	if self.db.turnin then
 		for i = 1, GetNumGossipActiveQuests() do
 			local title, level, isLowLevel, isComplete, isLegendary = select(i * 5 - 4, GetGossipActiveQuests())
-			if isComplete and not ignoreQuests[title] then
+			if isComplete and not ignoredQuests[title] then
 				return SelectGossipActiveQuest(i)
 			end
 		end
@@ -188,10 +223,9 @@ function module:GOSSIP_SHOW()
 	for i = 1, GetNumGossipAvailableQuests() do
 		local go
 		local title, level, isLowLevel, isDaily, isRepeatable, isLegendary = select(i * 6 - 5, GetGossipAvailableQuests())
-		if not ignoreQuests[title] then
-			if isRepeatable then
-				local giver = tonumber(strsub(UnitGUID("npc"), 6, 10), 16)
-				go = not repeatableQuestComplete[giver] or repeatableQuestComplete[giver]()
+		if not ignoredQuests[title] then
+			if isRepeatable and repeatableQuestComplete[title] then
+				go = repeatableQuestComplete[title]()
 			elseif self.db.acceptOnlyShared then
 				go = accept[strlower(title)]
 			elseif self.db.accept then
@@ -212,8 +246,8 @@ function module:QUEST_GREETING()
 	if self.db.turnin then
 		for i = 1, GetNumActiveQuests() do
 			local title, complete = GetActiveTitle(i)
-			if complete and not ignoreQuests[title] then
-				self:Debug("Selecting complete quest", strip(title))
+			if complete and not ignoredQuests[title] then
+				self:Debug("Selecting complete quest", StripTitle(title))
 				SelectActiveQuest(i)
 			end
 		end
@@ -222,18 +256,18 @@ function module:QUEST_GREETING()
 	-- Pick up available quests:
 	if self.db.accept then
 		for i = 1, GetNumAvailableQuests() do
-			local title = strip(GetActiveTitle(i))
-
-			local go
-			if self.db.acceptOnlyShared then
-				go = accept[strlower(title)]
-			else
-				go = not IsAvailableQuestTrivial(i) or not IsTrackingTrivial()
-			end
-
-			if go and not ignoreQuests[title] then
-				self:Debug("Selecting available quest", (GetActiveTitle(i)))
-				SelectAvailableQuest(i)
+			local title = StripTitle(GetActiveTitle(i))
+			if not not ignoredQuests[title] then
+				local go
+				if self.db.acceptOnlyShared then
+					go = accept[strlower(title)]
+				else
+					go = not IsAvailableQuestTrivial(i) or not IsTrackingTrivial()
+				end
+				if go then
+					self:Debug("Selecting available quest", (GetActiveTitle(i)))
+					SelectAvailableQuest(i)
+				end
 			end
 		end
 	end
@@ -243,7 +277,7 @@ function module:QUEST_DETAIL()
 	self:Debug("QUEST_DETAIL")
 	if IsShiftKeyDown() then return end
 
-	local quest = strip(GetTitleText())
+	local quest = StripTitle(GetTitleText())
 	local giver = UnitName("questnpc")
 
 	if QuestGetAutoAccept() then
@@ -265,7 +299,7 @@ function module:QUEST_DETAIL()
 			end
 		end
 
-		if go and not ignoreQuests[title] then
+		if go then
 			self:Debug("Accepting quest", quest, "from", giver)
 			AcceptQuest()
 		end
@@ -284,7 +318,7 @@ function module:QUEST_ACCEPT_CONFIRM(giver, quest)
 		go = true
 	end
 
-	if go and not ignoreQuests[title] then
+	if go then
 		self:Debug("Accepting quest", quest, "from", giver)
 		AcceptQuest()
 	end
@@ -318,7 +352,7 @@ function module:QUEST_PROGRESS()
 	if not self.db.turnin or IsShiftKeyDown() then return end
 
 	if IsQuestCompletable() then
-		self:Debug("Completing quest", strip(GetTitleText()))
+		self:Debug("Completing quest", StripTitle(GetTitleText()))
 		CompleteQuest()
 	end
 end
@@ -364,7 +398,7 @@ function module:QUEST_COMPLETE(source)
 			_G["QuestInfoItem"..bestID]:Click()
 		end
 	else
-		self:Debug("Completing quest", strip(GetTitleText()), choices == 1 and "with only reward" or "with no reward")
+		self:Debug("Completing quest", StripTitle(GetTitleText()), choices == 1 and "with only reward" or "with no reward")
 		GetQuestReward(1)
 	end
 end
