@@ -64,6 +64,7 @@ function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 			followers[sender] = GetTime()
 			if lastFollowing == sender then
 				-- Avoid recursion!
+				self:Debug("Last follower now following. Avoid recursion!")
 				lastFollowing = nil
 			end
 
@@ -197,7 +198,7 @@ function SlashCmdList.HYDRA_FOLLOWME(names)
 	end
 
 	local target, targetRealm = UnitName("target")
-	local trusted = core:IsTrusted(target, targetRealm)
+	local trusted = target and core:IsTrusted(target, targetRealm)
 	if target and module.db.targetedFollowMe and trusted and (UnitInParty(trusted) or UnitInRaid(trusted)) then
 		module:Debug("Sending follow command to target:", trusted)
 		module:SendAddonMessage("HydraFollow", "ME", trusted)
