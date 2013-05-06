@@ -56,7 +56,7 @@ function core:SendAddonMessage(prefix, message, target)
 	if target then
 		return SendAddonMessage(prefix, message, "WHISPER", target)
 	end
-	local channel = IsPartyLFG() and "INSTANCE_CHAT" or IsInRaid() and "RAID" or IsInGroup() and "PARTY"
+	local channel = IsInGroup(LE_PARTY_CATEGORY_INSTANCE) and "INSTANCE_CHAT" or IsInRaid() and "RAID" or IsInGroup() and "PARTY"
 	if channel then
 		return SendAddonMessage(prefix, message, channel)
 	end
@@ -69,7 +69,7 @@ function core:SendChatMessage(message, channel, target)
 	if target then
 		return SendChatMessage(message, "WHISPER", nil, target)
 	end
-	local channel = IsPartyLFG() and "INSTANCE_CHAT" or IsInRaid() and "RAID" or IsInGroup() and "PARTY"
+	local channel = IsInGroup(LE_PARTY_CATEGORY_INSTANCE) and "INSTANCE_CHAT" or IsInRaid() and "RAID" or IsInGroup() and "PARTY"
 	if channel then
 		return SendChatMessage(message, channel)
 	end
