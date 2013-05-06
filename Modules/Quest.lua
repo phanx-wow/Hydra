@@ -246,8 +246,10 @@ function module:QUEST_GREETING()
 	if self.db.turnin then
 		for i = 1, GetNumActiveQuests() do
 			local title, complete = GetActiveTitle(i)
+			title = StripTitle(title)
+			self:Debug("Checking active quest:", title)
 			if complete and not ignoredQuests[title] then
-				self:Debug("Selecting complete quest", StripTitle(title))
+				self:Debug("Selecting complete quest", title)
 				SelectActiveQuest(i)
 			end
 		end
@@ -256,8 +258,9 @@ function module:QUEST_GREETING()
 	-- Pick up available quests:
 	if self.db.accept then
 		for i = 1, GetNumAvailableQuests() do
-			local title = StripTitle(GetActiveTitle(i))
-			if not not ignoredQuests[title] then
+			local title = StripTitle(GetAvailableTitle(i))
+			self:Debug("Checking available quest:", title)
+			if not ignoredQuests[title] then
 				local go
 				if self.db.acceptOnlyShared then
 					go = accept[strlower(title)]
