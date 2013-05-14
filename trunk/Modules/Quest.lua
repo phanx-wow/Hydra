@@ -107,6 +107,13 @@ local ignoredQuests = {
 	[GetQuestName(30434)] = true,
 	[GetQuestName(30391)] = true,
 	[GetQuestName(30403)] = true,
+	-- Work Order
+	[GetQuestName(32642)] = true,
+	[GetQuestName(32647)] = true,
+	[GetQuestName(32645)] = true,
+	[GetQuestName(32649)] = true,
+	[GetQuestName(32653)] = true,
+	[GetQuestName(32658)] = true,
 }
 
 ------------------------------------------------------------------------
@@ -223,15 +230,20 @@ function module:GOSSIP_SHOW()
 	for i = 1, GetNumGossipAvailableQuests() do
 		local go
 		local title, level, isLowLevel, isDaily, isRepeatable, isLegendary = select(i * 6 - 5, GetGossipAvailableQuests())
+		self:Debug(i, title, isLowLevel, isRepeatable)
 		if not ignoredQuests[title] then
 			if isRepeatable and repeatableQuestComplete[title] then
 				go = repeatableQuestComplete[title]()
+				self:Debug("Repeatable", go)
 			elseif self.db.acceptOnlyShared then
 				go = accept[strlower(title)]
+				self:Debug("Shared", go)
 			elseif self.db.accept then
 				go = not isLowLevel or IsTrackingTrivial()
+				self:Debug("Accept", go)
 			end
 			if go then
+				self:Debug("Go!")
 				return SelectGossipAvailableQuest(i)
 			end
 		end
@@ -334,17 +346,6 @@ function module:QUEST_ACCEPTED(id)
 		AddQuestWatch(id)
 	end
 end
-
-------------------------------------------------------------------------
---	Start quests from items
-------------------------------------------------------------------------
-
-local ignoreItems = {
-	[79340] = true, -- Inscribed Crane Staff
-	[79341] = true, -- Inscribed Serpent Staff
-	[79343] = true, -- Inscribed Tiger Staff
-	[74034] = true, -- Pit Fighter
-}
 
 ------------------------------------------------------------------------
 --	Turn in completed quests
