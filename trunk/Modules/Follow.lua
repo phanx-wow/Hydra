@@ -46,89 +46,86 @@ end
 ------------------------------------------------------------------------
 
 function module:RecieveAddonMessage(message, channel, sender)
-		if message == playerName then -- sender is following me
-			if self.db.verbose then
-				self:Print(L.FollowingYouStart, sender)
-			end
-			followers[sender] = GetTime()
-			if lastFollowing == sender then
-				-- Avoid recursion!
-				self:Debug("Last follower now following. Avoid recursion!")
-				lastFollowing = nil
-			end
-
-		elseif message == "END" then
-			if followers[sender] then -- sender stopped following me
-				if GetTime() - followers[sender] > 2 then
-					if self.db.verbose then
-						self:Print(L.FollowingYouStop, sender)
-					end
-					if not CheckInteractDistance(sender, 2) and not UnitOnTaxi("player") then
-						self:Alert(format(L.FollowingYouStop, sender))
-					end
-				end
-				followers[sender] = nil
-			end
-
-		elseif message == "ME" then
-			if core:IsTrusted(sender) and self.db.enable then -- sender wants me to follow them
-				if CheckInteractDistance(sender, 4) then
-					self:Debug(sender, "has sent a follow request.")
-					FollowUnit(sender)
-				else
-					if self.db.verbose then
-						self:Print(L.FollowTooFar, sender)
-					end
-				end
-			end
-
-		elseif message == "RELEASE" then
-			if UnitIsDead("player") and not UnitIsGhost("player") then
-				local ss = HasSoulstone()
-				if ss then
-					if ss == L.UseSoulstone then
-						self:SendAddonMessage("SS")
-					elseif ss == L.Reincarnate then
-						self:SendAddonMessage("REINC")
-					else -- probably "Twisting Nether"
-						self:SendAddonMessage("SELFRES")
-					end
-				else
-					RepopMe()
-				end
-			end
-
-		elseif message == "ACCEPT" then
-			if UnitIsGhost("player") then
-				RetrieveCorpse()
-			elseif HasSoulstone() then
-				UseSoulstone()
-			end
-			if CannotBeResurrected() then
-				self:SendAddonMessage("NORES")
-			else
-				local delay = GetCorpseRecorveryDelay()
-				if delay and delay > 0 then
-					self:SendAddonMessage("WAIT " .. delay)
-				end
-			end
-
-		elseif strmatch(message, "^WAIT ") then
-			local delay = strmatch(message, "%d+")
-			self:Print(L.CantResDelay, sender, delay)
-
-		elseif message == "NORES" then
-			self:Print(L.CantRes, sender)
-
-		elseif message == "SS" then
-			self:Print(L.CanUseSoulstone, sender)
-
-		elseif message == "REINC" then
-			self:Print(L.CanReincarnate, sender)
-
-		elseif message == "SELFRES" then
-			self:Print(L.CanSelfRes, sender)
+	if message == playerName then -- sender is following me
+		if self.db.verbose then
+			self:Print(L.FollowingYouStart, sender)
 		end
+		followers[sender] = GetTime()
+		if lastFollowing == sender then
+			-- Avoid recursion!
+			self:Debug("Last follower now following. Avoid recursion!")
+			lastFollowing = nil
+		end
+
+	elseif message == "END" then
+		if followers[sender] then -- sender stopped following me
+			if GetTime() - followers[sender] > 2 then
+				if self.db.verbose then
+					self:Print(L.FollowingYouStop, sender)
+				end
+				if not CheckInteractDistance(sender, 2) and not UnitOnTaxi("player") then
+					self:Alert(format(L.FollowingYouStop, sender))
+				end
+			end
+			followers[sender] = nil
+		end
+
+	elseif message == "ME" then
+		if core:IsTrusted(sender) and self.db.enable then -- sender wants me to follow them
+			if CheckInteractDistance(sender, 4) then
+				self:Debug(sender, "has sent a follow request.")
+				FollowUnit(sender)
+			else
+				if self.db.verbose then
+					self:Print(L.FollowTooFar, sender)
+				end
+			end
+		end
+
+	elseif message == "RELEASE" then
+		if UnitIsDead("player") and not UnitIsGhost("player") then
+			local ss = HasSoulstone()
+			if not ss then
+				RepopMe()
+			elseif ss == L.UseSoulstone then
+				self:SendAddonMessage("SS")
+			elseif ss == L.Reincarnate then
+				self:SendAddonMessage("REINC")
+			else -- probably "Twisting Nether"
+				self:SendAddonMessage("SELFRES")
+			end
+		end
+
+	elseif message == "ACCEPT" then
+		if UnitIsGhost("player") then
+			RetrieveCorpse()
+		elseif HasSoulstone() then
+			UseSoulstone()
+		end
+		if CannotBeResurrected() then
+			self:SendAddonMessage("NORES")
+		else
+			local delay = GetCorpseRecorveryDelay()
+			if delay and delay > 0 then
+				self:SendAddonMessage("WAIT " .. delay)
+			end
+		end
+
+	elseif strmatch(message, "^WAIT ") then
+		local delay = strmatch(message, "%d+")
+		self:Print(L.CantResDelay, sender, delay)
+
+	elseif message == "NORES" then
+		self:Print(L.CantRes, sender)
+
+	elseif message == "SS" then
+		self:Print(L.CanUseSoulstone, sender)
+
+	elseif message == "REINC" then
+		self:Print(L.CanReincarnate, sender)
+
+	elseif message == "SELFRES" then
+		self:Print(L.CanSelfRes, sender)
 	end
 end
 
