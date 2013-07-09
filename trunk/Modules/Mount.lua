@@ -29,11 +29,7 @@ module.defaults = { mount = true, dismount = true }
 function module:CheckState()
 	if core.state > SOLO and (self.db.mount or self.db.dismount) then
 		self:Debug("Enable module: Mount")
-		self:RegisterEvent("CHAT_MSG_ADDON")
 		self:RegisterEvent("UNIT_SPELLCAST_SENT")
-		if not IsAddonMessagePrefixRegistered("HydraMount") then
-			RegisterAddonMessagePrefix("HydraMount")
-		end
 	else
 		self:Debug("Disable module: Mount")
 		self:UnregisterAllEvents()
@@ -42,9 +38,9 @@ end
 
 ------------------------------------------------------------------------
 
-function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
-	if prefix ~= "HydraMount" or sender == playerName or not core:IsTrusted(sender) then return end
-	self:Debug("CHAT_MSG_ADDON", prefix, message, channel, sender)
+function module:ReceiveAddonMessage(message, channel, sender)
+	if not core:IsTrusted(sender) or not UnitInParty(sender) or not UnitInRaid(sender) then return end
+	self:Debug("ReceiveAddonMessage", message, channel, sender)
 
 	if message == "ERROR" then
 		self:Print("ERROR: " .. L.MountMissing, sender)
@@ -117,7 +113,7 @@ function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
 		return
 	end
 
-	self:SendAddonMessage("HydraMount", "ERROR")
+	self:SendAddonMessage("ERROR")
 	responding = nil
 end
 
@@ -129,7 +125,7 @@ function module:UNIT_SPELLCAST_SENT(unit, spell)
 		local _, name, id = GetCompanionInfo("MOUNT", i)
 		if name == spell or GetSpellInfo(id) == spell then -- stupid paladin mount summon spell doesn't match companion name
 			self:Debug("Summoning mount", name, id)
-			self:SendAddonMessage("HydraMount", id .. " " .. name)
+			self:SendAddonMessage(id .. " " .. name)
 		end
 	end
 end
@@ -139,14 +135,14 @@ hooksecurefunc("CallCompanion", function(type, i)
 	if type == "MOUNT" then
 		local _, name, id = GetCompanionInfo(type, i)
 		module:Debug("CallCompanion", type, i, name, id)
-		module:SendAddonMessage("HydraMount", id .. " " .. name)
+		module:SendAddonMessage(id .. " " .. name)
 	end
 end)
 
 hooksecurefunc("Dismount", function()
 	if responding or core.state == SOLO then return end
 	module:Debug("Dismount")
-	module:SendAddonMessage("HydraMount", "DISMOUNT")
+	module:SendAddonMessage("DISMOUNT")
 end)
 
 ------------------------------------------------------------------------

@@ -32,19 +32,15 @@ function module:CheckState()
 		self:UnregisterAllEvents()
 	else
 		self:Debug("Enable module: Taxi")
-		self:RegisterEvent("CHAT_MSG_ADDON")
 		self:RegisterEvent("TAXIMAP_OPENED")
-		if not IsAddonMessagePrefixRegistered("HydraTaxi") then
-			RegisterAddonMessagePrefix("HydraTaxi")
-		end
 	end
 	taxiNode, taxiNodeName, taxiTime = nil, nil, 0
 end
 
 ------------------------------------------------------------------------
 
-function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
-	if prefix ~= "HydraTaxi" or sender == playerName or not core:IsTrusted(sender) then return end
+function module:ReceiveAddonMessage(message, channel, sender)
+	if not core:IsTrusted(sender) then return end
 	self:Debug("Comm received from", sender, "->", message)
 
 	if message == "TIMEOUT" then
@@ -66,7 +62,7 @@ function module:TAXIMAP_OPENED()
 
 	if GetTime() - taxiTime > self.db.timeout then
 		taxiNode, taxiNodeName, taxiTime = nil, nil, 0
-		return self:SendAddonMessage("HydraTaxi", "TIMEOUT")
+		return self:SendAddonMessage("TIMEOUT")
 	end
 
 	if TaxiNodeName(taxiNode) ~= taxiNodeName then
@@ -79,7 +75,7 @@ function module:TAXIMAP_OPENED()
 		end
 		if not found then
 			taxiNode, taxiNodeName, taxiTime = nil, nil, 0
-			return self:SendAddonMessage("HydraTaxi", "MISMATCH")
+			return self:SendAddonMessage("MISMATCH")
 		end
 	end
 
@@ -95,7 +91,7 @@ hooksecurefunc("TakeTaxiNode", function(i)
 	if IsShiftKeyDown() then return end -- we're doing something else
 	local name = TaxiNodeName(i)
 	module:Debug("Broadcasting taxi node", i, name)
-	module:SendAddonMessage("HydraTaxi", i .. " " .. name)
+	module:SendAddonMessage(i .. " " .. name)
 end)
 
 ------------------------------------------------------------------------

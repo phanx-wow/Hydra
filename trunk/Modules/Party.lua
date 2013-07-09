@@ -33,11 +33,7 @@ module.defaults = { enable = true }
 function module:CheckState()
 	if self.db.enable then
 		self:Debug("Enable module: Group")
-		self:RegisterEvent("CHAT_MSG_ADDON")
 		self:RegisterEvent("PARTY_INVITE_REQUEST")
-		if not IsAddonMessagePrefixRegistered("HydraGroup") then
-			RegisterAddonMessagePrefix("HydraGroup")
-		end
 	else
 		self:Debug("Disable module: Group")
 		self:UnregisterAllEvents()
@@ -46,8 +42,8 @@ end
 
 ------------------------------------------------------------------------
 
-function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
-	if prefix ~= "HydraGroup" or sender == playerName then return end
+function module:ReceiveAddonMessage(message, channel, sender)
+	self:Debug("ReceiveAddonMessage", message, channel, sender)
 
 	if message:match("INVITE") and channel == "WHISPER" then
 		if not core:IsTrusted(sender) then
@@ -148,7 +144,7 @@ SlashCmdList.HYDRA_INVITEME = function(name)
 
 	if core:IsTrusted(name) then
 		module:Debug("INVITEME", trusted, nopromote)
-		module:SendAddonMessage("HydraGroup", nopromote and "INVITE" or "INVITEANDPROMOTE", "WHISPER", trusted)
+		module:SendAddonMessage(nopromote and "INVITE" or "INVITEANDPROMOTE", "WHISPER", trusted)
 	end
 end
 
@@ -165,7 +161,7 @@ SlashCmdList.HYDRA_PROMOTEME = function()
 	if GetNumGroupMembers() == 0 then return end
 
 	module:Debug("PROMOTEME")
-	module:SendAddonMessage("HydraGroup", "PROMOTE")
+	module:SendAddonMessage("PROMOTE")
 end
 
 ------------------------------------------------------------------------
