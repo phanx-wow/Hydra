@@ -55,7 +55,6 @@ function module:CheckState()
 			self:Show()
 		end
 
-		self:RegisterEvent("CHAT_MSG_ADDON")
 		self:RegisterEvent("CHAT_MSG_GROUP")
 		self:RegisterEvent("CHAT_MSG_GROUP_LEADER")
 		self:RegisterEvent("CHAT_MSG_RAID")
@@ -63,10 +62,6 @@ function module:CheckState()
 		self:RegisterEvent("CHAT_MSG_SYSTEM")
 		self:RegisterEvent("CHAT_MSG_WHISPER")
 		self:RegisterEvent("CHAT_MSG_BN_WHISPER")
-
-		if not IsAddonMessagePrefixRegistered("HydraChat") then
-			RegisterAddonMessagePrefix("HydraChat")
-		end
 	end
 end
 
@@ -176,7 +171,7 @@ function module:CHAT_MSG_WHISPER(message, sender, _, _, _, flag, _, _, _, _, _, 
 		self:Debug("active", active)
 		if not active then -- someone outside the group whispered me
 			if flag == "GM" then
-				self:SendAddonMessage("HydraChat", format("GM |cff00ccff%s|r %s", sender, message))
+				self:SendAddonMessage(format("GM |cff00ccff%s|r %s", sender, message))
 				self:SendChatMessage(format(">> GM %s: %s", sender, message))
 
 			else
@@ -199,7 +194,7 @@ function module:CHAT_MSG_WHISPER(message, sender, _, _, _, flag, _, _, _, _, _, 
 						color = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[class]
 					end
 				end
-				self:SendAddonMessage("HydraChat", format("W %s %s", (color and format("\124cff%02x%02x%02x%s\124r", color.r * 255, color.g * 255, color.b * 255, sender) or sender), message))
+				self:SendAddonMessage(format("W %s %s", (color and format("\124cff%02x%02x%02x%s\124r", color.r * 255, color.g * 255, color.b * 255, sender) or sender), message))
 				self:SendChatMessage(format(">> %s: %s", sender, message))
 			end
 		end
@@ -211,12 +206,12 @@ end
 function module:CHAT_MSG_BN_WHISPER(message, sender, _, _, _, _, _, _, _, _, _, _, pID)
 	self:Debug("CHAT_MSG_BN_WHISPER", sender, pID, message)
 	local _, _, battleTag = BNGetFriendInfoByID(pID)
-	self:SendAddonMessage("HydraChat", strjoin("§", "BW", battleTag, message))
+	self:SendAddonMessage(strjoin("§", "BW", battleTag, message))
 end
 
 function module:CHAT_MSG_BN_CONVERSATION(message, sender, _, channel, _, _, _, channelNumber, _, _, _, _, pID)
 	self:Debug("CHAT_MSG_BN_CONVERSATION", sender, message)
-	self:SendAddonMessage("HydraChat", strjoin("§", "BC", battleTag, message, channel, channelNumber))
+	self:SendAddonMessage(strjoin("§", "BC", battleTag, message, channel, channelNumber))
 end
 
 ------------------------------------------------------------------------
@@ -229,8 +224,8 @@ end
 
 ------------------------------------------------------------------------
 
-function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
-	if prefix ~= "HydraChat" or (channel ~= "GROUP" and channel ~= "RAID") or sender == playerName or not core:IsTrusted(sender) then return end
+function module:ReceiveAddonMessage(message, channel, sender)
+	if not core:IsTrusted(sender) or not UnitInParty(sender) or not UnitInRaid(sender) then return end
 
 	local fwdEvent, fwdSender, fwdMessage = strmatch(message, "^([^%s§]+)[%§]([^%s§]+)[%§]?(.*)$")
 	self:Debug("HydraChat", sender, fwdEvent, fwdSender, fwdMessage)

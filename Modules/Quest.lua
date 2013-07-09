@@ -136,13 +136,8 @@ function module:CheckState()
 		self:RegisterEvent("QUEST_AUTOCOMPLETE")
 
 		if core.state > SOLO then
-			self:RegisterEvent("CHAT_MSG_ADDON")
 			self:RegisterEvent("QUEST_ACCEPT_CONFIRM")
 			self:RegisterEvent("QUEST_LOG_UPDATE")
-
-			if not IsAddonMessagePrefixRegistered("HydraQuest") then
-				RegisterAddonMessagePrefix("HydraQuest")
-			end
 		end
 	else
 		self:Debug("Quest module disabled.")
@@ -163,8 +158,8 @@ end
 --	Respond to comms from others
 ------------------------------------------------------------------------
 
-function module:CHAT_MSG_ADDON(prefix, message, channel, sender)
-	if prefix ~= "HydraQuest" or sender == playerName or not core:IsTrusted(sender) then return end
+function module:ReceiveAddonMessage(message, channel, sender)
+	if not core:IsTrusted(sender) then return end
 
 	local action, qlink = message:match("^(%S+) (.+)$")
 
@@ -454,10 +449,10 @@ function module:QUEST_LOG_UPDATE()
 		if not currentquests[id] then
 			if abandoning then
 				self:Debug("Abandoned quest", link)
-				self:SendAddonMessage("HydraQuest", "ABANDON " .. link)
+				self:SendAddonMessage("ABANDON " .. link)
 			else
 				self:Debug("Turned in quest", link)
-				self:SendAddonMessage("HydraQuest", "TURNIN " .. link)
+				self:SendAddonMessage("TURNIN " .. link)
 			end
 		end
 	end
@@ -467,7 +462,7 @@ function module:QUEST_LOG_UPDATE()
 	for id, link in pairs(currentquests) do
 		if not oldquests[ id ] then
 			self:Debug("Accepted quest", link)
-			self:SendAddonMessage("HydraQuest", "ACCEPT " .. link)
+			self:SendAddonMessage("ACCEPT " .. link)
 
 			local qname = link:match("%[(.-)%]"):lower()
 			if self.db.share and not accept[ qname ] and not accepted[ qname ] then

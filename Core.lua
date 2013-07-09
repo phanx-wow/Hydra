@@ -49,16 +49,16 @@ function core:Alert(message, flash, r, g, b)
 	UIErrorsFrame:AddMessage(message, r or 1, g or 1, b or 0, 1, UIERRORS_HOLD_TIME)
 end
 
-function core:SendAddonMessage(prefix, message, target)
-	if not prefix or not message then
+function core:SendAddonMessage(message, target)
+	if not message then
 		return
 	end
 	if target then
-		return SendAddonMessage(prefix, message, "WHISPER", target)
+		return SendAddonMessage("Hydra", self.name .. " " .. message, "WHISPER", target)
 	end
 	local channel = IsInGroup(LE_PARTY_CATEGORY_INSTANCE) and "INSTANCE_CHAT" or IsInRaid() and "RAID" or IsInGroup() and "PARTY"
 	if channel then
-		return SendAddonMessage(prefix, message, channel)
+		return SendAddonMessage("Hydra", self.name .. " " .. message, channel)
 	end
 end
 
@@ -79,13 +79,15 @@ end
 
 function core:ValidateName(name, realm)
 	name = name and strtrim(name)
-	assert(type(name) == "string" and strlen(name) >= 2, "Invalid name!")
+	--assert(type(name) == "string" and strlen(name) >= 2, "Invalid name!")
+	if not name then return end
+	name = gsub(strlower(name), "^(\a)", string.upper, 1) -- lowercase all, uppercase first letter
 	if not strmatch(name, "%-") then
 		realm = realm and strtrim(realm)
 		if not realm or strlen(realm) == 0 then
 			realm = myRealm
 		end
-		realm = gsub(realm, "%s", "") -- remove spaces
+		realm = gsub(gsub(realm, "%s", ""), "^(\a)", string.upper, 1) -- remove spaces, uppercase first letter
 		name = format("%s-%s", name, realm)
 	end
 	return name
@@ -178,12 +180,24 @@ function f:PLAYER_LOGIN()
 		end
 	end
 
+	RegisterAddonMessagePrefix("Hydra")
+	f:RegisterEvent("CHAT_MSG_ADDON")
 	f:RegisterEvent("GROUP_ROSTER_UPDATE")
 	f:RegisterEvent("PARTY_LEADER_CHANGED")
 	f:RegisterEvent("PARTY_LOOT_METHOD_CHANGED")
 	f:RegisterEvent("UNIT_NAME_UPDATE")
 
 	f:CheckParty()
+end
+
+------------------------------------------------------------------------
+
+function f:CHAT_MSG_ADDON(prefix, message, channel, sender)
+	if sender == myName or prefix ~= "Hydra" then return end
+	prefix, message = strsplit(" ", message, 1)
+	local module = self.modules[prefix]
+	if not module or not module.ReceiveAddonMessage then return end
+	module:RecieveAddonMessage(message, channel, sender)
 end
 
 ------------------------------------------------------------------------
