@@ -25,7 +25,9 @@ L.AddGroup_Info = "Añadir a la lista de confianza los nombres de todos los pers
 L.AddName = "Añadir un nombre"
 L.AddName_Info = "Añadir a la lista de confianza un nombre de personaje."
 L.ClickForOptions = "Clic para opciones."
-L.CoreHelpText = "Hydra functiona sobre la base de \"confianza\". Añada una lista de personajes de tu confianza, si son tus personajes multibox, o tus amigos, y las funciones se activan o desactivan dependiendo de si estás en una grupo con sólo personajes de confianza.\n\nPor ejemplo, los susurros sólo se reenvían al chat de grupo si todos en el grupo son de confianza."
+L.CoreHelpText = [[Hydra functiona sobre la base de "confianza". Añada una lista de personajes de tu confianza, si son tus personajes multibox, o tus amigos, y las funciones se activan o desactivan dependiendo de si estás en una grupo con sólo personajes de confianza.
+
+Por ejemplo, los susurros sólo se reenvían al chat de grupo si todos en el grupo son de confianza.]]
 L.Enable = ENABLE
 L.Enable_Info = "Activar este módulo."
 --L.Hydra_Info = "Hydra is a multiboxing and group leveling helper that aims to minimize the need to actively control secondary characters."
@@ -83,9 +85,15 @@ L.SummonExpired = "La invocación expiró!"
 L.AppFocus = "Application focus"
 L.Chat = "Chat"
 L.Chat_Info = "Reenvía al chat del grupo los susurros que se enviaron a los personajes inactivos, y reenvía las respuestas al remitente original."
-L.ChatHelpText = "Escribe en el chat de grupo para responder a la última susurro que se reenvió al chat de grupo por un otro personaje.\n\nEscribe \"|cffffffff@Nombre Mensaje aquí|r\" para responder a la última susurro que se reenvió por el personaje \"Nombre\".\n\nEscribe \"|cffffffff@Nombre Mensaje aquí|r\" en un susurro al otro personaje para enviar por ese personaje el mensaje como un susurro a \"Nombre\"."
+L.ChatHelpText = [[Escribe en el chat de grupo para responder a la última susurro que se reenvió al chat de grupo por un otro personaje.
+
+Escribe "|cffffffff@Nombre Mensaje aquí|r" para responder a la última susurro que se reenvió por el personaje "Nombre".
+
+Escribe "|cffffffff@Nombre Mensaje aquí|r" en un susurro al otro personaje para enviar por ese personaje el mensaje como un susurro a "Nombre".]]
 L.DetectionMethod = "Método de detección"
-L.DetectionMethod_Info = "Seleccione el método para utilizar para detectar el personaje principal.\n\nSi estás jugando en varios equipos, o estás ejecutando en la misma computadora múltiples copias de WoW en el modo de ventana, el método de detección \"Programa en primer plano\" probablemente no funcione. En este caso, debe utilizar el método \"Líder del grupo\" y asegúrate de que tu personaje principal es el líder del grupo."
+L.DetectionMethod_Info = [[Seleccione el método para utilizar para detectar el personaje principal.
+
+Si estás jugando en varios equipos, o estás ejecutando en la misma computadora múltiples copias de WoW en el modo de ventana, el método de detección "Programa en primer plano" probablemente no funcione. En este caso, debe utilizar el método "Líder del grupo" y asegúrate de que tu personaje principal es el líder del grupo.]]
 L.GroupLeader = "Líder del grupo"
 L.GroupTimeout_Info = "Después de estos segundos desde el último susurro, los mensajes escritos en el chat de grupo no se reenvían, a menos especificar explícitamente el objetivo."
 L.GroupTimeoutError = "Se ha alcanzado el tiempo de espera para el chat de grupo."
@@ -110,7 +118,11 @@ L.CmdAccept = "[ar]e?[cs]?[eu]?[pc]?[ei]?[rt]?a?r?"
 L.CmdRelease = "libe?r?a?r?"
 L.Follow = "Seguir"
 L.Follow_Info = "Responde a los comandos de seguiente por los miembros de confianza del grupo."
-L.FollowHelpText = "Escriba \"|cffffffff/seguirme|r\" para mandar los miembres cercanos del grupo a seguirte.\n\nEscriba \"|cffffffff/cadaver libera|r\" para mandar los miembros muertos del grupo a liberar los espíritus.\n\nEscriba \"|cffffffff/cadaver recupera|r\" para mandar mandar los miembros muertos del grupo a recuperar los cadáveres."
+L.FollowHelpText = [[Escriba "|cffffffff/seguirme|r" para mandar los miembres cercanos del grupo a seguirte.
+
+Escriba "|cffffffff/cadaver libera|r" para mandar los miembros muertos del grupo a liberar los espíritus.
+
+Escriba "|cffffffff/cadaver recupera|r" para mandar mandar los miembros muertos del grupo a recuperar los cadáveres.]]
 L.FollowingYouStart = "%s te está siguiendo."
 L.FollowingYouStop = "%s dejó de seguirte."
 L.FollowMe = "¡Sígueme!"
@@ -137,7 +149,7 @@ L.Dismount = "Desmontar juntos"
 L.Dismount_Info = "Desmontar cuando desmonta un miembro de confianza del grupo."
 L.Mount = "Montura"
 L.Mount_Info = "Montar y desmontar como un grupo."
-L.MountHelpText = ""
+--L.MountHelpText = ""
 L.MountMissing = "¡%s no tiene una montura equivalente!"
 L.MountRandom = "Monturas aleatorias"
 L.MountRandom_Info = "Al montar automáticamente, utilizar una montura aleatoria del mismo tipo del miembro de confianza del grupo.\nSi está desactivada, vas a utilizar la misma monutra si lo tienen, o el equivalente primero a encontrar."
@@ -155,7 +167,11 @@ L.CantPromoteNotTrusted = "No te puedo promover, porque no estás en mi lista de
 L.CmdNoPromote = "[Nn][Oo][Pp][Rr][Oo][Mm][Oo][Vv][Ee][Rr]?" -- nopromover
 L.Group = "Grupo"
 L.Group_Info = "Responde a los comandos de invitar o promover de los jugadores de confianza."
-L.GroupHelpText = "Escribe \"|cffffffff/invitarme|r\" para solictar una invitación de grupo de tu objetivo.\n\nEscribe \"|cffffffff/invitarme Nombre|r\" para solictar una invitación de grupo del personaje \"Nombre\".\n\nEscribe \"|cffffffff/promoverme|r\" mientras estás en el grupo para solicitar una promoción al líder del grupo."
+L.GroupHelpText = [[Escribe "|cffffffff/invitarme|r" para solictar una invitación de grupo de tu objetivo.
+
+Escribe "|cffffffff/invitarme Nombre|r" para solictar una invitación de grupo del personaje "Nombre".
+
+Escribe "|cffffffff/promoverme|r" mientras estás en el grupo para solicitar una promoción al líder del grupo.]]
 L.SlashInviteMe = "/invitarme"
 L.SlashPromoteMe = "/promoverme"
 
@@ -189,7 +205,9 @@ L.SlashClearTaxi = "/borrartaxi"
 L.Taxi = "Taxi"
 L.Taxi_Info = "Seleccionar el mismo destino de taxi que los otros miembros del grupo."
 L.TaxiCleared = "El destino compartido de taxi ha sido borrada."
-L.TaxiHelpText = "Pulse la tecla Mayús cuando hablas con un maestro de vuelo para ignorar el destino seleccionado compartido.\n\nEscribe \"|cffffffff/borrartaxi|r\" para borrar el destino compardito antes de que el tiempo de espera se alcance."
+L.TaxiHelpText = [[Pulse la tecla Mayús cuando hablas con un maestro de vuelo para ignorar el destino seleccionado compartido.
+
+Escribe "|cffffffff/borrartaxi|r" para borrar el destino compardito antes de que el tiempo de espera se alcance.]]
 L.TaxiMismatchError = "%s: El destino no coincide."
 L.TaxiSet = "%1$s estableció el destino compartido a %2$s."
 L.TaxiTimeout_Info = "Borrar la selección del destino compartido después de estos segundos."

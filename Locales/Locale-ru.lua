@@ -25,7 +25,9 @@ L.AddGroup_Info = "Добавить всех персонажей текущей
 L.AddName = "Добавить имя"
 L.AddName_Info = "Добавить имя в список доверенных имен."
 --L.ClickForOptions = "Click for options."
---L.CoreHelpText = [[Hydra operates on the basis of "trust". You tell it which characters you trust, whether they're your multibox characters or just your questing buddies, and features are enabled or disabled depending on whether you're in a party with trusted characters or not.\n\nFor example, whispers are only forwarded to party chat if everyone in the party is on your trusted list.]]
+--[=[ L.CoreHelpText = [[Hydra operates on the basis of "trust". You tell it which characters you trust, whether they're your multibox characters or just your questing buddies, and features are enabled or disabled depending on whether you're in a party with trusted characters or not.
+
+For example, whispers are only forwarded to party chat if everyone in the party is on your trusted list.]] ]=]
 L.Enable = ENABLE
 L.Enable_Info = "Включить этот модуль."
 L.Hydra_Info = "Hydra - это помощник для multibox, который направлен для минимизации действий, требуемых для контроля вторичных персонажей."
@@ -83,9 +85,15 @@ L.SummonExpired = "Призыв истек!"
 --L.AppFocus = "Application focus"
 L.Chat = "Чат"
 L.Chat_Info = "Перенаправляет шепот, посланный неактивным персонажам в чат группы и перенаправляет ответы оригинальному отправителю."
---L.ChatHelpText = [[Type a message in group chat to reply to the last forwarded whisper from any character.\n\nType "|cffffffff@name Your message here|r" in group chat to reply to the last forwarded whisper from the character "name".\n\nType "|cffffffff@name Your message here|r" in a whisper to a character to direct that character to send the message as a whisper to "name".]]
+--[=[ L.ChatHelpText = [[Type a message in group chat to reply to the last forwarded whisper from any character.
+
+Type "|cffffffff@name Your message here|r" in group chat to reply to the last forwarded whisper from the character "name".
+
+Type "|cffffffff@name Your message here|r" in a whisper to a character to direct that character to send the message as a whisper to "name".]] ]=]
 L.DetectionMethod = "Метод обнаружения"
---L.DetectionMethod_Info = [[Select the method to use for detecting the primary character.\n\nIf you are multiboxing on multiple physical machines, or are running multiple copies of WoW in windowed mode, the "Application Focus" mode will probably not work for you, and you should make sure that your primary character is the group leader.]]
+--[=[ L.DetectionMethod_Info = [[Select the method to use for detecting the primary character.
+
+If you are multiboxing on multiple physical machines, or are running multiple copies of WoW in windowed mode, the "Application Focus" mode will probably not work for you, and you should make sure that your primary character is the group leader.]] ]=]
 L.GroupLeader = "Лидер группы"
 --L.GroupTimeout_Info = "If this many seconds have elapsed since the last forwarded message, don't forward messages typed in group chat to the last whisperer unless the target is explicitly specified."
 --L.GroupTimeoutError = "Group chat forwarding timeout reached."
@@ -110,7 +118,11 @@ L.WhisperFromGM = "%s получил шепот от ГМа!"
 --L.CmdRelease = "re?l?e?a?s?e?"
 L.Follow = "Следить"
 --L.Follow_Info = "Responds to follow requests from trusted group members."
---L.FollowHelpText = [[Type "|cffffffff/followme|r" to direct nearby group members to follow you.\n\nType "|cffffffff/corpse release|r" to direct dead party members to release their spirits.\n\nType "|cffffffff/corpse accept|r" to direct dead group members to accept resurrection to their corpse.]]
+--[=[ L.FollowHelpText = [[Type "|cffffffff/followme|r" to direct nearby group members to follow you.
+
+Type "|cffffffff/corpse release|r" to direct dead party members to release their spirits.
+
+Type "|cffffffff/corpse accept|r" to direct dead group members to accept resurrection to their corpse.]] ]=]
 L.FollowingYouStart = "%s следует за вами."
 L.FollowingYouStop = "%s больше не следует за вами."
 --L.FollowMe = "Request follow"
@@ -155,7 +167,11 @@ L.Mount = "Транспорт"
 --L.CmdNoPromote = "[Nn][Oo][Pp][Rr][Oo][Mm][Oo][Tt][Ee]"
 L.Group = "Группа"
 --L.Group_Info = "Responds to group invite and promote requests from trusted players."
---L.GroupHelpText = [[Type "|cffffffff/inviteme|r" to request a group invitation from your current target.\n\nType "|cffffffff/inviteme Name|r" to request a group invitation from "Name".\n\nType "|cffffffff/promoteme|r" while in a group to request to be promoted to group leader.]]
+--[=[ L.GroupHelpText = [[Type "|cffffffff/inviteme|r" to request a group invitation from your current target.
+
+Type "|cffffffff/inviteme Name|r" to request a group invitation from "Name".
+
+Type "|cffffffff/promoteme|r" while in a group to request to be promoted to group leader.]] ]=]
 --L.SlashInviteMe = "/inviteme"
 --L.SlashPromoteMe = "/promoteme"
 
@@ -189,7 +205,9 @@ L.TurnInQuests_Info = "Сдавать завершенные задания."
 --L.Taxi = "Taxi"
 --L.Taxi_Info = "Selects the same taxi destination as other party members."
 --L.TaxiCleared = "Party taxi destination cleared."
---L.TaxiHelpText = [[Hold the Shift key while speaking to a flight master to temporarily disable auto-selection.\n\nType "|cffffffff/cleartaxi|r" to clear the party taxi selection before the normal timeout.]]
+--[=[ L.TaxiHelpText = [[Hold the Shift key while speaking to a flight master to temporarily disable auto-selection.
+
+Type "|cffffffff/cleartaxi|r" to clear the party taxi selection before the normal timeout.]] ]=]
 --L.TaxiMismatchError = "%s: Taxi node mismatch."
 --L.TaxiSet = "%1$s set the party taxi to %2$s."
 --L.TaxiTimeout_Info = "Clear the taxi selection after this many seconds."

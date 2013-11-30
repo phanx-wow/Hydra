@@ -25,7 +25,9 @@ L.AddGroup_Info = "현재 파티 그룹의 모든 캐릭터들을 신뢰하는 �
 L.AddName = "이름 추가"
 L.AddName_Info = "신뢰하는 목록에 이름을 추가합니다."
 --L.ClickForOptions = "Click for options."
---L.CoreHelpText = [[Hydra operates on the basis of "trust". You tell it which characters you trust, whether they're your multibox characters or just your questing buddies, and features are enabled or disabled depending on whether you're in a party with trusted characters or not.\n\nFor example, whispers are only forwarded to party chat if everyone in the party is on your trusted list.]]
+--[=[ L.CoreHelpText = [[Hydra operates on the basis of "trust". You tell it which characters you trust, whether they're your multibox characters or just your questing buddies, and features are enabled or disabled depending on whether you're in a party with trusted characters or not.
+
+For example, whispers are only forwarded to party chat if everyone in the party is on your trusted list.]] ]=]
 L.Enable = ENABLE
 --L.Enable_Info = "Enable this module."
 L.Hydra_Info = "Hydra는 두번째 캐릭터를 직접 조종하는 것을 최소화하는 것에 초점을 맞춘 멀티박스 레벨링 도우미입니다."
@@ -74,7 +76,7 @@ L.RepairedGuild = "모든 아이템을 길드 은행의 금액으로 수리했�
 L.SellJunk = "잡동사니 팔기"
 --L.SellJunk_Info = "Sell junk (gray) items when interacting with a vendor."
 L.SoldJunk = "잡동사니 아이템 %1$d개를 상인에게 판매하여 %2$s를 획득했습니다."
-L.SummonExpired = "소환이 만료되었습니다!"-- L.HELP_AUTO = [[]]
+L.SummonExpired = "소환이 만료되었습니다!"
 
 ----------
 -- Chat --
@@ -83,9 +85,15 @@ L.SummonExpired = "소환이 만료되었습니다!"-- L.HELP_AUTO = [[]]
 L.AppFocus = "애플리케이션 포커스"
 L.Chat = "대화"
 L.Chat_Info = "비활동 캐릭터에게 보내진 귓속말을 파티 대화로 전달하며, 귓속말을 보낸 이에게 답장을 전달합니다."
-L.ChatHelpText = [[Type a message in group chat to reply to the last forwarded whisper from any character.\n\nType "|cffffffff@name Your message here|r" in group chat to reply to the last forwarded whisper from the character "name".\n\nType "|cffffffff@name Your message here|r" in a whisper to a character to direct that character to send the message as a whisper to "name".]]
+--[=[ L.ChatHelpText = [[Type a message in group chat to reply to the last forwarded whisper from any character.
+
+Type "|cffffffff@name Your message here|r" in group chat to reply to the last forwarded whisper from the character "name".
+
+Type "|cffffffff@name Your message here|r" in a whisper to a character to direct that character to send the message as a whisper to "name".]] ]=]
 L.DetectionMethod = "모드"
---L.DetectionMethod_Info = [[Select the method to use for detecting the primary character.\n\nIf you are multiboxing on multiple physical machines, or are running multiple copies of WoW in windowed mode, the "Application Focus" mode will probably not work for you, and you should make sure that your primary character is the group leader.]]
+--[=[ L.DetectionMethod_Info = [[Select the method to use for detecting the primary character.
+
+If you are multiboxing on multiple physical machines, or are running multiple copies of WoW in windowed mode, the "Application Focus" mode will probably not work for you, and you should make sure that your primary character is the group leader.]] ]=]
 L.GroupLeader = "파티장"
 --L.GroupTimeout_Info = "If this many seconds have elapsed since the last forwarded message, don't forward messages typed in group chat to the last whisperer unless the target is explicitly specified."
 L.GroupTimeoutError = "Group chat forwarding timeout reached."
@@ -110,7 +118,11 @@ L.CmdAccept = "수락"
 L.CmdRelease = "무덤"
 L.Follow = "따라가기"
 L.Follow_Info = "신뢰하는 파티원의 따라다니기 요청에 대하여 응답합니다."
---L.FollowHelpText = [[Type "|cffffffff/followme|r" to direct nearby group members to follow you.\n\nType "|cffffffff/corpse release|r" to direct dead party members to release their spirits.\n\nType "|cffffffff/corpse accept|r" to direct dead group members to accept resurrection to their corpse.]]
+--[=[ L.FollowHelpText = [[Type "|cffffffff/followme|r" to direct nearby group members to follow you.
+
+Type "|cffffffff/corpse release|r" to direct dead party members to release their spirits.
+
+Type "|cffffffff/corpse accept|r" to direct dead group members to accept resurrection to their corpse.]] ]=]
 L.FollowingYouStart = "%s 님이 당신을 따라다닙니다."
 L.FollowingYouStop = "%s 님은 더 이상 당신을 따라다니지 않습니다."
 --L.FollowMe = "Request follow"
@@ -155,7 +167,11 @@ L.CantPromoteNotTrusted = "나의 신뢰하는 목록에 존재하지 않으므�
 --L.CmdNoPromote = "[Nn][Oo][Pp][Rr][Oo][Mm][Oo][Tt][Ee]"
 L.Group = "파티"
 L.Group_Info = "신뢰하는 파티원의 초대와 승급 요청에 대하여 응답합니다."
---L.GroupHelpText = [[Type "|cffffffff/inviteme|r" to request a group invitation from your current target.\n\nType "|cffffffff/inviteme Name|r" to request a group invitation from "Name".\n\nType "|cffffffff/promoteme|r" while in a group to request to be promoted to group leader.]]
+--[=[ L.GroupHelpText = [[Type "|cffffffff/inviteme|r" to request a group invitation from your current target.
+
+Type "|cffffffff/inviteme Name|r" to request a group invitation from "Name".
+
+Type "|cffffffff/promoteme|r" while in a group to request to be promoted to group leader.]] ]=]
 L.SlashInviteMe = "/나초대"
 L.SlashPromoteMe = "/승급"
 
@@ -189,7 +205,9 @@ L.SlashClearTaxi = "/택시지우기"
 L.Taxi = "택시"
 L.Taxi_Info = "택시(그리핀, 와이번)의 목적지를 다른 파티원과 동일한 곳으로 선택합니다."
 L.TaxiCleared = "파티 택시가 지워졌습니다."
---L.TaxiHelpText = [[Hold the Shift key while speaking to a flight master to temporarily disable auto-selection.\n\nType "|cffffffff/cleartaxi|r" to clear the party taxi selection before the normal timeout.]]
+--[=[ L.TaxiHelpText = [[Hold the Shift key while speaking to a flight master to temporarily disable auto-selection.
+
+Type "|cffffffff/cleartaxi|r" to clear the party taxi selection before the normal timeout.]] ]=]
 L.TaxiMismatchError = "%s: 님의 택시 노드가 일치하지 않습니다."
 L.TaxiSet = "%1$s 님이 지정한 파티 택시의 노드 %2$s."
 L.TaxiTimeout_Info = "이 시간(초)이 경과된 후에 택시 선택을 지웁니다."
