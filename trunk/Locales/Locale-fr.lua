@@ -25,7 +25,9 @@ L.AddGroup_Info = "Ajouter tous les personnages de votre groupe actuel à votre 
 L.AddName = "Ajouter le nom"
 L.AddName_Info = "Ajouter un nom à votre liste de confiance."
 L.ClickForOptions = "Click for options."
-L.CoreHelpText = [[Hydra fonctionne sur la base de la "confiance". Vous lui dites à quels personnages faire confiance, qu'ils soient vos personnages de multibox ou des compagnons de quête, et les fonctionnalités sont activées ou désactivées selon que vous êtes dans un groupe avec des personnages de confiance ou pas. Par exemple, les chuchotement sont seulement transférés dans le canal de groupe si tout le monde dans votre groupe est dans votre liste de confiance.]]
+L.CoreHelpText = [[Hydra fonctionne sur la base de la "confiance". Vous lui dites à quels personnages faire confiance, qu'ils soient vos personnages de multibox ou des compagnons de quête, et les fonctionnalités sont activées ou désactivées selon que vous êtes dans un groupe avec des personnages de confiance ou pas.
+
+Par exemple, les chuchotement sont seulement transférés dans le canal de groupe si tout le monde dans votre groupe est dans votre liste de confiance.]]
 L.Enable = ENABLE
 L.Enable_Info = "Activer ce module."
 L.Hydra_Info = "Hydra est une aide au leveling en multibox dont le but est de minimiser le besoin de contrôler activement les personnages secondaires."
@@ -82,9 +84,13 @@ L.SoldJunk = "Vendu %1$d junk |4item:items; pour %2$s."
 L.AppFocus = "Application de la focalisation"
 L.Chat = "Discussion"
 L.Chat_Info = "Transférer les chuchotements au personnage inactif vers le canal de groupe, et transférer les réponses à l'envoyeur original."
-L.ChatHelpText = [[Ecrivez un message dans le canal de groupe pour répondre au dernier message chuchotté transféré de n'importe quel personne.\n\nEcrivez "|cffffffff@name Votre message ici|r" dans un chuchotement à un personnage pour ordonner à ce personnage d'envoyer en chuchotement le message à "name".]]
+L.ChatHelpText = [[Ecrivez un message dans le canal de groupe pour répondre au dernier message chuchotté transféré de n'importe quel personne.
+
+Ecrivez "|cffffffff@name Votre message ici|r" dans un chuchotement à un personnage pour ordonner à ce personnage d'envoyer en chuchotement le message à "name".]]
 L.DetectionMethod = "Mode"
---L.DetectionMethod_Info = [[Select the method to use for detecting the primary character.\n\nIf you are multiboxing on multiple physical machines, or are running multiple copies of WoW in windowed mode, the "Application Focus" mode will probably not work for you, and you should make sure that your primary character is the group leader.]]
+--[=[ L.DetectionMethod_Info = [[Select the method to use for detecting the primary character.
+
+If you are multiboxing on multiple physical machines, or are running multiple copies of WoW in windowed mode, the "Application Focus" mode will probably not work for you, and you should make sure that your primary character is the group leader.]] ]=]
 L.GroupLeader = "Chef du groupe"
 --L.GroupTimeout_Info = "If this many seconds have elapsed since the last forwarded message, don't forward messages typed in group chat to the last whisperer unless the target is explicitly specified."
 L.GroupTimeoutError = "Délai de groupage expiré !"
@@ -109,7 +115,11 @@ L.CmdAccept = "accepter"
 L.CmdRelease = "lib[ée]rer"
 L.Follow = "Suivre"
 L.Follow_Info = "Répondre aux requêtes de suivi des membres du groupe de confiance."
-L.FollowHelpText = [[Tapez "|cffffffff/suivezmoi|r" pour demander à tous les membres du groupe à proximité de vous suivre.\n\nTapez "|cffffffff/corps libérer|r" pour demander à tous les membres du groupe mort de libérer l'esprit.\n\nTapez "|cffffffff/corps accepter|r" pour demander à tous les membres du groupe en fantôme d'accepter la résurrection.]]
+L.FollowHelpText = [[Tapez "|cffffffff/suivezmoi|r" pour demander à tous les membres du groupe à proximité de vous suivre.
+
+Tapez "|cffffffff/corps libérer|r" pour demander à tous les membres du groupe mort de libérer l'esprit.
+
+Tapez "|cffffffff/corps accepter|r" pour demander à tous les membres du groupe en fantôme d'accepter la résurrection.]]
 L.FollowingYouStart = "%s vous suit à présent."
 L.FollowingYouStop = "%s ne vous suit plus."
 L.FollowMe = "Suivez-moi"
@@ -154,7 +164,11 @@ L.CantPromoteNotTrusted = "Je ne peux pas vous promouvoir, car vous n'êtes pas 
 L.CmdNoPromote = "[Nn][Oo][Pp][Rr][Oo][Mm][Oo][Uu][Vv][Oo][Ii][Rr]"
 L.Group = "Groupe"
 L.Group_Info = "Répond aux invitations et requêtes des joueurs de confiance."
-L.GroupHelpText = [[Tapez "|cffffffff/invitezmoi|r" pour demander un groupage à votre cible actuelle.\n\nTapez "|cffffffff/invitezmoi Nom|r" pour demander un groupage à "Nom".\n\nTapez "|cffffffff/promouvezmoi|r" en étant groupé pour demander une promotion comme chef du groupe.]]
+L.GroupHelpText = [[Tapez "|cffffffff/invitezmoi|r" pour demander un groupage à votre cible actuelle.
+
+Tapez "|cffffffff/invitezmoi Nom|r" pour demander un groupage à "Nom".
+
+Tapez "|cffffffff/promouvezmoi|r" en étant groupé pour demander une promotion comme chef du groupe.]]
 L.SlashInviteMe = "/invitezmoi"
 L.SlashPromoteMe = "/promouvezmoi"
 
@@ -188,7 +202,9 @@ L.SlashClearTaxi = "/effacertaxi"
 L.Taxi = "Taxi"
 L.Taxi_Info = "Sélectionne la même destination de taxi que les autres membre du groupe."
 L.TaxiCleared = "Taxi du groupe effacé."
-L.TaxiHelpText = [[Garder la touche Maj appuyée en parlant au maître de vol pour désactiver temporairement la sélection automatique.\n\nTapez "|cffffffff/effacertaxi" pour effacer la sélection de trajet du groupe avant la fin du délai.]]
+L.TaxiHelpText = [[Garder la touche Maj appuyée en parlant au maître de vol pour désactiver temporairement la sélection automatique.
+
+Tapez "|cffffffff/effacertaxi" pour effacer la sélection de trajet du groupe avant la fin du délai.]]
 L.TaxiMismatchError = "%s : noeud de taxi inadéquat."
 L.TaxiSet = "%1$s a défini le taxi du groupe sur %2$s."
 L.TaxiTimeout_Info = "Effacer la sélection de taxi après ce nombre de secondes."
