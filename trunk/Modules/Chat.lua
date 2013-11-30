@@ -44,6 +44,9 @@ module.defaults = {
 ------------------------------------------------------------------------
 
 function module:CheckState()
+	-- #TEMP: fix old lowercase entry
+	self.db.mode = strupper(self.db.mode)
+
 	if core.state < TRUSTED or not self.db.enable then
 		self:Debug("Disable module: Chat")
 		self:UnregisterAllEvents()
