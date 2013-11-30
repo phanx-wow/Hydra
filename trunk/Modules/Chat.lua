@@ -310,7 +310,7 @@ function module:SetupOptions(panel)
 			end,
 		}
 		UIDropDownMenu_Initialize(mode.dropdown, function()
-			info.text = L.ApplicationFocus
+			info.text = L.AppFocus
 			info.value = "APPFOCUS"
 			UIDropDownMenu_AddButton(info)
 
