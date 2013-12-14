@@ -194,16 +194,20 @@ end
 
 function f:CHAT_MSG_ADDON(prefix, message, channel, sender)
 	if sender == myName or prefix ~= "Hydra" then return end
-	prefix, message = strsplit(" ", message, 1)
-	local module = self.modules[prefix]
-	if not module or not module.ReceiveAddonMessage then return end
+	prefix, message = strsplit(" ", message, 2)
+	local module = core.modules[prefix]
+	if not module or not module.RecieveAddonMessage then return end
 	module:RecieveAddonMessage(message, channel, sender)
 end
 
 ------------------------------------------------------------------------
 
+local groupUnits = {}
+for i = 1, 4 do groupUnits["party"..i] = true end
+for i = 1, 40 do groupUnits["raid"..i] = true end
+
 function f:CheckParty(unit)
-	if unit and not strmatch(unit, "^party%d$") then return end -- irrelevant UNIT_NAME_UPDATE
+	if unit and not groupUnits[unit] then return end -- irrelevant UNIT_NAME_UPDATE
 
 	local newstate = SOLO
 	if IsInGroup() then
