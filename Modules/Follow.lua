@@ -25,7 +25,7 @@ local module = core:RegisterModule("Follow", CreateFrame("Frame"))
 module:SetScript("OnEvent", function(f, e, ...) return f[e] and f[e](f, ...) end)
 
 module.defaults = { enable = true, refollowAfterCombat = false, verbose = true }
-
+module.debug = true
 ------------------------------------------------------------------------
 
 function module:CheckState()
@@ -175,8 +175,8 @@ function SlashCmdList.HYDRA_FOLLOWME(names)
 	if names and strlen(names) > 0 then
 		local sent = 0
 		for name in gmatch(names, "%S+") do
-			local trusted = core:IsTrusted(name)
-			if trusted and (UnitInParty(trusted) or UnitInRaid(trusted)) then
+			local _, trusted = core:IsTrusted(name)
+			if trusted and ( UnitInParty(trusted) or UnitInRaid(trusted) ) then
 				module:Debug("Sending follow command to:", trusted)
 				module:SendAddonMessage("ME", trusted)
 				sent = sent + 1
@@ -187,8 +187,8 @@ function SlashCmdList.HYDRA_FOLLOWME(names)
 		end
 	end
 
-	local target = core:IsTrusted(UnitName("target"))
-	if target and module.db.targetedFollowMe and (UnitInParty(trusted) or UnitInRaid(trusted)) then
+	local trusted = core:IsTrusted(UnitName("target"))
+	if trusted and module.db.targetedFollowMe and not UnitIsUnit(trusted, "player") and ( UnitInParty(trusted) or UnitInRaid(trusted) ) then
 		module:Debug("Sending follow command to target:", trusted)
 		module:SendAddonMessage("ME", trusted)
 	else
