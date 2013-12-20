@@ -23,8 +23,9 @@ BINDING_HEADER_HYDRA = HYDRA
 
 ------------------------------------------------------------------------
 
-local throttle, myRealm, myName = 0, GetRealmName(), UnitName("player")
 local SOLO, INSECURE, SECURE, LEADER = 0, 1, 2, 3
+local throttle, myRealm, myName = 0, GetRealmName(), UnitName("player")
+local myRealmS = "%-" .. myRealm .. "$"
 
 ------------------------------------------------------------------------
 
@@ -77,45 +78,67 @@ end
 
 ------------------------------------------------------------------------
 
-function core:ValidateName(name, realm)
-	name = name and strtrim(name)
-	--assert(type(name) == "string" and strlen(name) >= 2, "Invalid name!")
-	if not name then return end
-	name = gsub(strlower(name), "^(\a)", string.upper, 1) -- lowercase all, uppercase first letter
-	if not strmatch(name, "%-") then
-		realm = realm and strtrim(realm)
-		if not realm or strlen(realm) == 0 then
-			realm = myRealm
-		end
-		realm = gsub(gsub(realm, "%s", ""), "^(\a)", string.upper, 1) -- remove spaces, uppercase first letter
-		name = format("%s-%s", name, realm)
+local function Capitalize(str)
+	local a = strsub(str, 1, 1)
+	local b = strsub(str, 2)
+	local firstByte = strbyte(a)
+	if firstByte >= 192 and firstByte <= 223 then
+		a = strsub(str, 1, 2)
+		b = strsub(str, 3)
+	elseif firstByte >= 224 and firstByte <= 239 then
+		a = strsub(str, 1, 3)
+		b = strsub(str, 4)
+	elseif firstByte >= 240 and firstByte <= 244 then
+		a = strsub(str, 1, 4)
+		b = strsub(str, 5)
 	end
-	return name
+	return strupper(a)..strlower(b)
+end
+
+function core:ValidateName(name, realm)
+	--assert(type(name) == "string" and strlen(name) >= 2, "Invalid name!")
+	name = name and strtrim(name)
+	realm = realm and strtrim(realm)
+	if not name or strlen(name) == 0 then
+		return
+	end
+	if strmatch(name, "%-") then
+		name, realm = strsplit(name, "%-", 2)
+	end
+	name = Capitalize(name)
+	if realm and strlen(realm) > 0 then
+		realm = Capitalize(realm)
+		return format("%s-%s", name, realm), name
+	else
+		return format("%s-%s", name, myRealm), name
+	end
 end
 
 function core:IsTrusted(name, realm)
-	name = self:ValidateName(name, realm)
+	name, displayName = self:ValidateName(name, realm)
 	if not name then return end
 	local trusted = self.trusted[name]
 	self:Debug("IsTrusted", name, not not trusted)
-	return trusted
+	return displayName
 end
 
-function core:AddTrusted(name, realm)
+function core:AddTrusted(name, realm, silent)
 	name = self:ValidateName(name, realm)
 	self:Debug("AddTrusted", name)
 	if not name or self.trusted[name] then return end
 	self.trusted[name] = name
-	HydraTrustList[myRealm][name] = name
-	self:Print(L.AddedTrusted, name)
+	if not silent then
+		self:Print(L.AddedTrusted, name)
+	end
 	self:TriggerEvent("GROUP_ROSTER_UPDATE")
 end
 
-function core:RemoveTrusted(name, realm)
-	name = self:ValidateName(name, realm)
+function core:RemoveTrusted(name, realm, skipValidation)
+	if not skipValidation then
+		name, name = self:ValidateName(name, realm)
+	end
 	if not name or not self.trusted[name] then return end
 	self.trusted[name] = nil
-	HydraTrustList[myRealm][name] = nil
 	self:Print(L.RemovedTrusted, name)
 	self:TriggerEvent("GROUP_ROSTER_UPDATE")
 end
@@ -165,8 +188,9 @@ function f:PLAYER_LOGIN()
 	core:Debug("Loading...")
 	f:UnregisterEvent("PLAYER_LOGIN")
 
-	HydraTrustList = copyTable({ [myRealm] = { [myName] = myName } }, HydraTrustList)
-	core.trusted = copyTable(HydraTrustList[myRealm])
+	HydraTrustList = HydraTrustList or {}
+	HydraTrustList[core:ValidateName(UnitName("player"))] = true
+	core.trusted = HydraTrustList
 
 	HydraSettings = copyTable({}, HydraSettings)
 	core.db = HydraSettings
@@ -287,18 +311,11 @@ function core:SetupOptions(panel)
 	local addGroup = LibStub("PhanxConfig-Button").CreateButton(panel, L.AddGroup, L.AddGroup_Info)
 	addGroup:SetPoint("BOTTOMLEFT", addName, "BOTTOMRIGHT", 20, 8)
 	function addGroup:OnClick()
-		local u, n = "party", GetNumGroupMembers()
-		if IsInRaid() then
-			u = "raid"
-		else
-			n = n - 1
+		local unit = IsInRaid() and "raid" or "party"
+		for i = 1, GetNumGroupMembers() do
+			core:AddTrusted(UnitName(unit..i))
 		end
-		if n > 0 then
-			for i = 1, n do
-				core:AddTrusted(UnitName(u..i))
-			end
-			core:TriggerEvent("GROUP_ROSTER_UPDATE")
-		end
+		core:TriggerEvent("GROUP_ROSTER_UPDATE")
 	end
 
 	local removeName = LibStub("PhanxConfig-Dropdown").CreateDropdown(panel, L.RemoveName, L.RemoveName_Info)
@@ -315,10 +332,11 @@ function core:SetupOptions(panel)
 			return a < b
 		end
 		local OnClick = function(self)
-			core:RemoveTrusted(self.value)
+			core:RemoveTrusted(self.value, nil, true)
 		end
 		UIDropDownMenu_Initialize(removeName.dropdown, function()
 			for name in pairs(core.trusted) do
+				name = gsub(name, myRealmS, "")
 				temp[#temp + 1] = name
 			end
 			sort(temp, sortNames)
@@ -339,7 +357,9 @@ function core:SetupOptions(panel)
 	removeAll:SetPoint("BOTTOMLEFT", removeName, "BOTTOMRIGHT", 20, 1)
 	removeAll.OnClick = function(self)
 		for name in pairs(core.trusted) do
-			core:RemoveTrusted(name)
+			if gsub(name, myRealmS, "") ~= myName then
+				core:RemoveTrusted(name, nil, true)
+			end
 		end
 	end
 
