@@ -1,5 +1,5 @@
 ## Interface: 50400
-## Version: 5.4.1.wowi:revision
+## Version: 5.4.2.wowi:revision
 
 ## Title: Hydra
 ## Notes: Multibox leveling helper.
@@ -8,6 +8,7 @@
 ## Notes-frFR: Aide au leveling en multibox.
 ## Notes-koKR: 멀티박스 레벨링 도우미입니다.
 ## Notes-ruRU: Помощник для multibox.
+
 ## Author: Phanx
 ## X-Email: addons@phanx.net
 ## X-Copyright: Copyright (c) 2010-2013 Phanx. All rights reserved.
