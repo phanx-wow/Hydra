@@ -25,7 +25,7 @@ local module = core:RegisterModule("Follow", CreateFrame("Frame"))
 module:SetScript("OnEvent", function(f, e, ...) return f[e] and f[e](f, ...) end)
 
 module.defaults = { enable = true, refollowAfterCombat = false, verbose = true }
-module.debug = true
+
 ------------------------------------------------------------------------
 
 function module:CheckState()
