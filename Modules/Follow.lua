@@ -45,7 +45,7 @@ end
 
 ------------------------------------------------------------------------
 
-function module:RecieveAddonMessage(message, channel, sender)
+function module:ReceiveAddonMessage(message, channel, sender)
 	if message == playerName then -- sender is following me
 		if self.db.verbose then
 			self:Print(L.FollowingYouStart, sender)
