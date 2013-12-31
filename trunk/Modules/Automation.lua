@@ -251,8 +251,13 @@ function module:SetupOptions(panel)
 	repairEquipment.OnClick = OnClick
 	repairEquipment.key = "repairEquipment"
 
+	local repairWithGuildFunds = panel:CreateCheckbox(L.RepairGuild, L.RepairGuild_Info)
+	repairWithGuildFunds:SetPoint("TOPLEFT", repairEquipment, "BOTTOMLEFT", 24, -8)
+	repairWithGuildFunds.OnClick = OnClick
+	repairWithGuildFunds.key = "repairWithGuildFunds"
+
 	local sellJunk = panel:CreateCheckbox(L.SellJunk, L.SellJunk_Info)
-	sellJunk:SetPoint("TOPLEFT", repairEquipment, "BOTTOMLEFT", 0, -8)
+	sellJunk:SetPoint("TOPLEFT", repairWithGuildFunds, "BOTTOMLEFT", -24, -8)
 	sellJunk.OnClick = OnClick
 	sellJunk.key = "sellJunk"
 
@@ -277,6 +282,8 @@ function module:SetupOptions(panel)
 		acceptResurrections:SetChecked(module.db.acceptResurrections)
 		acceptResurrectionsInCombat:SetChecked(module.db.acceptResurrectionsInCombat)
 		repairEquipment:SetChecked(module.db.repairEquipment)
+		repairWithGuildFunds:SetChecked(module.db.repairWithGuildFunds)
+		repairWithGuildFunds:SetEnabled(module.db.repairEquipment)
 		sellJunk:SetChecked(module.db.sellJunk)
 		verbose:SetChecked(module.db.verbose)
 	end
