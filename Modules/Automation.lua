@@ -209,6 +209,9 @@ function module:SetupOptions(panel)
 
 	local function OnClick(self, checked)
 		module.db[self.key] = checked
+		if self.child then
+			self.child:SetEnabled(checked)
+		end
 		if self.key ~= "verbose" then
 			module:CheckState()
 		end
@@ -255,6 +258,8 @@ function module:SetupOptions(panel)
 	repairWithGuildFunds:SetPoint("TOPLEFT", repairEquipment, "BOTTOMLEFT", 24, -8)
 	repairWithGuildFunds.OnClick = OnClick
 	repairWithGuildFunds.key = "repairWithGuildFunds"
+
+	repairEquipment.child = repairWithGuildFunds
 
 	local sellJunk = panel:CreateCheckbox(L.SellJunk, L.SellJunk_Info)
 	sellJunk:SetPoint("TOPLEFT", repairWithGuildFunds, "BOTTOMLEFT", -24, -8)
