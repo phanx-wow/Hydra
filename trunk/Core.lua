@@ -220,8 +220,8 @@ function f:CHAT_MSG_ADDON(prefix, message, channel, sender)
 	if sender == myName or prefix ~= "Hydra" then return end
 	prefix, message = strsplit(" ", message, 2)
 	local module = core.modules[prefix]
-	if not module or not module.RecieveAddonMessage then return end
-	module:RecieveAddonMessage(message, channel, sender)
+	if not module or not module.ReceiveAddonMessage then return end
+	module:ReceiveAddonMessage(message, channel, sender)
 end
 
 ------------------------------------------------------------------------
