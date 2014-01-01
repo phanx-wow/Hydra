@@ -8,6 +8,8 @@
 ----------------------------------------------------------------------]]
 
 local HYDRA, core = ...
+core.debugall = true
+_G[HYDRA] = core
 
 local L = setmetatable(core.L or {}, { __index = function(t, k)
 	if k == nil then return "" end
@@ -24,15 +26,14 @@ BINDING_HEADER_HYDRA = HYDRA
 ------------------------------------------------------------------------
 
 local SOLO, INSECURE, SECURE, LEADER = 0, 1, 2, 3
-local throttle, myRealm, myName = 0, GetRealmName(), UnitName("player")
+local throttle, myRealm, myName = 0, gsub(GetRealmName(), "%s+", ""), UnitName("player")
 local myRealmS = "%-" .. myRealm .. "$"
 
 ------------------------------------------------------------------------
 
 function core:Debug(str, ...)
 	if not str or (not self.debug and not core.debugall) then return end
-	str = tostring(str)
-	if str:match("%%[dsx%d%.]") then
+	if strmatch(str, "%%[dsx%d%.]") then
 		print("|cffff9999Hydra:|r", format(str, ...))
 	else
 		print("|cffff9999Hydra:|r", str, ...)
@@ -40,10 +41,11 @@ function core:Debug(str, ...)
 end
 
 function core:Print(str, ...)
-	if str:match("%%[dsx%d%.]") then
-		str = format(str, ...)
+	if strmatch(str, "%%[dsx%d%.]") then
+		print("|cffffcc00Hydra:|r", format(str, ...))
+	else
+		print("|cffffcc00Hydra:|r", str, ...)
 	end
-	print("|cffffcc00Hydra:|r", str)
 end
 
 function core:Alert(message, flash, r, g, b)
@@ -107,7 +109,7 @@ function core:ValidateName(name, realm)
 	end
 	name = Capitalize(name)
 	if realm and strlen(realm) > 0 then
-		realm = Capitalize(realm)
+		realm = Capitalize(gsub(realm, "%s+", ""))
 		return format("%s-%s", name, realm), name
 	else
 		return format("%s-%s", name, myRealm), name
@@ -146,13 +148,25 @@ end
 ------------------------------------------------------------------------
 
 local noop = function() end
+
+local Refresh = function(module)
+	core:Debug("Refreshing module:", module.name)
+	local enable = module:CheckState()
+	module.enabled = enable
+	module:Disable()
+	if enable then
+		module:Enable()
+	end
+end
+
 function core:RegisterModule(name, module)
 	assert(not self.modules[name], "Module %s is already registered!", name)
 	if not module then module = {} end
 
 	module.name = name
-	module.CheckState = noop
-	module.Alert, module.Debug, module.Print, module.SendAddonMessage, module.SendChatMessage = self.Alert, self.Debug, self.Print, self.SendAddonMessage, self.SendChatMessage
+	module.CheckState, module.Enable, module.Disable = noop, noop, noop
+	module.Alert, module.Debug, module.Print, module.Refresh, module.SendAddonMessage, module.SendChatMessage
+	= self.Alert,   self.Debug,   self.Print,        Refresh,    self.SendAddonMessage,   self.SendChatMessage
 
 	self.modules[name] = module
 
@@ -220,7 +234,7 @@ function f:CHAT_MSG_ADDON(prefix, message, channel, sender)
 	if sender == myName or prefix ~= "Hydra" then return end
 	prefix, message = strsplit(" ", message, 2)
 	local module = core.modules[prefix]
-	if not module or not module.ReceiveAddonMessage then return end
+	if not module or not module.enabled or not module.ReceiveAddonMessage then end
 	module:ReceiveAddonMessage(message, channel, sender)
 end
 
@@ -273,7 +287,17 @@ function f:CheckParty(unit)
 		core.state = newstate
 		for name, module in pairs(core.modules) do
 			core:Debug("Checking state for module:", name)
-			module:CheckState()
+			local enable = module:CheckState()
+			if enable ~= module.enabled then
+				module.enabled = enable
+				if enable then
+					core:Debug("Enable module:", name)
+					module:Enable()
+				else
+					core:Debug("Disable module:", name)
+					module:Disable()
+				end
+			end
 		end
 	end
 end

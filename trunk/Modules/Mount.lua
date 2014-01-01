@@ -27,23 +27,21 @@ module.defaults = { mount = true, dismount = true }
 ------------------------------------------------------------------------
 
 function module:CheckState()
-	local enable = core.state > SOLO and (self.db.mount or self.db.dismount)
-	if enable == self.enabled then return end
-	if enable then
-		self.enabled = true
-		self:Debug("Enable module: Mount")
-		self:RegisterEvent("UNIT_SPELLCAST_SENT")
-	else
-		self.enabled = nil
-		self:Debug("Disable module: Mount")
-		self:UnregisterAllEvents()
-	end
+	return core.state > SOLO and (self.db.mount or self.db.dismount)
+end
+
+function module:Enable()
+	self:RegisterEvent("UNIT_SPELLCAST_SENT")
+end
+
+function module:Disable()
+	self:UnregisterAllEvents()
 end
 
 ------------------------------------------------------------------------
 
 function module:ReceiveAddonMessage(message, channel, sender)
-	if not self.enabled or not core:IsTrusted(sender) or not UnitInParty(sender) or not UnitInRaid(sender) then return end
+	if not core:IsTrusted(sender) or not UnitInParty(sender) or not UnitInRaid(sender) then return end
 	self:Debug("ReceiveAddonMessage", message, channel, sender)
 
 	if message == "ERROR" then
