@@ -44,28 +44,27 @@ module.defaults = {
 ------------------------------------------------------------------------
 
 function module:CheckState()
+	return self.db.enable and core.state >= TRUSTED
+end
+
+function module:Enable()
 	-- #TEMP: fix old lowercase entry
 	self.db.mode = strupper(self.db.mode)
 
-	if core.state < TRUSTED or not self.db.enable then
-		self:Debug("Disable module: Chat")
-		self:UnregisterAllEvents()
-		self:Hide()
+	self:RegisterEvent("CHAT_MSG_GROUP")
+	self:RegisterEvent("CHAT_MSG_GROUP_LEADER")
+	self:RegisterEvent("CHAT_MSG_RAID")
+	self:RegisterEvent("CHAT_MSG_RAID_LEADER")
+	self:RegisterEvent("CHAT_MSG_SYSTEM")
+	self:RegisterEvent("CHAT_MSG_WHISPER")
+	self:RegisterEvent("CHAT_MSG_BN_WHISPER")
 
-	else
-		self:Debug("Enable module: Chat")
-		if self.db.mode == "APPFOCUS" then
-			self:Show()
-		end
+	self:SetShown(self.db.mode == "APPFOCUS")
+end
 
-		self:RegisterEvent("CHAT_MSG_GROUP")
-		self:RegisterEvent("CHAT_MSG_GROUP_LEADER")
-		self:RegisterEvent("CHAT_MSG_RAID")
-		self:RegisterEvent("CHAT_MSG_RAID_LEADER")
-		self:RegisterEvent("CHAT_MSG_SYSTEM")
-		self:RegisterEvent("CHAT_MSG_WHISPER")
-		self:RegisterEvent("CHAT_MSG_BN_WHISPER")
-	end
+function module:Disable()
+	self:UnregisterAllEvents()
+	self:Hide()
 end
 
 ------------------------------------------------------------------------
@@ -291,7 +290,7 @@ function module:SetupOptions(panel)
 	enable:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
 	enable.OnClick = function(_, checked)
 		self.db.enable = checked
-		self:CheckState()
+		self:Refresh()
 	end
 
 	local modes = {
@@ -309,7 +308,7 @@ function module:SetupOptions(panel)
 			end,
 			func = function(this)
 				self.db.mode = this.value
-				self:CheckState()
+				self:Refresh()
 			end,
 		}
 		UIDropDownMenu_Initialize(mode.dropdown, function()

@@ -27,14 +27,16 @@ module.defaults = { enable = true, timeout = 60 }
 ------------------------------------------------------------------------
 
 function module:CheckState()
-	if core.state == SOLO or not self.db.enable then
-		self:Debug("Disable module: Taxi")
-		self:UnregisterAllEvents()
-	else
-		self:Debug("Enable module: Taxi")
-		self:RegisterEvent("TAXIMAP_OPENED")
-	end
 	taxiNode, taxiNodeName, taxiTime = nil, nil, 0
+	return core.state > SOLO and self.db.enable
+end
+
+function module:Enable()
+	self:RegisterEvent("TAXIMAP_OPENED")
+end
+
+function module:Disable()
+	self:UnregisterAllEvents()
 end
 
 ------------------------------------------------------------------------
@@ -119,7 +121,7 @@ function module:SetupOptions(panel)
 	enable:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
 	enable.OnClick = function(_, checked)
 		self.db.enable = checked
-		self:CheckState()
+		self:Refresh()
 	end
 
 	local timeout = LibStub("PhanxConfig-Slider").CreateSlider(panel, L.Timeout, L.TaxiTimeout_Info, 30, 600, 30)

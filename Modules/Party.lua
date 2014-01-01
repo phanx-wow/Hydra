@@ -31,13 +31,15 @@ module.defaults = { enable = true }
 ------------------------------------------------------------------------
 
 function module:CheckState()
-	if self.db.enable then
-		self:Debug("Enable module: Group")
-		self:RegisterEvent("PARTY_INVITE_REQUEST")
-	else
-		self:Debug("Disable module: Group")
-		self:UnregisterAllEvents()
-	end
+	return self.db.enable
+end
+
+function module:Enable()
+	self:RegisterEvent("PARTY_INVITE_REQUEST")
+end
+
+function module:Disable()
+	self:UnregisterAllEvents()
 end
 
 ------------------------------------------------------------------------
@@ -45,7 +47,7 @@ end
 function module:ReceiveAddonMessage(message, channel, sender)
 	self:Debug("ReceiveAddonMessage", message, channel, sender)
 
-	if message:match("INVITE") and channel == "WHISPER" then
+	if strmatch(message, "INVITE") then
 		if not core:IsTrusted(sender) then
 			return self:SendChatMessage(L.CantInviteNotTrusted, sender)
 		end
@@ -54,13 +56,13 @@ function module:ReceiveAddonMessage(message, channel, sender)
 			return self:SendChatMessage(L.CantInviteNotLeader, sender)
 		end
 
-		if message:match("PROMOTE") then
+		if strmatch(message, "PROMOTE") then
 			remote = sender
 			self:RegisterEvent("PARTY_LEADER_CHANGED")
 		end
 		InviteUnit(sender)
 
-	elseif message:match("PROMOTE") then
+	elseif strmatch(message, "PROMOTE") then
 		if not core:IsTrusted(sender) then
 			return -- self:SendChatMessage(L.CantPromoteNotTrusted, sender)
 		end
@@ -73,7 +75,7 @@ function module:ReceiveAddonMessage(message, channel, sender)
 			end
 		else
 			-- we're not in a group, invite instead
-			return self:CHAT_MSG_ADDON("HydraGroup", "INVITE", "WHISPER", sender)
+			return self:ReceiveAddonMessage("HydraGroup", "INVITE", "WHISPER", sender)
 		end
 	end
 end
@@ -90,7 +92,7 @@ end
 
 do
 	local function checkInvite(which, sender)
-		if core:IsTrusted(sender) then
+		if module.enabled and core:IsTrusted(sender) then
 			module:Debug("Sender", sender, "is trusted.")
 			local dialog = StaticPopup_Visible(which)
 			if dialog then
@@ -129,7 +131,7 @@ if L.SlashInviteMe ~= SLASH_HYDRA_INVITEME1 and L.SlashInviteMe ~= SLASH_HYDRA_I
 end
 
 SlashCmdList.HYDRA_INVITEME = function(name)
-	if GetNumGroupMembers() > 0 then return end
+	if not module.enabled or GetNumGroupMembers() > 0 then return end
 
 	name = name and strtrim(name) or ""
 
@@ -158,7 +160,7 @@ if L.SlashPromoteMe ~= SLASH_HYDRA_PROMOTEME1 and L.SlashPromoteMe ~= SLASH_HYDR
 end
 
 SlashCmdList.HYDRA_PROMOTEME = function()
-	if GetNumGroupMembers() == 0 then return end
+	if not module.enabled or GetNumGroupMembers() == 0 then return end
 
 	module:Debug("PROMOTEME")
 	module:SendAddonMessage("PROMOTE")
@@ -174,7 +176,7 @@ function module:SetupOptions(panel)
 	enable:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
 	enable.OnClick = function(_, checked)
 		self.db.enable = checked
-		self:CheckState()
+		self:Refresh()
 	end
 
 	local help = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")

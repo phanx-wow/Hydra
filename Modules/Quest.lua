@@ -119,29 +119,29 @@ local ignoredQuests = {
 ------------------------------------------------------------------------
 
 function module:CheckState()
-	self:UnregisterAllEvents()
+	return self.db.enable
+end
 
-	if self.db.enable then
-		self:Debug("Enable module: Quest")
+function module:Enable()
+	self:RegisterEvent("GOSSIP_SHOW")
+	self:RegisterEvent("QUEST_GREETING")
+	self:RegisterEvent("QUEST_DETAIL")
+	self:RegisterEvent("QUEST_ACCEPT_CONFIRM")
+	self:RegisterEvent("QUEST_ACCEPTED")
+	self:RegisterEvent("QUEST_PROGRESS")
+	self:RegisterEvent("QUEST_COMPLETE")
+	self:RegisterEvent("QUEST_ITEM_UPDATE")
+	self:RegisterEvent("QUEST_FINISHED")
+	self:RegisterEvent("QUEST_AUTOCOMPLETE")
 
-		self:RegisterEvent("GOSSIP_SHOW")
-		self:RegisterEvent("QUEST_GREETING")
-		self:RegisterEvent("QUEST_DETAIL")
+	if core.state > SOLO then
 		self:RegisterEvent("QUEST_ACCEPT_CONFIRM")
-		self:RegisterEvent("QUEST_ACCEPTED")
-		self:RegisterEvent("QUEST_PROGRESS")
-		self:RegisterEvent("QUEST_COMPLETE")
-		self:RegisterEvent("QUEST_ITEM_UPDATE")
-		self:RegisterEvent("QUEST_FINISHED")
-		self:RegisterEvent("QUEST_AUTOCOMPLETE")
-
-		if core.state > SOLO then
-			self:RegisterEvent("QUEST_ACCEPT_CONFIRM")
-			self:RegisterEvent("QUEST_LOG_UPDATE")
-		end
-	else
-		self:Debug("Quest module disabled.")
+		self:RegisterEvent("QUEST_LOG_UPDATE")
 	end
+end
+
+function module:Disable()
+	self:UnregisterAllEvents()
 end
 
 ------------------------------------------------------------------------
@@ -508,7 +508,7 @@ function module:SetupOptions(panel)
 			turnin:SetEnabled( checked )
 			share:SetEnabled( checked )
 			abandon:SetEnabled( checked )
-			module:CheckState()
+			module:Refresh()
 
 		elseif this.key == "accept" then
 			acceptOnlyShared:SetEnabled( checked )

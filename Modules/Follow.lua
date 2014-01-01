@@ -29,18 +29,20 @@ module.defaults = { enable = true, refollowAfterCombat = false, verbose = true }
 ------------------------------------------------------------------------
 
 function module:CheckState()
-	if core.status == SOLO then
-		self:Debug("Disable module: Follow")
-		self:UnregisterAllEvents()
-		followers, following = wipe(followers), nil
-	else
-		self:Debug("Enable module: Follow")
-		self:RegisterEvent("AUTOFOLLOW_BEGIN")
-		self:RegisterEvent("AUTOFOLLOW_END")
-		if self.db.refollowAfterCombat then
-			self:RegisterEvent("PLAYER_REGEN_ENABLED")
-		end
+	return core.state > SOLO
+end
+
+function module:Enable()
+	self:RegisterEvent("AUTOFOLLOW_BEGIN")
+	self:RegisterEvent("AUTOFOLLOW_END")
+	if self.db.refollowAfterCombat then
+		self:RegisterEvent("PLAYER_REGEN_ENABLED")
 	end
+end
+
+function module:Disable()
+	self:UnregisterAllEvents()
+	followers, following = wipe(followers), nil
 end
 
 ------------------------------------------------------------------------
@@ -170,7 +172,7 @@ if L.SlashFollowMe ~= SLASH_HYDRA_FOLLOWME1 and L.SlashFollowMe ~= SLASH_HYDRA_F
 end
 
 function SlashCmdList.HYDRA_FOLLOWME(names)
-	if core.state == SOLO then return end
+	if not module.enabled then return end
 
 	if names and strlen(names) > 0 then
 		local sent = 0
@@ -206,7 +208,7 @@ if L.SlashCorpse ~= SLASH_HYDRA_CORPSE1 then
 end
 
 function SlashCmdList.HYDRA_CORPSE(command)
-	if core.state == SOLO then return end
+	if not module.enabled then return end
 	command = command and strlower(strtrim(command)) or ""
 	if strmatch(command, L.CmdAccept) or strmatch(command, "^re?l?e?a?s?e?") then
 		module:SSendAddonMessage("RELEASE")
@@ -233,27 +235,32 @@ function module:SetupOptions(panel)
 
 	local enable = CreateCheckbox(panel, L.Enable, L.Enable_Info)
 	enable:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
-	enable.OnClick = function(_, checked)
-		self.db.enable = checked
+	function enable:OnValueChanged(value)
+		module.db.enable = checked
+		module:Refresh()
 	end
 
 	local refollow = CreateCheckbox(panel, L.RefollowAfterCombat, L.RefollowAfterCombat_Info)
 	refollow:SetPoint("TOPLEFT", enable, "BOTTOMLEFT", 0, -8)
-	refollow.OnClick = function(_, checked)
-		self.db.refollowAfterCombat = checked
-		self:CheckState()
+	function refollow:OnValueChanged(value)
+		module.db.refollowAfterCombat = checked
+		if checked and module.db.enable then
+			module:RegisterEvent("PLAYER_REGEN_ENABLED")
+		else
+			module:UnregisterEvent("PLAYER_REGEN_ENABLED")
+		end
 	end
 
 	local verbose = CreateCheckbox(panel, L.Verbose, L.Verbose_Info)
 	verbose:SetPoint("TOPLEFT", refollow, "BOTTOMLEFT", 0, -8)
-	verbose.OnClick = function(_, checked)
-		self.db.verbose = checked
+	function verbose:OnValueChanged(value)
+		module.db.verbose = checked
 	end
 
 	local targeted = CreateCheckbox(panel, L.TargetedFollowMe, L.TargetedFollowMe_Info)
 	targeted:SetPoint("TOPLEFT", verbose, "BOTTOMLEFT", 0, -8)
-	targeted.OnClick = function(_, checked)
-		self.db.targetedFollowMe = checked
+	function targeted:OnValueChanged(value)
+		module.db.targetedFollowMe = checked
 	end
 
 	local follow = CreateKeyBinding(panel, L.FollowTarget, L.FollowTarget_Info, "HYDRA_FOLLOW_TARGET")
@@ -281,10 +288,10 @@ function module:SetupOptions(panel)
 	help:SetText(L.FollowHelpText)
 
 	panel.refresh = function()
-		enable:SetChecked(self.db.enable)
-		refollow:SetChecked(self.db.refollowAfterCombat)
-		verbose:SetChecked(self.db.verbose)
-		targeted:SetChecked(self.db.targetedFollowMe)
+		enable:SetChecked(module.db.enable)
+		refollow:SetChecked(module.db.refollowAfterCombat)
+		verbose:SetChecked(module.db.verbose)
+		targeted:SetChecked(module.db.targetedFollowMe)
 		follow:RefreshValue()
 		followme:RefreshValue()
 		release:RefreshValue()
