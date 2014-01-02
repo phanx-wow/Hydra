@@ -20,7 +20,6 @@
 ----------------------------------------------------------------------]]
 
 local _, core = ...
-
 local L = core.L
 
 local SOLO, GROUP, TRUSTED, LEADER = 0, 1, 2, 3
