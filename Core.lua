@@ -8,6 +8,8 @@
 ----------------------------------------------------------------------]]
 
 local HYDRA, core = ...
+--core.debugall = true
+_G[HYDRA] = core
 
 local L = setmetatable(core.L or {}, { __index = function(t, k)
 	if k == nil then return "" end
@@ -63,8 +65,8 @@ function core:SendAddonMessage(message, target)
 	end
 end
 
-function core:SendChatMessage(message, channel, target)
-	if not message or not channel then
+function core:SendChatMessage(message, target)
+	if not message then
 		return
 	end
 	if target then
