@@ -27,7 +27,7 @@ local SOLO, GROUP, TRUSTED, LEADER = 0, 1, 2, 3
 local realmName, playerName = GetRealmName(), UnitName("player")
 
 local groupForwardTime, groupForwardFrom, hasActiveConversation = 0
-local whisperForwardTime, whisperForwardTo = 0
+local whisperForwardTime, whisperForwardTo, whisperForwardMessage = 0
 local frameTime, hasFocus = 0
 
 local module = core:RegisterModule("Chat", CreateFrame("Frame"))
@@ -136,31 +136,41 @@ local ignorewords = {
 	(UnitName("player")), -- spammers seem to think addressing you by your character's name adds a personal touch...
 }
 
+local lastForwardedTo, lastForwardedMessage
+
 function module:CHAT_MSG_WHISPER(message, sender, _, _, _, flag, _, _, _, _, _, guid)
-	self:Debug("CHAT_MSG_WHISPER", guid, flag, sender, message)
+	self:Debug("CHAT_MSG_WHISPER", flag, sender, message)
 
 	if UnitInRaid(sender) or UnitInParty(sender) then
-		self:Debug("sender in group")
+		self:Debug("Sender in group.")
 
 		-- a group member whispered me "@Someone Hello!"
 		local target, text = strmatch(message, "^@(.-) (.+)$")
 
 		if target and text then
 			-- sender wants us to whisper target with text
+			self:Debug("Forwarding message to", target, ":", text)
 			whisperForwardTo, whisperForwardTime = target, GetTime()
 			self:SendChatMessage(text, target)
 
 		elseif whisperForwardTo then
 			-- we've forwarded to whisper recently
+			self:Debug("Previously forwarded a whisper...")
 			if GetTime() - whisperForwardTime > self.db.timeout then
 				-- it's been a while since our last forward to whisper
+				self:Debug("...but the timeout has been reached.")
 				whisperForwardTo = nil
 				self:SendChatMessage("!ERROR: " .. L.WhisperTimeoutError, sender)
 
-			else
+			elseif message ~= whisperForwardMessage then
 				-- whisper last forward target
+				self:Debug("...forwarding this whisper to the same target.")
 				whisperForwardTime = GetTime()
 				self:SendChatMessage(message, whisperForwardTo)
+
+			else
+				-- message was echoed, avoid a loop
+				self:Debug("Loop averted!")
 			end
 		end
 	else
