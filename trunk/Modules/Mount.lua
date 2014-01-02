@@ -41,7 +41,7 @@ end
 ------------------------------------------------------------------------
 
 function module:ReceiveAddonMessage(message, channel, sender)
-	if not core:IsTrusted(sender) or not UnitInParty(sender) or not UnitInRaid(sender) then return end
+	if not core:IsTrusted(sender) or not (UnitInParty(sender) or UnitInRaid(sender)) then return end
 	self:Debug("ReceiveAddonMessage", message, channel, sender)
 
 	if message == "ERROR" then
