@@ -27,7 +27,7 @@ local SOLO, GROUP, TRUSTED, LEADER = 0, 1, 2, 3
 local realmName, playerName = GetRealmName(), UnitName("player")
 
 local groupForwardTime, groupForwardFrom, hasActiveConversation = 0
-local whisperForwardTime, whisperForwardTo = 0
+local whisperForwardTime, whisperForwardTo, whisperForwardMessage = 0
 local frameTime, hasFocus = 0
 
 local module = core:RegisterModule("Chat", CreateFrame("Frame"))
@@ -136,11 +136,19 @@ local ignorewords = {
 	(UnitName("player")), -- spammers seem to think addressing you by your character's name adds a personal touch...
 }
 
+local lastForwardedTo, lastForwardedMessage
+
 function module:CHAT_MSG_WHISPER(message, sender, _, _, _, flag, _, _, _, _, _, guid)
 	self:Debug("CHAT_MSG_WHISPER", guid, flag, sender, message)
 
+	if sender == whisperForwardTo and message == whisperForwardMessage and GetTime() - whisperForwardTime < 10 then
+		-- avoid teh infinite loop of doom
+		self:Debug("Loop averted!")
+		return
+	end
+
 	if UnitInRaid(sender) or UnitInParty(sender) then
-		self:Debug("sender in group")
+		self:Debug("Sender in group.")
 
 		-- a group member whispered me "@Someone Hello!"
 		local target, text = strmatch(message, "^@(.-) (.+)$")
