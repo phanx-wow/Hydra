@@ -8,8 +8,6 @@
 ----------------------------------------------------------------------]]
 
 local HYDRA, core = ...
-core.debugall = true
-_G[HYDRA] = core
 
 local L = setmetatable(core.L or {}, { __index = function(t, k)
 	if k == nil then return "" end
@@ -117,31 +115,32 @@ function core:ValidateName(name, realm)
 end
 
 function core:IsTrusted(name, realm)
-	name, displayName = self:ValidateName(name, realm)
+	local name, displayName = self:ValidateName(name, realm)
 	if not name then return end
 	local trusted = self.trusted[name]
 	self:Debug("IsTrusted", name, not not trusted)
-	return displayName
+	return trusted and displayName
 end
 
 function core:AddTrusted(name, realm, silent)
-	name = self:ValidateName(name, realm)
+	local name, displayName = self:ValidateName(name, realm)
 	self:Debug("AddTrusted", name)
 	if not name or self.trusted[name] then return end
-	self.trusted[name] = name
+	self.trusted[name] = true
 	if not silent then
-		self:Print(L.AddedTrusted, name)
+		self:Print(L.AddedTrusted, displayName)
 	end
 	self:TriggerEvent("GROUP_ROSTER_UPDATE")
 end
 
 function core:RemoveTrusted(name, realm, skipValidation)
-	if not skipValidation then
-		name, name = self:ValidateName(name, realm)
-	end
+	local displayName = name
+	--if not skipValidation then
+		name, displayName = self:ValidateName(name, realm)
+	--end
 	if not name or not self.trusted[name] then return end
 	self.trusted[name] = nil
-	self:Print(L.RemovedTrusted, name)
+	self:Print(L.RemovedTrusted, displayName)
 	self:TriggerEvent("GROUP_ROSTER_UPDATE")
 end
 
