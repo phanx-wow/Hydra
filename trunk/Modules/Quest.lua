@@ -25,18 +25,23 @@
 ----------------------------------------------------------------------]]
 
 local _, core = ...
-
 local L = core.L
 
 local SOLO, PARTY, TRUSTED, LEADER = 0, 1, 2, 3
 local playerName = UnitName("player")
-
 local accept, accepted = {}, {}
 
 local module = core:RegisterModule("Quest", CreateFrame("Frame"))
 module:SetScript("OnEvent", function(f, e, ...) return f[e] and f[e](f, ...) end)
 
-module.defaults = { enable = true, accept = true, acceptOnlyShared = false, turnin = true, share = true, abandon = true }
+module.defaults = {
+	enable = true,
+	accept = true,
+	acceptOnlyShared = false,
+	turnin = true,
+	share = false,
+	abandon = false,
+}
 
 ------------------------------------------------------------------------
 
