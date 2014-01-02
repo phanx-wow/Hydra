@@ -139,13 +139,7 @@ local ignorewords = {
 local lastForwardedTo, lastForwardedMessage
 
 function module:CHAT_MSG_WHISPER(message, sender, _, _, _, flag, _, _, _, _, _, guid)
-	self:Debug("CHAT_MSG_WHISPER", guid, flag, sender, message)
-
-	if sender == whisperForwardTo and message == whisperForwardMessage and GetTime() - whisperForwardTime < 10 then
-		-- avoid teh infinite loop of doom
-		self:Debug("Loop averted!")
-		return
-	end
+	self:Debug("CHAT_MSG_WHISPER", flag, sender, message)
 
 	if UnitInRaid(sender) or UnitInParty(sender) then
 		self:Debug("Sender in group.")
@@ -155,20 +149,28 @@ function module:CHAT_MSG_WHISPER(message, sender, _, _, _, flag, _, _, _, _, _, 
 
 		if target and text then
 			-- sender wants us to whisper target with text
+			self:Debug("Forwarding message to", target, ":", text)
 			whisperForwardTo, whisperForwardTime = target, GetTime()
 			self:SendChatMessage(text, target)
 
 		elseif whisperForwardTo then
 			-- we've forwarded to whisper recently
+			self:Debug("Previously forwarded a whisper...")
 			if GetTime() - whisperForwardTime > self.db.timeout then
 				-- it's been a while since our last forward to whisper
+				self:Debug("...but the timeout has been reached.")
 				whisperForwardTo = nil
 				self:SendChatMessage("!ERROR: " .. L.WhisperTimeoutError, sender)
 
-			else
+			elseif message ~= whisperForwardMessage then
 				-- whisper last forward target
+				self:Debug("...forwarding this whisper to the same target.")
 				whisperForwardTime = GetTime()
 				self:SendChatMessage(message, whisperForwardTo)
+
+			else
+				-- message was echoed, avoid a loop
+				self:Debug("Loop averted!")
 			end
 		end
 	else
