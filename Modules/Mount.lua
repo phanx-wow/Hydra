@@ -11,12 +11,10 @@
 ----------------------------------------------------------------------]]
 
 local _, core = ...
-
 local L = core.L
 
 local SOLO, PARTY, TRUSTED, LEADER = 0, 1, 2, 3
 local playerName = UnitName("player")
-
 local responding
 
 local module = core:RegisterModule("Mount", CreateFrame("Frame"))

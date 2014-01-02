@@ -18,7 +18,6 @@ local L = core.L
 
 local SOLO, PARTY, TRUSTED, LEADER = 0, 1, 2, 3
 local playerName = UnitName("player")
-
 local followers, following, lastFollowing = {}
 
 local module = core:RegisterModule("Follow", CreateFrame("Frame"))

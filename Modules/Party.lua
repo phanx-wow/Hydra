@@ -15,12 +15,10 @@
 ----------------------------------------------------------------------]]
 
 local _, core = ...
-
 local L = core.L
 
 local SOLO, PARTY, TRUSTED, LEADER = 0, 1, 2, 3
 local realmName, playerName = GetRealmName(), UnitName("player")
-
 local remote
 
 local module = core:RegisterModule("Group", CreateFrame("Frame"))
