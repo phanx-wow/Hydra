@@ -17,16 +17,15 @@
 ----------------------------------------------------------------------]]
 
 local _, core = ...
-
 local L = core.L
 
 local module = core:RegisterModule("Automation", CreateFrame("Frame"))
 module:SetScript("OnEvent", function(f, e, ...) return f[e] and f[e](f, ...) end)
 
 module.defaults = {
-	acceptResurrections = true,
-	acceptResurrectionsInCombat = true,
-	acceptSummons = true,
+	acceptResurrections = false,
+	acceptResurrectionsInCombat = false,
+	acceptSummons = false,
 	declineArenaTeams = true,
 	declineDuels = true,
 	repairEquipment = true,
