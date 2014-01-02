@@ -8,7 +8,7 @@
 ----------------------------------------------------------------------]]
 
 local HYDRA, core = ...
---core.debugall = true
+core.debugall = true
 _G[HYDRA] = core
 
 local L = setmetatable(core.L or {}, { __index = function(t, k)
