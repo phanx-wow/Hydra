@@ -227,39 +227,39 @@ BINDING_NAME_HYDRA_ACCEPT_CORPSE = L.AcceptCorpse
 
 module.displayName = L.Follow
 function module:SetupOptions(panel)
-	local title, notes = LibStub("PhanxConfig-Header").CreateHeader(panel, L.Follow, L.Follow_Info)
+	local title, notes = LibStub("PhanxConfig-Header"):New(panel, L.Follow, L.Follow_Info)
 
 	local CreateCheckbox = LibStub("PhanxConfig-Checkbox").CreateCheckbox
 	local CreateKeyBinding = LibStub("PhanxConfig-KeyBinding").CreateKeyBinding
 
 	local enable = CreateCheckbox(panel, L.Enable, L.Enable_Info)
 	enable:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
-	function enable:OnValueChanged(value)
-		module.db.enable = checked
-		module:Refresh()
+	enable.OnValueChanged = function(this, value)
+		self.db.enable = value
+		self:Refresh()
 	end
 
 	local refollow = CreateCheckbox(panel, L.RefollowAfterCombat, L.RefollowAfterCombat_Info)
 	refollow:SetPoint("TOPLEFT", enable, "BOTTOMLEFT", 0, -8)
-	function refollow:OnValueChanged(value)
-		module.db.refollowAfterCombat = checked
-		if checked and module.db.enable then
-			module:RegisterEvent("PLAYER_REGEN_ENABLED")
+	refollow.OnValueChanged = function(this, value)
+		self.db.refollowAfterCombat = value
+		if value and self.db.enable then
+			self:RegisterEvent("PLAYER_REGEN_ENABLED")
 		else
-			module:UnregisterEvent("PLAYER_REGEN_ENABLED")
+			self:UnregisterEvent("PLAYER_REGEN_ENABLED")
 		end
 	end
 
 	local verbose = CreateCheckbox(panel, L.Verbose, L.Verbose_Info)
 	verbose:SetPoint("TOPLEFT", refollow, "BOTTOMLEFT", 0, -8)
-	function verbose:OnValueChanged(value)
-		module.db.verbose = checked
+	verbose.OnValueChanged = function(this, value)
+		self.db.verbose = value
 	end
 
 	local targeted = CreateCheckbox(panel, L.TargetedFollowMe, L.TargetedFollowMe_Info)
 	targeted:SetPoint("TOPLEFT", verbose, "BOTTOMLEFT", 0, -8)
-	function targeted:OnValueChanged(value)
-		module.db.targetedFollowMe = checked
+	targeted.OnValueChanged = function(this, value)
+		self.db.targetedFollowMe = value
 	end
 
 	local follow = CreateKeyBinding(panel, L.FollowTarget, L.FollowTarget_Info, "HYDRA_FOLLOW_TARGET")
@@ -287,10 +287,10 @@ function module:SetupOptions(panel)
 	help:SetText(L.FollowHelpText)
 
 	panel.refresh = function()
-		enable:SetChecked(module.db.enable)
-		refollow:SetChecked(module.db.refollowAfterCombat)
-		verbose:SetChecked(module.db.verbose)
-		targeted:SetChecked(module.db.targetedFollowMe)
+		enable:SetChecked(self.db.enable)
+		refollow:SetChecked(self.db.refollowAfterCombat)
+		verbose:SetChecked(self.db.verbose)
+		targeted:SetChecked(self.db.targetedFollowMe)
 		follow:RefreshValue()
 		followme:RefreshValue()
 		release:RefreshValue()
