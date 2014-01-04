@@ -12,12 +12,12 @@ local HYDRA, core = ...
 local L = core.L
 local panels = {}
 local noop = function() end
-local CreateOptionsPanel = LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel
+local OptionsPanel = LibStub("PhanxConfig-OptionsPanel")
 
 ------------------------------------------------------------------------
 
 if core.SetupOptions then
-	panels[1] = CreateOptionsPanel(HYDRA, nil, function(self)
+	panels[1] = OptionsPanel:New(HYDRA, nil, function(self)
 		core:SetupOptions(self)
 		core.SetupOptions = noop
 		core.OptionsPanel = self
@@ -37,7 +37,7 @@ for i = 1, #names do
 	local name = names[i]
 	local module = core.modules[name]
 	if module.SetupOptions then
-		panels[#panels + 1] = CreateOptionsPanel(module.displayName or module.name, HYDRA, function(self)
+		panels[#panels + 1] = OptionsPanel:New(module.displayName or module.name, HYDRA, function(self)
 			module:SetupOptions(self)
 			module.SetupOptions = noop
 			module.OptionsPanel = self

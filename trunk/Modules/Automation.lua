@@ -196,69 +196,69 @@ end
 
 module.displayName = L.Automation
 function module:SetupOptions(panel)
-	local title, notes = LibStub("PhanxConfig-Header").CreateHeader(panel, L.Automation, L.Automation_Info)
+	local CreateCheckbox = LibStub("PhanxConfig-Checkbox").CreateCheckbox
 
-	panel.CreateCheckbox = LibStub("PhanxConfig-Checkbox").CreateCheckbox
+	local title, notes = LibStub("PhanxConfig-Header"):New(panel, L.Automation, L.Automation_Info)
 
-	local function OnValuechanged(self, value)
-		module.db[self.key] = value
-		if self.child then
-			self.child:SetEnabled(value)
+	local function OnValueChanged(this, value)
+		module.db[this.key] = value
+		if this.child then
+			this.child:SetEnabled(value)
 		end
-		if self.key ~= "verbose" then
+		if this.key ~= "verbose" then
 			module:Refresh()
 		end
 	end
 
-	local declineDuels = panel:CreateCheckbox(L.DeclineDuels, L.DeclineDuels_Info)
+	local declineDuels = CreateCheckbox(panel, L.DeclineDuels, L.DeclineDuels_Info)
 	declineDuels:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
 	declineDuels.OnValueChanged = OnValueChanged
 	declineDuels.key = "declineDuels"
 
-	local declineGuilds = panel:CreateCheckbox(L.DeclineGuilds, L.DeclineGuilds_Info)
+	local declineGuilds = CreateCheckbox(panel, L.DeclineGuilds, L.DeclineGuilds_Info)
 	declineGuilds:SetPoint("TOPLEFT", declineDuels, "BOTTOMLEFT", 0, -8)
-	function declineGuilds:OnValueChanged(self, value)
+	function declineGuilds:OnValueChanged(value)
 		SetAutoDeclineGuildInvites(value and 1 or 0)
 	end
 
-	local declineArenaTeams = panel:CreateCheckbox(L.DeclineArenas, L.DeclineArenas_Info)
+	local declineArenaTeams = CreateCheckbox(panel, L.DeclineArenas, L.DeclineArenas_Info)
 	declineArenaTeams:SetPoint("TOPLEFT", declineGuilds, "BOTTOMLEFT", 0, -8)
 	declineArenaTeams.OnValueChanged = OnValueChanged
 	declineArenaTeams.key = "declineArenaTeams"
 
-	local acceptSummons = panel:CreateCheckbox(L.AcceptSummons, L.AcceptSummons_Info)
+	local acceptSummons = CreateCheckbox(panel, L.AcceptSummons, L.AcceptSummons_Info)
 	acceptSummons:SetPoint("TOPLEFT", declineArenaTeams, "BOTTOMLEFT", 0, -8)
 	acceptSummons.OnValueChanged = OnValueChanged
 	acceptSummons.key = "acceptSummons"
 
-	local acceptResurrections = panel:CreateCheckbox(L.AcceptRes, L.AcceptRes_Info)
+	local acceptResurrections = CreateCheckbox(panel, L.AcceptRes, L.AcceptRes_Info)
 	acceptResurrections:SetPoint("TOPLEFT", acceptSummons, "BOTTOMLEFT", 0, -8)
 	acceptResurrections.OnValueChanged = OnValueChanged
 	acceptResurrections.key = "acceptResurrections"
 
-	local acceptResurrectionsInCombat = panel:CreateCheckbox(L.AcceptCombatRes, L.AcceptCombatRes_Info)
+	local acceptResurrectionsInCombat = CreateCheckbox(panel, L.AcceptCombatRes, L.AcceptCombatRes_Info)
 	acceptResurrectionsInCombat:SetPoint("TOPLEFT", acceptResurrections, "BOTTOMLEFT", 0, -8)
 	acceptResurrectionsInCombat.OnValueChanged = OnValueChanged
 	acceptResurrectionsInCombat.key = "acceptResurrectionsInCombat"
 
-	local repairEquipment = panel:CreateCheckbox(L.Repair, L.Repair_Info)
+	local repairEquipment = CreateCheckbox(panel, L.Repair, L.Repair_Info)
 	repairEquipment:SetPoint("TOPLEFT", acceptResurrectionsInCombat, "BOTTOMLEFT", 0, -8)
 	repairEquipment.OnValueChanged = OnValueChanged
 	repairEquipment.key = "repairEquipment"
 
-	local repairWithGuildFunds = panel:CreateCheckbox(L.RepairGuild, L.RepairGuild_Info)
+	local repairWithGuildFunds = CreateCheckbox(panel, L.RepairGuild, L.RepairGuild_Info)
 	repairWithGuildFunds:SetPoint("TOPLEFT", repairEquipment, "BOTTOMLEFT", 24, -8)
 	repairWithGuildFunds.OnValueChanged = OnValueChanged
 	repairWithGuildFunds.key = "repairWithGuildFunds"
 
 	repairEquipment.child = repairWithGuildFunds
 
-	local sellJunk = panel:CreateCheckbox(L.SellJunk, L.SellJunk_Info)
+	local sellJunk = CreateCheckbox(panel, L.SellJunk, L.SellJunk_Info)
 	sellJunk:SetPoint("TOPLEFT", repairWithGuildFunds, "BOTTOMLEFT", -24, -8)
 	sellJunk.OnValueChanged = OnValueChanged
 	sellJunk.key = "sellJunk"
 
-	local verbose = panel:CreateCheckbox(L.Verbose, L.Verbose_Info)
+	local verbose = CreateCheckbox(panel, L.Verbose, L.Verbose_Info)
 	verbose:SetPoint("TOPLEFT", sellJunk, "BOTTOMLEFT", 0, -24)
 	verbose.OnValueChanged = OnValueChanged
 	verbose.key = "verbose"
@@ -271,17 +271,17 @@ function module:SetupOptions(panel)
 	help:SetJustifyV("BOTTOM")
 	help:SetText(L.AutomationHelpText)
 
-	function panel:refresh()
-		declineDuels:SetChecked(module.db.declineDuels)
-		declineArenaTeams:SetChecked(module.db.declineArenaTeams)
+	panel.refresh = function()
+		declineDuels:SetChecked(self.db.declineDuels)
+		declineArenaTeams:SetChecked(self.db.declineArenaTeams)
 		declineGuilds:SetChecked(GetAutoDeclineGuildInvites() == 1)
-		acceptSummons:SetChecked(module.db.acceptSummons)
-		acceptResurrections:SetChecked(module.db.acceptResurrections)
-		acceptResurrectionsInCombat:SetChecked(module.db.acceptResurrectionsInCombat)
-		repairEquipment:SetChecked(module.db.repairEquipment)
-		repairWithGuildFunds:SetChecked(module.db.repairWithGuildFunds)
-		repairWithGuildFunds:SetEnabled(module.db.repairEquipment)
-		sellJunk:SetChecked(module.db.sellJunk)
-		verbose:SetChecked(module.db.verbose)
+		acceptSummons:SetChecked(self.db.acceptSummons)
+		acceptResurrections:SetChecked(self.db.acceptResurrections)
+		acceptResurrectionsInCombat:SetChecked(self.db.acceptResurrectionsInCombat)
+		repairEquipment:SetChecked(self.db.repairEquipment)
+		repairWithGuildFunds:SetChecked(self.db.repairWithGuildFunds)
+		repairWithGuildFunds:SetEnabled(self.db.repairEquipment)
+		sellJunk:SetChecked(self.db.sellJunk)
+		verbose:SetChecked(self.db.verbose)
 	end
 end

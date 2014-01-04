@@ -155,22 +155,22 @@ function module:SetupOptions(panel)
 
 	local mount = CreateCheckbox(panel, L.MountTogether, L.MountTogether_Info)
 	mount:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
-	mount.OnClick = function(_, checked)
-		self.db.mount = checked
+	mount.OnValueChanged = function(this, value)
+		self.db.mount = value
 		self:CheckState()
 	end
 
 	local mountRandom = CreateCheckbox(panel, L.MountRandom, L.MountRandom)
 	mountRandom:SetPoint("TOPLEFT", mount, "BOTTOMLEFT", 0, -8)
-	mountRandom.OnClick = function(_, checked)
-		self.db.mountRandom = checked
+	mountRandom.OnValueChanged = function(this, value)
+		self.db.mountRandom = value
 		self:CheckState()
 	end
 
 	local dismount = CreateCheckbox(panel, L.Dismount, L.Dismount_Info)
 	dismount:SetPoint("TOPLEFT", mountRandom, "BOTTOMLEFT", 0, -8)
-	dismount.OnClick = function(_, checked)
-		self.db.dismount = checked
+	dismount.OnValueChanged = function(this, value)
+		self.db.dismount = value
 		self:CheckState()
 	end
 

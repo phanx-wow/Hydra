@@ -293,12 +293,12 @@ end
 
 module.displayName = L.Chat
 function module:SetupOptions(panel)
-	local title, notes = LibStub("PhanxConfig-Header").CreateHeader(panel, L.Chat, L.Chat_Info)
+	local title, notes = LibStub("PhanxConfig-Header"):New(panel, L.Chat, L.Chat_Info)
 
-	local enable = LibStub("PhanxConfig-Checkbox").CreateCheckbox(panel, L.Enable, L.Enable_info)
+	local enable = LibStub("PhanxConfig-Checkbox"):New(panel, L.Enable, L.Enable_info)
 	enable:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
-	enable.OnClick = function(_, checked)
-		self.db.enable = checked
+	enable.OnValueChanged = function(this, value)
+		self.db.enable = value
 		self:Refresh()
 	end
 
@@ -307,7 +307,7 @@ function module:SetupOptions(panel)
 		LEADER = L.GroupLeader,
 	}
 
-	local mode = LibStub("PhanxConfig-Dropdown").CreateDropdown(panel, L.DetectionMethod, L.DetectionMethod_Info)
+	local mode = LibStub("PhanxConfig-Dropdown"):New(panel, L.DetectionMethod, L.DetectionMethod_Info)
 	mode:SetPoint("TOPLEFT", enable, "BOTTOMLEFT", 0, -16)
 	mode:SetPoint("TOPRIGHT", notes, "BOTTOM", -8, -12 - enable:GetHeight() - 16)
 	do
@@ -331,10 +331,10 @@ function module:SetupOptions(panel)
 		end)
 	end
 
-	local timeout = LibStub("PhanxConfig-Slider").CreateSlider(panel, L.Timeout, L.GroupTimeout_Info, 30, 600, 30)
+	local timeout = LibStub("PhanxConfig-Slider"):New(panel, L.Timeout, L.GroupTimeout_Info, 30, 600, 30)
 	timeout:SetPoint("TOPLEFT", mode, "BOTTOMLEFT", 0, -16)
 	timeout:SetPoint("TOPRIGHT", mode, "BOTTOMRIGHT", 0, -16)
-	timeout.OnValueChanged = function(_, value)
+	timeout.OnValueChanged = function(this, value)
 		value = floor((value + 1) / 30) * 30
 		self.db.timeout = value
 		return value
@@ -350,7 +350,7 @@ function module:SetupOptions(panel)
 
 	panel.refresh = function()
 		enable:SetChecked(self.db.enable)
-		mode:SetValue(modes[ self.db.mode ])
+		mode:SetValue(modes[self.db.mode])
 		timeout:SetValue(self.db.timeout)
 	end
 end

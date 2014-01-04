@@ -465,12 +465,12 @@ function module:QUEST_LOG_UPDATE()
 	abandoning = nil
 
 	for id, link in pairs(currentquests) do
-		if not oldquests[ id ] then
+		if not oldquests[id] then
 			self:Debug("Accepted quest", link)
 			self:SendAddonMessage("ACCEPT " .. link)
 
 			local qname = link:match("%[(.-)%]"):lower()
-			if self.db.share and not accept[ qname ] and not accepted[ qname ] then
+			if self.db.share and not accept[qname] and not accepted[qname] then
 				for i = 1, GetNumQuestLogEntries() do
 					if link == GetQuestLink(i) then
 						SelectQuestLogEntry(i)
@@ -497,57 +497,53 @@ end
 
 module.displayName = L.Quest
 function module:SetupOptions(panel)
-	local title, notes = LibStub("PhanxConfig-Header").CreateHeader(panel, L.Quest, L.Quest_Info)
-
+	local CreateCheckbox = LibStub("PhanxConfig-Checkbox").CreateCheckbox
 	local enable, accept, acceptOnlyShared, turnin, share, abandon
 
-	local CreateCheckbox = LibStub("PhanxConfig-Checkbox").CreateCheckbox
-	local CreateCheckbox = LibStub("PhanxConfig-Checkbox").CreateCheckbox
+	local title, notes = LibStub("PhanxConfig-Header").CreateHeader(panel, L.Quest, L.Quest_Info)
 
-	local function OnClick(this, checked)
-		self.db[ this.key ] = checked
-
+	local function OnValueChanged(this, value)
+		self.db[this.key] = value
 		if this.key == "enable" then
-			accept:SetEnabled( checked )
-			acceptOnlyShared:SetEnabled( checked )
-			turnin:SetEnabled( checked )
-			share:SetEnabled( checked )
-			abandon:SetEnabled( checked )
+			accept:SetEnabled(value)
+			acceptOnlyShared:SetEnabled(value)
+			turnin:SetEnabled(value)
+			share:SetEnabled(value)
+			abandon:SetEnabled(value)
 			module:Refresh()
-
 		elseif this.key == "accept" then
-			acceptOnlyShared:SetEnabled( checked )
+			acceptOnlyShared:SetEnabled(value)
 		end
 	end
 
 	enable = CreateCheckbox(panel, L.Enable, L.Enable_Info)
 	enable:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -8)
-	enable.OnClick = OnClick
+	enable.OnValueChanged = OnValueChanged
 	enable.key = "enable"
 
 	accept = CreateCheckbox(panel, L.AcceptQuests, L.AcceptQuests_Info)
 	accept:SetPoint("TOPLEFT", enable, "BOTTOMLEFT", 0, -8)
-	accept.OnClick = OnClick
+	accept.OnValueChanged = OnValueChanged
 	accept.key = "accept"
 
 	acceptOnlyShared = CreateCheckbox(panel, L.OnlySharedQuests, L.OnlySharedQuests_Info)
 	acceptOnlyShared:SetPoint("TOPLEFT", accept, "BOTTOMLEFT", 26, -8)
-	acceptOnlyShared.OnClick = OnClick
+	acceptOnlyShared.OnValueChanged = OnValueChanged
 	acceptOnlyShared.key = "acceptOnlyShared"
 
 	turnin = CreateCheckbox(panel, L.TurnInQuests, L.TurnInQuests_Info)
 	turnin:SetPoint("TOPLEFT", acceptOnlyShared, "BOTTOMLEFT", -26, -8)
-	turnin.OnClick = OnClick
+	turnin.OnValueChanged = OnValueChanged
 	turnin.key = "turnin"
 
 	share = CreateCheckbox(panel, L.ShareQuests, L.ShareQuests_Info)
 	share:SetPoint("TOPLEFT", turnin, "BOTTOMLEFT", 0, -8)
-	share.OnClick = OnClick
+	share.OnValueChanged = OnValueChanged
 	share.key = "share"
 
 	abandon = CreateCheckbox(panel, L.AbandonQuests, L.AbandonQuests_Info)
 	abandon:SetPoint("TOPLEFT", share, "BOTTOMLEFT", 0, -8)
-	abandon.OnClick = OnClick
+	abandon.OnValueChanged = OnValueChanged
 	abandon.key = "abandon"
 
 	local help = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
