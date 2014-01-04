@@ -2,7 +2,8 @@
 ## Version: 5.4.2.wowi:revision
 
 ## Title: Hydra
-## Notes: Multibox leveling helper.
+## Notes: Multiboxing and group leveling helper.
+## Notes-deDE: Helfer für Multiboxing und Stufenaufstiegen als Gruppe.
 ## Notes-esES: Ayudante para el multibox y la subir en grupo.
 ## Notes-esMX: Ayudante para el multibox y la subir en grupo.
 ## Notes-frFR: Aide au leveling en multibox.
@@ -13,8 +14,8 @@
 ## X-Email: addons@phanx.net
 ## X-Copyright: Copyright (c) 2010-2013 Phanx. All rights reserved.
 ## X-License: See accompanying LICENSE file for details.
-## X-CompatibleLocales: deDE, enUS, esES, esMX, frFR, itIT, koKR, ptBR, ruRU, zhCN, zhTW
-## X-Localizations: enUS, esES, esMX, frFR, koKR, ruRU
+## X-CompatibleLocales: enUS, deDE, esES, esMX, frFR, itIT, koKR, ptBR, ruRU, zhCN, zhTW
+## X-Localizations: enUS, deDE, esES, esMX, frFR, koKR, ruRU
 ## X-Website: http://www.wowinterface.com/downloads/info17572-Hydra.html
 ## X-Curse-Project-ID: hydra
 ## X-WoWI-ID: 17572
@@ -36,6 +37,7 @@ Libs\PhanxConfig-OptionsPanel\PhanxConfig-OptionsPanel.lua
 Libs\PhanxConfig-Slider\PhanxConfig-Slider.lua
 
 Locales\Locale-en.lua
+Locales\Locale-de.lua
 Locales\Locale-es.lua
 Locales\Locale-fr.lua
 Locales\Locale-ko.lua
