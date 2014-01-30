@@ -16,22 +16,20 @@ local OptionsPanel = LibStub("PhanxConfig-OptionsPanel")
 
 ------------------------------------------------------------------------
 
-if core.SetupOptions then
-	panels[1] = OptionsPanel:New(HYDRA, nil, function(self)
-		core:SetupOptions(self)
-		core.SetupOptions = noop
-		core.OptionsPanel = self
-	end)
-end
+panels[1] = OptionsPanel:New(HYDRA, nil, function(self)
+	core:SetupOptions(self)
+	core.SetupOptions = noop
+	core.OptionsPanel = self
+end)
 
 ------------------------------------------------------------------------
 
 local names = {}
 
 for name in pairs(core.modules) do
-	names[#names + 1] = name
+	tinsert(names, name)
 end
-table.sort(names)
+sort(names)
 
 for i = 1, #names do
 	local name = names[i]
@@ -47,7 +45,40 @@ end
 
 ------------------------------------------------------------------------
 
-panels[ #panels + 1 ] = LibStub("LibAboutPanel").new(HYDRA, HYDRA)
+tinsert(panels, OptionsPanel:New(L.Debug, HYDRA, function(self)
+	local title, notes = LibStub("PhanxConfig-Header"):New(self, L.Debug, L.Debug_Info)
+
+	local CreateCheckbox = LibStub("PhanxConfig-Checkbox").CreateCheckbox
+
+	local boxes = {}
+	local function change(this, value)
+		local name = this.name
+		local module = core.modules[name]
+		module.db.debug = value
+	end
+
+	local corebox = CreateCheckbox(self, L.DebugCore)
+	corebox.module = core
+	corebox.OnValueChanged = change
+	tinsert(boxes, corebox)
+
+	for i = 1, #modules do
+		local name = modules[i]
+		local box = CreateCheckbox(self, L[name])
+		box:SetPoint("TOPLEFT", boxes[i-1], "BOTTOMLEFT", 0, -8)
+		box.module = core.modules[name]
+		box.OnValueChanged = change
+		tinsert(boxes, box)
+	end
+
+	self.refresh = function()
+		for i = 1, #boxes do
+			box:SetChecked(box.module.db.debug)
+		end
+	end
+end))
+
+tinsert(panels, LibStub("LibAboutPanel").new(HYDRA, HYDRA))
 
 ------------------------------------------------------------------------
 

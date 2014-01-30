@@ -12,20 +12,19 @@
 
 local _, core = ...
 local L = core.L
+local SOLO, PARTY, TRUSTED, LEADER = core.STATE_SOLO, core.STATE_PARTY, core.STATE_TRUSTED, core.STATE_LEADER
 
-local SOLO, PARTY, TRUSTED, LEADER = 0, 1, 2, 3
-local playerName = UnitName("player")
 local taxiTime, taxiNode, taxiNodeName = 0
 
-local module = core:RegisterModule("Taxi", CreateFrame("Frame"))
-module:SetScript("OnEvent", function(f, e, ...) return f[e] and f[e](f, ...) end)
-
-module.defaults = { enable = true, timeout = 60 }
+local module = core:NewModule("Taxi")
+module.defaults = {
+	enable = true,
+	timeout = 60,
+}
 
 ------------------------------------------------------------------------
 
-function module:CheckState()
-	taxiNode, taxiNodeName, taxiTime = nil, nil, 0
+function module:ShouldEnable()
 	return core.state > SOLO and self.db.enable
 end
 
@@ -34,7 +33,7 @@ function module:Enable()
 end
 
 function module:Disable()
-	self:UnregisterAllEvents()
+	taxiNode, taxiNodeName, taxiTime = nil, nil, 0
 end
 
 ------------------------------------------------------------------------

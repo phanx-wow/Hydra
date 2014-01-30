@@ -25,9 +25,9 @@ L.AddGroup_Info = "Add everyone in your current group to your trusted list."
 L.AddName = "Add a name"
 L.AddName_Info = "Add a name to your trusted list."
 L.ClickForOptions = "Click for options."
-L.CoreHelpText = [[Hydra operates on the basis of "trust". You tell it which characters you trust, whether they're your multibox characters or just your questing buddies, and features are enabled or disabled depending on whether you're in a party with trusted characters or not.
+L.CoreHelpText = [[Hydra operates on the basis of "trust". You tell it which characters you trust, whether they're your multibox characters or just your questing buddies, and features are enabled or disabled depending on whether you're in a group with trusted characters or not.
 
-For example, whispers are only forwarded to party chat if everyone in the party is on your trusted list.]]
+For example, whispers are only forwarded to group chat if everyone in the group is on your trusted list.]]
 L.Enable = ENABLE
 L.Enable_Info = "Enable this module."
 L.Hydra_Info = "Hydra is a multiboxing and group leveling helper that aims to minimize the need to actively control secondary characters."
@@ -39,6 +39,29 @@ L.RemoveName_Info = "Remove a name from your trusted list."
 L.Timeout = "Timeout"
 L.Verbose = "Verbose"
 L.Verbose_Info = "Enable notification messages from this module."
+
+------------
+-- Assist --
+------------
+
+L.Assist = "Assist"
+L.Assist_Info = "Synchronizes an assist target across trusted group members."
+L.AssistFailed = "%s could not assist you due to an unknown error."
+L.AssistFailedCombat = "%s will assist you after combat."
+L.AssistFailedTrust = "%s cannot assist you because you are not on their trusted list."
+L.AssistGetMacro = "Get Macro"
+L.AssistGetMacro_Info = "If you prefer to activate the Assist function from your action bars, you can use this button to get a macro you can drop onto any action button."
+L.AssistHelpText = "This module is really only useful in combination with key cloning software. You should set your selected |cffffffffAssist|r key to be sent to your secondary clients."
+L.AssistMacro = "Assist"
+L.AssistMacro_Info = "Set a key binding to assist your current assist target."
+L.AssistRespond = "Assist"
+L.AssistRespond_Info = "Respond to assist requests from trusted group members."
+L.AssistSet = "%s will now assist you."
+L.AssistUnset = "%s is now assisting %s instead of you."
+L.NobodyAssisting = "Nobody is currently assisting you."
+L.RequestAssist = "Request Assist"
+L.RequestAssist_Info = "Set a key binding to request that all group members set you as their assist target."
+L.SlashAssistMe = "/assistme"
 
 ----------------
 -- Automation --
@@ -120,7 +143,7 @@ L.Follow = "Follow"
 L.Follow_Info = "Responds to follow requests from trusted group members."
 L.FollowHelpText = [[Type "|cffffffff/followme|r" to direct nearby group members to follow you.
 
-Type "|cffffffff/corpse release|r" to direct dead party members to release their spirits.
+Type "|cffffffff/corpse release|r" to direct dead group members to release their spirits.
 
 Type "|cffffffff/corpse accept|r" to direct dead group members to accept resurrection to their corpse.]]
 L.FollowingYouStart = "%s is now following you."
@@ -186,7 +209,7 @@ L.AcceptQuests = "Automatically accept all quests."
 L.OnlySharedQuests = "Only shared quests"
 L.OnlySharedQuests_Info = "Only accept quests shared by group members, escort quests started by group members, and quests from NPCs that trusted group members have already accepted."
 L.Quest = "Quest"
-L.Quest_Info = "Helps keep party members' quests in sync."
+L.Quest_Info = "Helps keep group members' quests in sync."
 L.QuestAbandoned = "%1$s abandoned %2$s."
 L.QuestAccepted = "%1$s accepted %2$s."
 L.QuestHelpText = "If you want an on-screen list of your other characters' quests, I recommend the addon Quecho, by Tekkub."
@@ -204,12 +227,20 @@ L.TurnInQuests_Info = "Automatically turn in completed quests to NPCs."
 
 L.SlashClearTaxi = "/cleartaxi"
 L.Taxi = "Taxi"
-L.Taxi_Info = "Selects the same taxi destination as other party members."
-L.TaxiCleared = "Party taxi destination cleared."
+L.Taxi_Info = "Selects the same taxi destination as other group members."
+L.TaxiCleared = "Group taxi destination cleared."
 L.TaxiHelpText = [[Hold the Shift key while speaking to a flight master to temporarily disable auto-selection.
 
-Type "|cffffffff/cleartaxi|r" to clear the party taxi selection before the normal timeout.]]
+Type "|cffffffff/cleartaxi|r" to clear the group taxi selection before the normal timeout.]]
 L.TaxiMismatchError = "%s: Taxi node mismatch."
-L.TaxiSet = "%1$s set the party taxi to %2$s."
+L.TaxiSet = "%1$s set the group taxi to %2$s."
 L.TaxiTimeout_Info = "Clear the taxi selection after this many seconds."
 L.TaxiTimeoutError = "%s: Taxi timeout reached."
+
+-----------
+-- Debug --
+-----------
+
+L.Debug = "Debug"
+L.Debug_Info = "Enable debugging messages for the selected parts of Hydra."
+L.DebugCore = "Core"

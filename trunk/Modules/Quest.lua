@@ -26,14 +26,11 @@
 
 local _, core = ...
 local L = core.L
+local SOLO, PARTY, TRUSTED, LEADER = core.STATE_SOLO, core.STATE_PARTY, core.STATE_TRUSTED, core.STATE_LEADER
 
-local SOLO, PARTY, TRUSTED, LEADER = 0, 1, 2, 3
-local playerName = UnitName("player")
 local accept, accepted = {}, {}
 
-local module = core:RegisterModule("Quest", CreateFrame("Frame"))
-module:SetScript("OnEvent", function(f, e, ...) return f[e] and f[e](f, ...) end)
-
+local module = core:NewModule("Quest")
 module.defaults = {
 	enable = true,
 	accept = true,
@@ -45,89 +42,11 @@ module.defaults = {
 
 ------------------------------------------------------------------------
 
-local function GetQuestName(id)
-	GameTooltip:SetOwner(UIParent, "ANCHOR_NONE")
-	GameTooltip:SetHyperlink(format("quest:%d", id))
-	local name = GameTooltipTextLeft1:GetText()
-	GameTooltip:Hide()
-	return name or UNKNOWN
-end
-
-------------------------------------------------------------------------
---	No API to see if a repeatable quest can be completed.
-
-local repeatableQuestComplete = {
-	-- Replenishing the Pantry
-	[GetQuestName(31535)] = function() return GetItemCount(87557) >= 1 end, -- Bundle of Groceries
-	-- Seeds of Fear
-	[GetQuestName(31603)] = function() return GetItemCount(87903) >= 6 end, -- Dread Amber Shards
-}
-
-------------------------------------------------------------------------
---	These quests are not automated as they provide suboptimal rewards.
-
-local ignoredQuests = {
-	-- Blue Feather
-	[GetQuestName(30382)] = true,
-	[GetQuestName(30419)] = true,
-	[GetQuestName(30425)] = true,
-	[GetQuestName(30388)] = true,
-	[GetQuestName(30412)] = true,
-	[GetQuestName(30437)] = true,
-	[GetQuestName(30406)] = true,
-	[GetQuestName(30431)] = true,
-	-- Jade Cat
-	[GetQuestName(30399)] = true,
-	[GetQuestName(30418)] = true,
-	[GetQuestName(30387)] = true,
-	[GetQuestName(30411)] = true,
-	[GetQuestName(30436)] = true,
-	[GetQuestName(30393)] = true,
-	[GetQuestName(30405)] = true,
-	[GetQuestName(30430)] = true,
-	-- Lovely Apple
-	[GetQuestName(30398)] = true,
-	[GetQuestName(30189)] = true,
-	[GetQuestName(30417)] = true,
-	[GetQuestName(30423)] = true,
-	[GetQuestName(30380)] = true,
-	[GetQuestName(30410)] = true,
-	[GetQuestName(30392)] = true,
-	[GetQuestName(30429)] = true,
-	-- Marsh Lily
-	[GetQuestName(30401)] = true,
-	[GetQuestName(30383)] = true,
-	[GetQuestName(30426)] = true,
-	[GetQuestName(30413)] = true,
-	[GetQuestName(30438)] = true,
-	[GetQuestName(30395)] = true,
-	[GetQuestName(30407)] = true,
-	[GetQuestName(30432)] = true,
-	-- Ruby Shard
-	[GetQuestName(30397)] = true,
-	[GetQuestName(30160)] = true,
-	[GetQuestName(30416)] = true,
-	[GetQuestName(30422)] = true,
-	[GetQuestName(30379)] = true,
-	[GetQuestName(30434)] = true,
-	[GetQuestName(30391)] = true,
-	[GetQuestName(30403)] = true,
-	-- Work Order
-	[GetQuestName(32642)] = true,
-	[GetQuestName(32647)] = true,
-	[GetQuestName(32645)] = true,
-	[GetQuestName(32649)] = true,
-	[GetQuestName(32653)] = true,
-	[GetQuestName(32658)] = true,
-}
-
-------------------------------------------------------------------------
-
-function module:CheckState()
+function module:ShouldEnable()
 	return self.db.enable
 end
 
-function module:Enable()
+function module:OnEnable()
 	self:RegisterEvent("GOSSIP_SHOW")
 	self:RegisterEvent("QUEST_GREETING")
 	self:RegisterEvent("QUEST_DETAIL")
@@ -145,9 +64,41 @@ function module:Enable()
 	end
 end
 
-function module:Disable()
-	self:UnregisterAllEvents()
+------------------------------------------------------------------------
+
+local function GetQuestName(id)
+	GameTooltip:SetOwner(UIParent, "ANCHOR_NONE")
+	GameTooltip:SetHyperlink("quest:" .. id)
+	local name = GameTooltipTextLeft1:GetText()
+	GameTooltip:Hide()
+	return name or UNKNOWN
 end
+
+--	No API to see if a repeatable quest can be completed.
+local repeatableQuestComplete = {
+	-- Replenishing the Pantry
+	[GetQuestName(31535)] = function() return GetItemCount(87557) >= 1 end, -- Bundle of Groceries
+	-- Seeds of Fear
+	[GetQuestName(31603)] = function() return GetItemCount(87903) >= 6 end, -- Dread Amber Shards
+}
+
+--	These quests are not automated as they provide suboptimal rewards.
+local ignoredQuests = {
+	-- Blue Feather
+	[GetQuestName(30382)] = true, [GetQuestName(30419)] = true, [GetQuestName(30425)] = true, [GetQuestName(30388)] = true, [GetQuestName(30412)] = true, [GetQuestName(30437)] = true, [GetQuestName(30406)] = true, [GetQuestName(30431)] = true,
+	-- Jade Cat
+	[GetQuestName(30399)] = true, [GetQuestName(30418)] = true, [GetQuestName(30387)] = true, [GetQuestName(30411)] = true, [GetQuestName(30436)] = true, [GetQuestName(30393)] = true, [GetQuestName(30405)] = true, [GetQuestName(30430)] = true,
+	-- Lovely Apple
+	[GetQuestName(30398)] = true, [GetQuestName(30189)] = true, [GetQuestName(30417)] = true, [GetQuestName(30423)] = true, [GetQuestName(30380)] = true, [GetQuestName(30410)] = true, [GetQuestName(30392)] = true, [GetQuestName(30429)] = true,
+	-- Marsh Lily
+	[GetQuestName(30401)] = true, [GetQuestName(30383)] = true, [GetQuestName(30426)] = true, [GetQuestName(30413)] = true, [GetQuestName(30438)] = true, [GetQuestName(30395)] = true, [GetQuestName(30407)] = true, [GetQuestName(30432)] = true,
+ 	-- Ruby Shard
+	[GetQuestName(30397)] = true, [GetQuestName(30160)] = true, [GetQuestName(30416)] = true, [GetQuestName(30422)] = true, [GetQuestName(30379)] = true, [GetQuestName(30434)] = true, [GetQuestName(30391)] = true, [GetQuestName(30403)] = true,
+	-- Work Order
+	[GetQuestName(32642)] = true, [GetQuestName(32647)] = true, [GetQuestName(32645)] = true, [GetQuestName(32649)] = true, [GetQuestName(32653)] = true, [GetQuestName(32658)] = true,
+	-- Fiona's Caravan
+	[GetQuestName(27560)] = true, [GetQuestName(27562)] = true, [GetQuestName(27555)] = true, [GetQuestName(27556)] = true, [GetQuestName(27558)] = true, [GetQuestName(27561)] = true, [GetQuestName(27557)] = true, [GetQuestName(27559)] = true,
+}
 
 ------------------------------------------------------------------------
 
@@ -166,10 +117,10 @@ end
 function module:ReceiveAddonMessage(message, channel, sender)
 	if not core:IsTrusted(sender) then return end
 
-	local action, qlink = message:match("^(%S+) (.+)$")
+	local action, qlink = strsplit(" ", message, 2)
 
 	if action == "ACCEPT" then
-		local qname = qlink:match("%[(.-)%]"):lower()
+		local qname = strlower(strmatch(qlink, "%[(.-)%]"))
 		if not accepted[qname] then
 			accept[qname] = qlink
 		end
@@ -301,23 +252,16 @@ function module:QUEST_DETAIL()
 	elseif self.db.accept then
 		local go
 		if self.db.acceptOnlyShared then
-			go = accept[strlower(quest)]
+			if not accept[strlower(quest)] then return end
 			accepted[strlower(quest)] = true
 		else
 			local item, _, _, _, minLevel = GetItemInfo(giver or "")
-			if item and minLevel and minLevel > 1 then
-				-- Guess based on the item's required level.
-				go = IsTrackingTrivial() or (UnitLevel("player") - minLevel <= GetQuestGreenRange())
-			else
-				-- No way to check the level from here.
-				go = true
-			end
+			if item and minLevel and minLevel > 1 and (UnitLevel("player") - minLevel > GetQuestGreenRange()) and not IsTrackingTrivial() then return end
+			-- No way to get the quest level from the item, so if the item
+			-- doesn't have a level requirement, we just have to try.
 		end
-
-		if go then
-			self:Debug("Accepting quest", quest, "from", giver)
-			AcceptQuest()
-		end
+		self:Debug("Accepting quest", quest, "from", giver)
+		AcceptQuest()
 	end
 end
 
@@ -325,26 +269,21 @@ function module:QUEST_ACCEPT_CONFIRM(giver, quest)
 	self:Debug("QUEST_ACCEPT_CONFIRM", giver, quest)
 	if not self.db.accept or IsShiftKeyDown() then return end
 
-	local go
 	if self.db.acceptOnlyShared then
-		go = accept[strlower(quest)]
+		if not accept[strlower(quest)] then return end
 		accepted[strlower(quest)] = true
-	else
-		go = true
 	end
 
-	if go then
-		self:Debug("Accepting quest", quest, "from", giver)
-		AcceptQuest()
-	end
+	self:Debug("Accepting quest", quest, "from", giver)
+	AcceptQuest()
 end
 
 function module:QUEST_ACCEPTED(id)
 	self:Debug("QUEST_ACCEPTED", id)
-	if GetCVarBool("autoQuestWatch") and not IsQuestWatched(id) and GetNumQuestWatches() < MAX_WATCHABLE_QUESTS then
-		self:Debug("Adding quest to tracker")
-		AddQuestWatch(id)
-	end
+	if not GetCVarBool("autoQuestWatch") or IsQuestWatched(id) or GetNumQuestWatches() >= MAX_WATCHABLE_QUESTS then return end
+
+	self:Debug("Adding quest to tracker")
+	AddQuestWatch(id)
 end
 
 ------------------------------------------------------------------------
@@ -353,12 +292,10 @@ end
 
 function module:QUEST_PROGRESS()
 	self:Debug("QUEST_PROGRESS")
-	if not self.db.turnin or IsShiftKeyDown() then return end
+	if not self.db.turnin or IsShiftKeyDown() or not IsQuestCompletable() then return end
 
-	if IsQuestCompletable() then
-		self:Debug("Completing quest", StripTitle(GetTitleText()))
-		CompleteQuest()
-	end
+	self:Debug("Completing quest", StripTitle(GetTitleText()))
+	CompleteQuest()
 end
 
 local choicePending, choiceFinished
@@ -385,7 +322,7 @@ function module:QUEST_COMPLETE(source)
 			local link = GetQuestItemLink("choice", i)
 			if link then
 				local _, _, _, _, _, _, _, _, _, _, value = GetItemInfo(link)
-				if strmatch(link, "item:45724") then
+				if strmatch(link, "item:45724%D") then
 					-- Champion's Purse, 10g
 					value = 100000
 				end
@@ -506,7 +443,7 @@ function module:SetupOptions(panel)
 		self.db[this.key] = value
 		if this.key == "enable" then
 			accept:SetEnabled(value)
-			acceptOnlyShared:SetEnabled(value)
+			acceptOnlyShared:SetEnabled(value and self.db.accept)
 			turnin:SetEnabled(value)
 			share:SetEnabled(value)
 			abandon:SetEnabled(value)

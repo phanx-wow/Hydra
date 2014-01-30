@@ -19,8 +19,7 @@
 local _, core = ...
 local L = core.L
 
-local module = core:RegisterModule("Automation", CreateFrame("Frame"))
-module:SetScript("OnEvent", function(f, e, ...) return f[e] and f[e](f, ...) end)
+local module = core:NewModule("Automation")
 
 module.defaults = {
 	acceptResurrections = false,
@@ -35,11 +34,7 @@ module.defaults = {
 
 ------------------------------------------------------------------------
 
-function module:CheckState()
-	return true
-end
-
-function module:Enable()
+function module:OnEnable()
 	if self.db.declineArenaTeams then
 		self:RegisterEvent("ARENA_TEAM_INVITE_REQUEST")
 	end
@@ -58,10 +53,6 @@ function module:Enable()
 	if self.db.acceptResurrections then
 		self:RegisterEvent("RESURRECT_REQUEST")
 	end
-end
-
-function module:Disable()
-	self:UnregisterAllEvents()
 end
 
 function module:Print(...)

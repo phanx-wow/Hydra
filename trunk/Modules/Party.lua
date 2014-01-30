@@ -16,28 +16,21 @@
 
 local _, core = ...
 local L = core.L
+local SOLO, PARTY, TRUSTED, LEADER = core.STATE_SOLO, core.STATE_PARTY, core.STATE_TRUSTED, core.STATE_LEADER
 
-local SOLO, PARTY, TRUSTED, LEADER = 0, 1, 2, 3
-local realmName, playerName = GetRealmName(), UnitName("player")
 local remote
 
-local module = core:RegisterModule("Group", CreateFrame("Frame"))
-module:SetScript("OnEvent", function(f, e, ...) return f[e] and f[e](f, ...) end)
-
+local module = core:NewModule("Group")
 module.defaults = { enable = true }
 
 ------------------------------------------------------------------------
 
-function module:CheckState()
+function module:ShouldEnable()
 	return self.db.enable
 end
 
-function module:Enable()
+function module:OnEnable()
 	self:RegisterEvent("PARTY_INVITE_REQUEST")
-end
-
-function module:Disable()
-	self:UnregisterAllEvents()
 end
 
 ------------------------------------------------------------------------
@@ -45,41 +38,33 @@ end
 function module:ReceiveAddonMessage(message, channel, sender)
 	self:Debug("ReceiveAddonMessage", message, channel, sender)
 
-	if strmatch(message, "INVITE") then
+	if message == "INVITE" then
 		if not core:IsTrusted(sender) then
 			return self:SendChatMessage(L.CantInviteNotTrusted, sender)
 		end
-
 		if GetNumGroupMembers() > 0 and not UnitIsGroupLeader("player") then
 			return self:SendChatMessage(L.CantInviteNotLeader, sender)
 		end
-
-		if strmatch(message, "PROMOTE") then
-			remote = sender
-			self:RegisterEvent("PARTY_LEADER_CHANGED")
-		end
 		InviteUnit(sender)
 
-	elseif strmatch(message, "PROMOTE") then
+	elseif message == "PROMOTE" then
 		if not core:IsTrusted(sender) then
-			return -- self:SendChatMessage(L.CantPromoteNotTrusted, sender)
+			return self:SendChatMessage(L.CantPromoteNotTrusted, sender)
 		end
-
-		if GetNumGroupMembers() > 0 then
-			if UnitIsGroupLeader("player") then
-				return PromoteToLeader(sender)
-			else
-				return -- self:SendChatMessage(L.CantPromoteNotLeader, sender)
-			end
-		else
-			-- we're not in a group, invite instead
-			return self:ReceiveAddonMessage("HydraGroup", "INVITE", "WHISPER", sender)
+		if GetNumGroupMembers() == 0 then
+			remote = sender
+			self:RegisterEvent("PARTY_LEADER_CHANGED")
+			return self:ReceiveAddonMessage("INVITE", channel, sender)
 		end
+		if not UnitIsGroupLeader("player") then
+			return self:SendChatMessage(L.CantPromoteNotLeader, sender)
+		end
+		PromoteToLeader(sender)
 	end
 end
 
 function module:PARTY_LEADER_CHANGED()
-	if GetNumGroupMembers() > 0 and UnitIsGroupLeader("player") then
+	if remote and GetNumGroupMembers() > 0 and UnitIsGroupLeader("player") then
 		self:UnregisterEvent("PARTY_LEADER_CHANGED")
 		PromoteToLeader(remote)
 		remote = nil
@@ -129,22 +114,18 @@ if L.SlashInviteMe ~= SLASH_HYDRA_INVITEME1 and L.SlashInviteMe ~= SLASH_HYDRA_I
 end
 
 SlashCmdList.HYDRA_INVITEME = function(name)
-	if not module.enabled or GetNumGroupMembers() > 0 then return end
+	if not name or not module.enabled or GetNumGroupMembers() > 0 then return end
 
 	name = name and strtrim(name) or ""
-
-	local nopromote
-	name, nopromote = gsub(name, L.CmdNoPromote)
-	name, nopromote = gsub(name, "[Nn][Oo][Pp][Rr][Oo][Mm][Oo][Tt][Ee]")
-	nopromote = nopromote and nopromote > 0
-
 	if strlen(name) == 0 and UnitCanCooperate("player", "target") then
-		name = core:ValidateName(UnitName("target"))
+		name = core:IsTrusted(UnitName("target"))
+	else
+		name = core:IsTrusted(name)
 	end
 
-	if core:IsTrusted(name) then
-		module:Debug("INVITEME", trusted, nopromote)
-		module:SendAddonMessage(nopromote and "INVITE" or "INVITEANDPROMOTE", "WHISPER", trusted)
+	if name then
+		module:Debug("Sending invite request to", name)
+		module:SendAddonMessage("INVITE", name)
 	end
 end
 
@@ -157,11 +138,24 @@ if L.SlashPromoteMe ~= SLASH_HYDRA_PROMOTEME1 and L.SlashPromoteMe ~= SLASH_HYDR
 	SLASH_HYDRA_PROMOTEME3 = L.SlashPromoteMe
 end
 
-SlashCmdList.HYDRA_PROMOTEME = function()
-	if not module.enabled or GetNumGroupMembers() == 0 then return end
+SlashCmdList.HYDRA_PROMOTEME = function(name)
+	if GetNumGroupMembers() == 0 then
+		name = name and strtrim(name) or ""
+		if strlen(name) == 0 and UnitCanCooperate("player", "target") then
+			name = core:IsTrusted(UnitName("target"))
+		else
+			name = core:IsTrusted(name)
+		end
+		if not name then
+			return module:Debug("/promoteme - Not in group, no valid name specified.")
+		end
+		module:Debug("Sending invite+promote request to", name)
+	else
+		name = nil
+		module:Debug("Sending promotion request...")
+	end
 
-	module:Debug("PROMOTEME")
-	module:SendAddonMessage("PROMOTE")
+	module:SendAddonMessage("PROMOTE", name)
 end
 
 ------------------------------------------------------------------------

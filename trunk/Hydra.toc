@@ -45,14 +45,13 @@ Locales\Locale-ru.lua
 
 Core.lua
 
-# Modules\Assist.lua
+Modules\Assist.lua
 Modules\Automation.lua
 Modules\Chat.lua
 Modules\Follow.lua
 Modules\Mount.lua
 Modules\Party.lua
 Modules\Quest.lua
-# Modules\StatusFrame.lua
 Modules\Taxi.lua
 
 Options.lua
