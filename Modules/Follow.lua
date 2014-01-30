@@ -15,23 +15,25 @@
 
 local _, core = ...
 local L = core.L
+local PLAYER = core.CURRENT_PLAYER
+local SOLO, PARTY, TRUSTED, LEADER = core.STATE_SOLO, core.STATE_PARTY, core.STATE_TRUSTED, core.STATE_LEADER
 
-local SOLO, PARTY, TRUSTED, LEADER = 0, 1, 2, 3
-local playerName = UnitName("player")
 local followers, following, lastFollowing = {}
 
-local module = core:RegisterModule("Follow", CreateFrame("Frame"))
-module:SetScript("OnEvent", function(f, e, ...) return f[e] and f[e](f, ...) end)
-
-module.defaults = { enable = true, refollowAfterCombat = false, verbose = true }
+local module = core:NewModule("Follow")
+module.defaults = {
+	enable = true,
+	refollowAfterCombat = false,
+	verbose = true,
+}
 
 ------------------------------------------------------------------------
 
-function module:CheckState()
+function module:ShouldEnable()
 	return core.state > SOLO
 end
 
-function module:Enable()
+function module:OnEnable()
 	self:RegisterEvent("AUTOFOLLOW_BEGIN")
 	self:RegisterEvent("AUTOFOLLOW_END")
 	if self.db.refollowAfterCombat then
@@ -39,23 +41,27 @@ function module:Enable()
 	end
 end
 
-function module:Disable()
-	self:UnregisterAllEvents()
+function module:OnDisable()
 	followers, following = wipe(followers), nil
 end
 
 ------------------------------------------------------------------------
 
 function module:ReceiveAddonMessage(message, channel, sender)
-	if message == playerName then -- sender is following me
-		if self.db.verbose then
-			self:Print(L.FollowingYouStart, sender)
-		end
-		followers[sender] = GetTime()
-		if lastFollowing == sender then
-			-- Avoid recursion!
-			self:Debug("Last follower now following. Avoid recursion!")
-			lastFollowing = nil
+	if strmatch(message, "^START ") then
+		local target = strsub(message, 6)
+		if target == PLAYER then -- sender is following me
+			if self.db.verbose then
+				self:Print(L.FollowingYouStart, sender)
+			end
+			followers[sender] = GetTime()
+			if lastFollowing == sender then
+				-- Avoid recursion!
+				self:Debug("Last follower now following. Avoid recursion!")
+				lastFollowing = nil
+			end
+		else
+			-- sender is following someone else
 		end
 
 	elseif message == "END" then
@@ -71,7 +77,7 @@ function module:ReceiveAddonMessage(message, channel, sender)
 			followers[sender] = nil
 		end
 
-	elseif message == "ME" then
+	elseif message == "FOLLOW" then
 		if core:IsTrusted(sender) and self.db.enable then -- sender wants me to follow them
 			if CheckInteractDistance(sender, 4) then
 				self:Debug(sender, "has sent a follow request.")
@@ -132,7 +138,7 @@ end
 
 function module:AUTOFOLLOW_BEGIN(name)
 	self:Debug("Now following", name)
-	self:SendAddonMessage(name, name)
+	self:SendAddonMessage("BEGIN", name)
 	following = name
 	lastFollowing = name
 end
@@ -165,21 +171,19 @@ end
 
 SLASH_HYDRA_FOLLOWME1 = "/followme"
 SLASH_HYDRA_FOLLOWME2 = "/fme"
+SLASH_HYDRA_FOLLOWME3 = L.SlashFollowMe
 
-if L.SlashFollowMe ~= SLASH_HYDRA_FOLLOWME1 and L.SlashFollowMe ~= SLASH_HYDRA_FOLLOWME2 then
-	SLASH_FOLLOWME3 = L.SlashFollowMe
-end
-
-function SlashCmdList.HYDRA_FOLLOWME(names)
+function SlashCmdList.HYDRA_FOLLOWME(command)
 	if not module.enabled then return end
+	command = command and strlower(strtrim(command)) or ""
 
-	if names and strlen(names) > 0 then
+	if strlen(command) > 0 then
 		local sent = 0
-		for name in gmatch(names, "%S+") do
+		for name in gmatch(command, "%S+") do
 			local _, trusted = core:IsTrusted(name)
 			if trusted and ( UnitInParty(trusted) or UnitInRaid(trusted) ) then
 				module:Debug("Sending follow command to:", trusted)
-				module:SendAddonMessage("ME", trusted)
+				module:SendAddonMessage("FOLLOW", trusted)
 				sent = sent + 1
 			end
 		end
@@ -191,28 +195,26 @@ function SlashCmdList.HYDRA_FOLLOWME(names)
 	local trusted = core:IsTrusted(UnitName("target"))
 	if trusted and module.db.targetedFollowMe and not UnitIsUnit(trusted, "player") and ( UnitInParty(trusted) or UnitInRaid(trusted) ) then
 		module:Debug("Sending follow command to target:", trusted)
-		module:SendAddonMessage("ME", trusted)
+		module:SendAddonMessage("FOLLOW", trusted)
 	else
 		module:Debug("Sending follow command to party")
-		module:SendAddonMessage("ME")
+		module:SendAddonMessage("FOLLOW")
 	end
 end
 
 ------------------------------------------------------------------------
 
 SLASH_HYDRA_CORPSE1 = "/corpse"
-
-if L.SlashCorpse ~= SLASH_HYDRA_CORPSE1 then
-	SLASH_HYDRA_CORPSE2 = L.SlashCorpse
-end
+SLASH_HYDRA_CORPSE2 = L.SlashCorpse
 
 function SlashCmdList.HYDRA_CORPSE(command)
 	if not module.enabled then return end
 	command = command and strlower(strtrim(command)) or ""
+
 	if strmatch(command, L.CmdAccept) or strmatch(command, "^re?l?e?a?s?e?") then
-		module:SSendAddonMessage("RELEASE")
+		module:SendAddonMessage("RELEASE")
 	elseif strmatch(command, L.CmdRelease) or strmatch(command, "^ac?c?e?p?t?") then
-		module:SSendAddonMessage("ACCEPT")
+		module:SendAddonMessage("ACCEPT")
 	end
 end
 

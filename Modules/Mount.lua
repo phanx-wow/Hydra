@@ -12,19 +12,20 @@
 
 local _, core = ...
 local L = core.L
+local PLAYER = core.CURRENT_PLAYER
+local SOLO, PARTY, TRUSTED, LEADER = core.STATE_SOLO, core.STATE_PARTY, core.STATE_TRUSTED, core.STATE_LEADER
 
-local SOLO, PARTY, TRUSTED, LEADER = 0, 1, 2, 3
-local playerName = UnitName("player")
 local responding
 
-local module = core:RegisterModule("Mount", CreateFrame("Frame"))
-module:SetScript("OnEvent", function(f, e, ...) return f[e] and f[e](f, ...) end)
-
-module.defaults = { mount = true, dismount = true }
+local module = core:NewModule("Mount")
+module.defaults = {
+	mount = true,
+	dismount = true,
+}
 
 ------------------------------------------------------------------------
 
-function module:CheckState()
+function module:ShouldEnable()
 	return core.state > SOLO and (self.db.mount or self.db.dismount)
 end
 
@@ -157,21 +158,21 @@ function module:SetupOptions(panel)
 	mount:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
 	mount.OnValueChanged = function(this, value)
 		self.db.mount = value
-		self:CheckState()
+		self:IsEnabled()
 	end
 
 	local mountRandom = CreateCheckbox(panel, L.MountRandom, L.MountRandom)
 	mountRandom:SetPoint("TOPLEFT", mount, "BOTTOMLEFT", 0, -8)
 	mountRandom.OnValueChanged = function(this, value)
 		self.db.mountRandom = value
-		self:CheckState()
+		self:IsEnabled()
 	end
 
 	local dismount = CreateCheckbox(panel, L.Dismount, L.Dismount_Info)
 	dismount:SetPoint("TOPLEFT", mountRandom, "BOTTOMLEFT", 0, -8)
 	dismount.OnValueChanged = function(this, value)
 		self.db.dismount = value
-		self:CheckState()
+		self:IsEnabled()
 	end
 
 	local help = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")

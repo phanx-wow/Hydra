@@ -29,8 +29,7 @@ local groupForwardTime, groupForwardFrom, hasActiveConversation = 0
 local whisperForwardTime, whisperForwardTo, whisperForwardMessage = 0
 local frameTime, hasFocus = 0
 
-local module = core:RegisterModule("Chat", CreateFrame("Frame"))
-module:SetScript("OnEvent", function(f, e, ...) return f[e] and f[e](f, ...) end)
+local module = core:NewModule("Chat")
 module:SetScript("OnUpdate", function() frameTime = GetTime() end)
 module:Hide()
 
@@ -42,14 +41,14 @@ module.defaults = {
 
 ------------------------------------------------------------------------
 
-function module:CheckState()
-	return self.db.enable and core.state >= TRUSTED
-end
-
-function module:Enable()
+function module:ShouldEnable()
 	-- #TEMP: fix old lowercase entry
 	self.db.mode = strupper(self.db.mode)
 
+	return self.db.enable and core.state >= TRUSTED
+end
+
+function module:OnEnable()
 	self:RegisterEvent("CHAT_MSG_GROUP")
 	self:RegisterEvent("CHAT_MSG_GROUP_LEADER")
 	self:RegisterEvent("CHAT_MSG_RAID")
@@ -61,8 +60,7 @@ function module:Enable()
 	self:SetShown(self.db.mode == "APPFOCUS")
 end
 
-function module:Disable()
-	self:UnregisterAllEvents()
+function module:OnDisable()
 	self:Hide()
 end
 

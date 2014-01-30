@@ -24,8 +24,12 @@ BINDING_HEADER_HYDRA = HYDRA
 ------------------------------------------------------------------------
 
 local SOLO, INSECURE, SECURE, LEADER = 0, 1, 2, 3
-local throttle, myRealm, myName = 0, gsub(GetRealmName(), "%s+", ""), UnitName("player")
-local myRealmS = "%-" .. myRealm .. "$"
+core.STATE_SOLO, core.STATE_PARTY, core.STATE_TRUSTED, core.STATE_LEADER = SOLO, INSECURE, SECURE, LEADER
+
+local CURRENT_PLAYER, CURRENT_REALM = UnitName("player"), gsub(GetRealmName(), "%s+", "")
+core.PLAYER, core.REALM = CURRENT_PLAYER, CURRENT_REALM
+
+local CURRENT_REALM_S = "%-" .. CURRENT_REALM .. "$"
 
 ------------------------------------------------------------------------
 
@@ -110,7 +114,7 @@ function core:ValidateName(name, realm)
 		realm = Capitalize(gsub(realm, "%s+", ""))
 		return format("%s-%s", name, realm), name
 	else
-		return format("%s-%s", name, myRealm), name
+		return format("%s-%s", name, CURRENT_REALM), name
 	end
 end
 
@@ -146,35 +150,68 @@ end
 
 ------------------------------------------------------------------------
 
-local noop = function() end
+local modulePrototype = {
+	Alert = core.Alert,
+	Debug = core.Debug,
+	Print = core.Print,
+	SendAddonMessage = core.SendAddonMessage,
+	SendChatMessage = core.SendChatMessage,
+	IsEnabled = function(self)
+		return self.enabled
+	end,
+	Enable = function(self, silent)
+		if not silent then
+			core:Debug("Enabling module:", self.name)
+		end
+		self.enabled = true
+		if self.OnEnable then
+			self:OnEnable()
+		end
+	end,
+	Disable = function(self, silent)
+		if not silent then
+			core:Debug("Disabling module:", self.name)
+		end
+		self.enabled = nil
+		self:UnregisterAllEvents()
+		if self.OnDisable then
+			self:OnDisable()
+		end
+	end,
+	Refresh = function(self)
+		local enable = self:ShouldEnable()
+		core:Debug("Refreshing module:", self.name, enable)
+		self:Disable(true)
+		if enable then
+			self:Enable(true)
+		end
+	end,
+	ShouldEnable = function(self)
+		-- most modules should overwrite this
+		return true
+	end,
+}
 
-local Refresh = function(module)
-	core:Debug("Refreshing module:", module.name)
-	local enable = module:CheckState()
-	module.enabled = enable
-	module:Disable()
-	if enable then
-		module:Enable()
+function core:NewModule(name)
+	assert(type(name) == "string", "Module name must be a string!")
+	assert(not self.modules[name], "Module " .. name .. " is already registered!")
+
+	local module = CreateFrame("Frame")
+	module:SetScript("OnEvent", function(self, event, ...)
+		return self[event] and self[event](self, ...)
+	end)
+	for k, v in pairs(modulePrototype) do
+		module[k] = v
 	end
-end
-
-function core:RegisterModule(name, module)
-	assert(not self.modules[name], "Module %s is already registered!", name)
-	if not module then module = {} end
 
 	module.name = name
-	module.CheckState, module.Enable, module.Disable = noop, noop, noop
-	module.Alert, module.Debug, module.Print, module.Refresh, module.SendAddonMessage, module.SendChatMessage
-	= self.Alert,   self.Debug,   self.Print,        Refresh,    self.SendAddonMessage,   self.SendChatMessage
-
 	self.modules[name] = module
-
 	return module
 end
 
 function core:GetModule(name)
 	local module = self.modules[name]
-	assert(module, "Module %s is not registered!", name)
+	assert(module, "Module " .. name .. " is not registered!")
 	return module
 end
 
@@ -194,7 +231,7 @@ local function copyTable(a, b)
 end
 
 local f = CreateFrame("Frame")
-f:SetScript("OnEvent", function(f, e, ...) return f[e] and f[e](f, ...) end)
+f:SetScript("OnEvent", function(self, event, ...) return self[event] and self[event](self, ...) end)
 f:RegisterEvent("PLAYER_LOGIN")
 
 function f:PLAYER_LOGIN()
@@ -211,10 +248,13 @@ function f:PLAYER_LOGIN()
 	for name, module in pairs(core.modules) do
 		if module.defaults then
 			core:Debug("Initializing settings for module", name)
-			core.db[name] = copyTable(module.defaults, core.db[name])
-			module.db = core.db[name]
-			for k, v in pairs(module.db) do core:Debug(k, "=", v) end
+			module.db = copyTable(module.defaults, core.db[name])
+			--for k, v in pairs(module.db) do core:Debug(k, "=", v) end
+		else
+			core:Debug("No defaults for module", name)
+			module.db = {}
 		end
+		core.db[name] = module.db
 	end
 
 	RegisterAddonMessagePrefix("Hydra")
@@ -230,7 +270,7 @@ end
 ------------------------------------------------------------------------
 
 function f:CHAT_MSG_ADDON(prefix, message, channel, sender)
-	if sender == myName or prefix ~= "Hydra" then return end
+	if sender == CURRENT_PLAYER or prefix ~= "Hydra" then return end
 	prefix, message = strsplit(" ", message, 2)
 	local module = core.modules[prefix]
 	if not module or not module.enabled or not module.ReceiveAddonMessage then end
@@ -286,14 +326,11 @@ function f:CheckParty(unit)
 		core.state = newstate
 		for name, module in pairs(core.modules) do
 			core:Debug("Checking state for module:", name)
-			local enable = module:CheckState()
+			local enable = module:ShouldEnable()
 			if enable ~= module.enabled then
-				module.enabled = enable
 				if enable then
-					core:Debug("Enable module:", name)
 					module:Enable()
 				else
-					core:Debug("Disable module:", name)
 					module:Disable()
 				end
 			end
@@ -347,9 +384,9 @@ function core:SetupOptions(panel)
 	do
 		local info, temp = {}, {}
 		local sortNames = function(a, b)
-			if a == myName then
+			if a == CURRENT_PLAYER then
 				return false
-			elseif b == myName then
+			elseif b == CURRENT_PLAYER then
 				return true
 			end
 			return a < b
@@ -359,7 +396,7 @@ function core:SetupOptions(panel)
 		end
 		UIDropDownMenu_Initialize(removeName.dropdown, function()
 			for name in pairs(core.trusted) do
-				name = gsub(name, myRealmS, "")
+				name = gsub(name, CURRENT_REALM_S, "")
 				temp[#temp + 1] = name
 			end
 			sort(temp, sortNames)
@@ -369,7 +406,7 @@ function core:SetupOptions(panel)
 				info.value = name
 				info.func  = OnClick
 				info.notCheckable = 1
-				info.disabled = name == myName
+				info.disabled = name == CURRENT_PLAYER
 				UIDropDownMenu_AddButton(info)
 			end
 			wipe(temp)
@@ -380,7 +417,7 @@ function core:SetupOptions(panel)
 	removeAll:SetPoint("BOTTOMLEFT", removeName, "BOTTOMRIGHT", 20, 1)
 	removeAll.OnClick = function(self)
 		for name in pairs(core.trusted) do
-			if gsub(name, myRealmS, "") ~= myName then
+			if gsub(name, CURRENT_REALM_S, "") ~= CURRENT_PLAYER then
 				core:RemoveTrusted(name, nil, true)
 			end
 		end
