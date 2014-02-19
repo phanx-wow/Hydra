@@ -137,6 +137,7 @@ function module:ReceiveAddonMessage(message, channel, sender)
 end
 
 function module:AUTOFOLLOW_BEGIN(name)
+	name = core:ValidateName(UnitName(name)) -- arg doesn't include a realm name
 	self:Debug("Now following", name)
 	self:SendAddonMessage("BEGIN", name)
 	following = name
@@ -180,7 +181,7 @@ function SlashCmdList.HYDRA_FOLLOWME(command)
 	if strlen(command) > 0 then
 		local sent = 0
 		for name in gmatch(command, "%S+") do
-			local _, trusted = core:IsTrusted(name)
+			local trusted = core:IsTrusted(name)
 			if trusted and ( UnitInParty(trusted) or UnitInRaid(trusted) ) then
 				module:Debug("Sending follow command to:", trusted)
 				module:SendAddonMessage("FOLLOW", trusted)
