@@ -27,7 +27,8 @@ local SOLO, INSECURE, SECURE, LEADER = 0, 1, 2, 3
 core.STATE_SOLO, core.STATE_PARTY, core.STATE_TRUSTED, core.STATE_LEADER = SOLO, INSECURE, SECURE, LEADER
 
 local PLAYER, REALM = UnitName("player"), gsub(GetRealmName(), "%s+", "")
-core.PLAYER_NAME, core.REALM_NAME = PLAYER, REALM
+local FULLNAME = format("%s-%s", PLAYER, REALM)
+core.PLAYER_NAME, core.REALM_NAME, core.PLAYER_FULLNAME = PLAYER, REALM, FULLNAME
 
 local REALM_S = "%-" .. REALM .. "$"
 
@@ -59,10 +60,12 @@ function core:SendAddonMessage(message, target)
 		return
 	end
 	if target then
+		self:Debug("SendAddonMessage", self.name, message, "WHISPER", target)
 		return SendAddonMessage("Hydra", self.name .. " " .. message, "WHISPER", target)
 	end
 	local channel = IsInGroup(LE_PARTY_CATEGORY_INSTANCE) and "INSTANCE_CHAT" or IsInRaid() and "RAID" or IsInGroup() and "PARTY"
 	if channel then
+		self:Debug("SendAddonMessage", self.name, message, channel)
 		return SendAddonMessage("Hydra", self.name .. " " .. message, channel)
 	end
 end
@@ -82,7 +85,7 @@ end
 
 ------------------------------------------------------------------------
 
-local function Capitalize(str)
+local function Capitalize(str, firstOnly)
 	local a = strsub(str, 1, 1)
 	local b = strsub(str, 2)
 	local firstByte = strbyte(a)
@@ -96,7 +99,7 @@ local function Capitalize(str)
 		a = strsub(str, 1, 4)
 		b = strsub(str, 5)
 	end
-	return strupper(a)..strlower(b)
+	return strupper(a)..(firstOnly and b or strlower(b))
 end
 
 function core:ValidateName(name, realm)
@@ -107,18 +110,23 @@ function core:ValidateName(name, realm)
 		return
 	end
 	if strmatch(name, "%-") then
-		name, realm = strsplit(name, "%-", 2)
+		name, realm = strsplit("-", name, 2)
 	end
-	name = Capitalize(name)
+	--name = Capitalize(name)
 	if realm and strlen(realm) > 0 then
-		realm = Capitalize(gsub(realm, "%s+", ""))
+		realm = gsub(realm, "%s+", "") -- Capitalize(gsub(realm, "%s+", ""))
+		self:Debug("ValidateName", name, realm, format("%s-%s", name, realm))
 		return format("%s-%s", name, realm), name
 	else
+		self:Debug("ValidateName", name, REALM, format("%s-%s", name, REALM))
 		return format("%s-%s", name, REALM), name
 	end
 end
 
 function core:IsTrusted(name, realm)
+	if name == FULLNAME or (name == PLAYER and realm == REALM) then
+		return PLAYER
+	end
 	local name, displayName = self:ValidateName(name, realm)
 	if not name then return end
 	local trusted = self.trusted[name]
@@ -238,7 +246,7 @@ function f:PLAYER_LOGIN()
 	f:UnregisterEvent("PLAYER_LOGIN")
 
 	HydraTrustList = HydraTrustList or {}
-	HydraTrustList[core:ValidateName(PLAYER, REALM)] = true
+	HydraTrustList[format("%s-%s", PLAYER, REALM)] = true
 	core.trusted = HydraTrustList
 
 	HydraSettings = copyTable({ debug = {} }, HydraSettings)
@@ -277,8 +285,7 @@ end
 ------------------------------------------------------------------------
 
 function f:CHAT_MSG_ADDON(prefix, message, channel, sender)
-	if sender == PLAYER then print("CHAT_MSG_ADDON: saw own message") end -- DEBUG
-	if sender == PLAYER or prefix ~= "Hydra" then return end
+	if sender == FULLNAME or prefix ~= "Hydra" then return end
 	prefix, message = strsplit(" ", message, 2)
 	local module = core.modules[prefix]
 	if not module or not module.enabled or not module.ReceiveAddonMessage then end
