@@ -12,7 +12,7 @@
 
 local _, core = ...
 local L = core.L
-local PLAYER = core.CURRENT_PLAYER
+local PLAYER = core.PLAYER_NAME
 local SOLO, PARTY, TRUSTED, LEADER = core.STATE_SOLO, core.STATE_PARTY, core.STATE_TRUSTED, core.STATE_LEADER
 
 local responding

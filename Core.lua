@@ -8,6 +8,8 @@
 ----------------------------------------------------------------------]]
 
 local HYDRA, core = ...
+core.name = HYDRA
+core.modules = {}
 
 local L = setmetatable(core.L or {}, { __index = function(t, k)
 	if k == nil then return "" end
@@ -17,24 +19,22 @@ local L = setmetatable(core.L or {}, { __index = function(t, k)
 end })
 core.L = L
 
-core.modules = {}
-
-BINDING_HEADER_HYDRA = HYDRA
+BINDING_HEADER_HYDRA = GetAddOnMetadata(HYDRA, "Title")
 
 ------------------------------------------------------------------------
 
 local SOLO, INSECURE, SECURE, LEADER = 0, 1, 2, 3
 core.STATE_SOLO, core.STATE_PARTY, core.STATE_TRUSTED, core.STATE_LEADER = SOLO, INSECURE, SECURE, LEADER
 
-local CURRENT_PLAYER, CURRENT_REALM = UnitName("player"), gsub(GetRealmName(), "%s+", "")
-core.PLAYER, core.REALM = CURRENT_PLAYER, CURRENT_REALM
+local PLAYER, REALM = UnitName("player"), gsub(GetRealmName(), "%s+", "")
+core.PLAYER_NAME, core.REALM_NAME = PLAYER, REALM
 
-local CURRENT_REALM_S = "%-" .. CURRENT_REALM .. "$"
+local REALM_S = "%-" .. REALM .. "$"
 
 ------------------------------------------------------------------------
 
 function core:Debug(str, ...)
-	if not str or (not self.debug and not core.debugall) then return end
+	if not str or not core.db.debug[self.name] then return end
 	if strmatch(str, "%%[dsx%d%.]") then
 		print("|cffff9999Hydra:|r", format(str, ...))
 	else
@@ -114,7 +114,7 @@ function core:ValidateName(name, realm)
 		realm = Capitalize(gsub(realm, "%s+", ""))
 		return format("%s-%s", name, realm), name
 	else
-		return format("%s-%s", name, CURRENT_REALM), name
+		return format("%s-%s", name, REALM), name
 	end
 end
 
@@ -235,15 +235,16 @@ f:SetScript("OnEvent", function(self, event, ...) return self[event] and self[ev
 f:RegisterEvent("PLAYER_LOGIN")
 
 function f:PLAYER_LOGIN()
-	core:Debug("Loading...")
 	f:UnregisterEvent("PLAYER_LOGIN")
 
 	HydraTrustList = HydraTrustList or {}
-	HydraTrustList[core:ValidateName(UnitName("player"))] = true
+	HydraTrustList[core:ValidateName(PLAYER, REALM)] = true
 	core.trusted = HydraTrustList
 
-	HydraSettings = copyTable({}, HydraSettings)
+	HydraSettings = copyTable({ debug = {} }, HydraSettings)
 	core.db = HydraSettings
+
+	core:Debug("Loading...")
 
 	for name, module in pairs(core.modules) do
 		if module.defaults then
@@ -252,9 +253,15 @@ function f:PLAYER_LOGIN()
 			--for k, v in pairs(module.db) do core:Debug(k, "=", v) end
 		else
 			core:Debug("No defaults for module", name)
-			module.db = {}
+			module.db = core.db[name]
 		end
-		core.db[name] = module.db
+		module.db.debug = nil -- TEMP
+		if next(module.db) then
+			core.db[name] = module.db
+		else
+			module.db = nil -- remove empty
+			core.db[name] = nil
+		end
 	end
 
 	RegisterAddonMessagePrefix("Hydra")
@@ -270,7 +277,8 @@ end
 ------------------------------------------------------------------------
 
 function f:CHAT_MSG_ADDON(prefix, message, channel, sender)
-	if sender == CURRENT_PLAYER or prefix ~= "Hydra" then return end
+	if sender == PLAYER then print("CHAT_MSG_ADDON: saw own message") end -- DEBUG
+	if sender == PLAYER or prefix ~= "Hydra" then return end
 	prefix, message = strsplit(" ", message, 2)
 	local module = core.modules[prefix]
 	if not module or not module.enabled or not module.ReceiveAddonMessage then end
@@ -384,9 +392,9 @@ function core:SetupOptions(panel)
 	do
 		local info, temp = {}, {}
 		local sortNames = function(a, b)
-			if a == CURRENT_PLAYER then
+			if a == PLAYER then
 				return false
-			elseif b == CURRENT_PLAYER then
+			elseif b == PLAYER then
 				return true
 			end
 			return a < b
@@ -396,7 +404,7 @@ function core:SetupOptions(panel)
 		end
 		UIDropDownMenu_Initialize(removeName.dropdown, function()
 			for name in pairs(core.trusted) do
-				name = gsub(name, CURRENT_REALM_S, "")
+				name = gsub(name, REALM_S, "")
 				temp[#temp + 1] = name
 			end
 			sort(temp, sortNames)
@@ -406,7 +414,7 @@ function core:SetupOptions(panel)
 				info.value = name
 				info.func  = OnClick
 				info.notCheckable = 1
-				info.disabled = name == CURRENT_PLAYER
+				info.disabled = name == PLAYER
 				UIDropDownMenu_AddButton(info)
 			end
 			wipe(temp)
@@ -417,7 +425,7 @@ function core:SetupOptions(panel)
 	removeAll:SetPoint("BOTTOMLEFT", removeName, "BOTTOMRIGHT", 20, 1)
 	removeAll.OnClick = function(self)
 		for name in pairs(core.trusted) do
-			if gsub(name, CURRENT_REALM_S, "") ~= CURRENT_PLAYER then
+			if gsub(name, REALM_S, "") ~= PLAYER then
 				core:RemoveTrusted(name, nil, true)
 			end
 		end
