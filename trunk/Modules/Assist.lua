@@ -11,19 +11,17 @@
 ----------------------------------------------------------------------]]
 
 --[[
-
-1. PartyA sends AssistMe command.
-2. PartyB registers PartyA as assist target.
-3a. If out of combat, update assist macro.
-3b. If in combat, send CombatErr message, register PLAYER_REGEN_ENABLED.
-4. On leaving combat, update assist macro.
-
+	1. PartyA sends AssistMe command.
+	2. PartyB registers PartyA as assist target.
+	3a. If out of combat, update assist macro.
+	3b. If in combat, send CombatErr message, register PLAYER_REGEN_ENABLED.
+	4. On leaving combat, update assist macro.
 --]]
 
 local _, core = ...
 local L = core.L
 local SOLO, PARTY, TRUSTED, LEADER = core.STATE_SOLO, core.STATE_PARTY, core.STATE_TRUSTED, core.STATE_LEADER
-local PLAYER = core.CURRENT_PLAYER
+local PLAYER = core.PLAYER_NAME
 
 local assisters, assisting, pending = {}
 
@@ -53,7 +51,6 @@ end
 local button = CreateFrame("Button", "HydraAssistButton", nil, "SecureActionButtonTemplate")
 button:RegisterForClicks("AnyUp")
 button:SetAttribute("type", "macro")
-button:SetAttribute("macrotext", "")
 
 local MACRO_NAME, MACRO_ICON, MACRO_BODY = L.AssistMacro, "Spell_Priest_VowofUnity", "/click HydraAssistButton"
 
@@ -63,10 +60,12 @@ function module:GetMacro()
 		return index
 	elseif index == 0 then
 		-- Macro doesn't exist yet. Create it.
-		return CreateMacro(MACRO_NAME, MACRO_ICON, format(MACRO_BODY, name or ""), 0)
+		self:Debug("GetMacro: macro doesn't exist yet, creating...")
+		return CreateMacro(MACRO_NAME, MACRO_ICON, MACRO_BODY, 0)
 	else
 		-- Macro already exists. Update it.
-		return EditMacro(index, MACRO_NAME, MACRO_ICON, format(MACRO_BODY, name or ""))
+		self:Debug("GetMacro: editing...")
+		return EditMacro(index, MACRO_NAME, MACRO_ICON, MACRO_BODY)
 	end
 end
 
@@ -75,6 +74,7 @@ function module:SetAssist(name)
 
 	if InCombatLockdown() then
 		-- Player in combat. Queue change for end of combat, and inform the requester.
+		self:Debug("in combat")
 		self:RegisterEvent("PLAYER_REGEN_ENABLED")
 		pending = name
 		if name then
@@ -83,23 +83,31 @@ function module:SetAssist(name)
 
 	elseif not name then
 		-- Clear the assist target.
-		button:SetAttribute("macrotext", "")
+		self:Debug("clear")
+		button:SetAttribute("macrotext", nil)
+		assisting = nil
 
 	elseif not core:IsTrusted(name) then
 		-- Requester not trusted. Inform them.
+		self:Debug("not trusted")
 		self:SendAddonMessage("NOTRUST", name)
 
 	else
 		-- Set the requester to be assisted.
-		assisting = name
+		self:Debug("success")
 		button:SetAttribute("macrotext", SLASH_ASSIST1.." "..name)
+		assisting = name
 		self:SendAddonMessage("SET " .. name)
 	end
+
+	-- Clear pending if there was one.
+	pending = nil
 end
 
 ------------------------------------------------------------------------
 
 function module:PLAYER_REGEN_ENABLED()
+	self:Debug("combat ended, trying again...")
 	self:UnregisterEvent("PLAYER_REGEN_ENABLED")
 	self:SetAssist(pending)
 end

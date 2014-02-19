@@ -45,6 +45,10 @@ end
 
 ------------------------------------------------------------------------
 
+tinsert(panels, LibStub("LibAboutPanel").new(HYDRA, HYDRA))
+
+------------------------------------------------------------------------
+
 tinsert(panels, OptionsPanel:New(L.Debug, HYDRA, function(self)
 	local title, notes = LibStub("PhanxConfig-Header"):New(self, L.Debug, L.Debug_Info)
 
@@ -52,38 +56,44 @@ tinsert(panels, OptionsPanel:New(L.Debug, HYDRA, function(self)
 
 	local boxes = {}
 	local function change(this, value)
-		local name = this.name
+		local name = this.module
 		local module = core.modules[name]
-		module.db.debug = value
+		core.db.debug[name] = value
 	end
 
 	local corebox = CreateCheckbox(self, L.DebugCore)
-	corebox.module = core
+	corebox:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
+	corebox.module = HYDRA
 	corebox.OnValueChanged = change
 	tinsert(boxes, corebox)
 
-	for i = 1, #modules do
-		local name = modules[i]
-		local box = CreateCheckbox(self, L[name])
-		box:SetPoint("TOPLEFT", boxes[i-1], "BOTTOMLEFT", 0, -8)
-		box.module = core.modules[name]
+	local breakpoint = floor((#names + 1) / 2) + 1
+	for i = 1, #names do
+		local name = names[i]
+		local box = CreateCheckbox(self, L[name] or name)
+		if i == breakpoint then
+			box:SetPoint("TOPLEFT", notes, "BOTTOM", 0, -12)
+		else
+			box:SetPoint("TOPLEFT", boxes[i], "BOTTOMLEFT", 0, -8) -- i, not i-1, because [1] = corebox
+		end
+		box.module = name
 		box.OnValueChanged = change
 		tinsert(boxes, box)
 	end
 
 	self.refresh = function()
 		for i = 1, #boxes do
-			box:SetChecked(box.module.db.debug)
+			local box = boxes[i]
+			box:SetChecked(core.db.debug[box.module])
 		end
 	end
 end))
-
-tinsert(panels, LibStub("LibAboutPanel").new(HYDRA, HYDRA))
 
 ------------------------------------------------------------------------
 
 SLASH_HYDRA1 = "/hydra"
 SlashCmdList.HYDRA = function()
+	InterfaceOptionsFrame_OpenToCategory(panels[#panels])
 	InterfaceOptionsFrame_OpenToCategory(panels[1])
 end
 

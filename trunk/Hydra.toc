@@ -45,7 +45,7 @@ Locales\Locale-ru.lua
 
 Core.lua
 
-Modules\Assist.lua
+# Modules\Assist.lua
 Modules\Automation.lua
 Modules\Chat.lua
 Modules\Follow.lua
