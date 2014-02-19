@@ -20,7 +20,6 @@
 ## X-Curse-Project-ID: hydra
 ## X-WoWI-ID: 17572
 
-## DefaultState: disabled
 ## OptionalDependencies: BadBoy, BadBoy_Guilded, BadBoy_Levels, PhanxConfigWidgets
 ## SavedVariables: HydraTrustList
 ## SavedVariablesPerCharacter: HydraSettings
