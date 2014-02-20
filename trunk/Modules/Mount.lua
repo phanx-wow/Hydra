@@ -1,7 +1,7 @@
 --[[--------------------------------------------------------------------
 	Hydra
 	Multibox leveling helper.
-	Copyright (c) 2010-2013 Phanx <addons@phanx.net>. All rights reserved.
+	Copyright (c) 2010-2014 Phanx <addons@phanx.net>. All rights reserved.
 	See the accompanying README and LICENSE files for more information.
 	http://www.wowinterface.com/downloads/info17572-Hydra.html
 	http://www.curse.com/addons/wow/hydra
@@ -12,7 +12,6 @@
 
 local _, core = ...
 local L = core.L
-local PLAYER = core.PLAYER_NAME
 local SOLO, PARTY, TRUSTED, LEADER = core.STATE_SOLO, core.STATE_PARTY, core.STATE_TRUSTED, core.STATE_LEADER
 
 local responding
