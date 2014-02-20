@@ -1,7 +1,7 @@
 --[[--------------------------------------------------------------------
 	Hydra
 	Multibox leveling helper.
-	Copyright (c) 2010-2013 Phanx <addons@phanx.net>. All rights reserved.
+	Copyright (c) 2010-2014 Phanx <addons@phanx.net>. All rights reserved.
 	See the accompanying README and LICENSE files for more information.
 	http://www.wowinterface.com/downloads/info17572-Hydra.html
 	http://www.curse.com/addons/wow/hydra
@@ -21,9 +21,8 @@
 
 local _, core = ...
 local L = core.L
-
-local SOLO, GROUP, TRUSTED, LEADER = 0, 1, 2, 3
-local realmName, playerName = GetRealmName(), UnitName("player")
+local SOLO, PARTY, TRUSTED, LEADER = core.STATE_SOLO, core.STATE_PARTY, core.STATE_TRUSTED, core.STATE_LEADER
+local PLAYER, REALM, PLAYERREALM = core.PLAYER_NAME, core.REALM_NAME, core.PLAYER_FULLNAME
 
 local groupForwardTime, groupForwardFrom, hasActiveConversation = 0
 local whisperForwardTime, whisperForwardTo, whisperForwardMessage = 0
@@ -38,6 +37,8 @@ module.defaults = {
 	mode = "LEADER", -- APPFOCUS | LEADER
 	timeout = 300,
 }
+
+L.WhisperFromGM = "\124TInterface\\ChatFrame\\UI-ChatIcon-Blizz.blp:0:2:0:-3\124t" .. L.WhisperFromGM
 
 ------------------------------------------------------------------------
 
@@ -66,10 +67,10 @@ end
 
 ------------------------------------------------------------------------
 
-local playerToken = "@" .. playerName
+local playerToken = "@" .. PLAYER .. "%-?%S*" -- allow but don't require a realm
 
-function module:CHAT_MSG_GROUP(message, sender)
-	if sender == playerName or strmatch(message, "^!") then return end -- command or error response
+function module:CHAT_MSG_GROUP(message, sender) -- #TODO: check if player is "name" or "name-realm"
+	if sender == PLAYER or sender == PLAYERREALM or strmatch(message, "^!") then return end -- command or error response
 
 	self:Debug("CHAT_MSG_GROUP", sender, message)
 
@@ -95,22 +96,25 @@ function module:CHAT_MSG_GROUP(message, sender)
 
 	elseif groupForwardFrom then
 		-- we forwarded something earlier
-		local text = strmatch(message, playerToken .. " (.+)$")
-		if text then
+		local _, messageStart = strfind(message, playerToken)
+		local text = messageStart and strtrim(strsub(message, messageStart + 1))
+		if text and strlen(text) > 0 then
 			-- someone responding to our last forward
-			self:Debug("Detected response to old forward.")
+			self:Debug("Detected response to old forward:", text)
 			self:SendChatMessage(text, groupForwardFrom)
 		end
 	end
 end
 
 module.CHAT_MSG_GROUP_LEADER = module.CHAT_MSG_GROUP
+module.CHAT_MSG_INSTANCE_CHAT = module.CHAT_MSG_GROUP
 module.CHAT_MSG_RAID = module.CHAT_MSG_GROUP
 module.CHAT_MSG_RAID_LEADER = module.CHAT_MSG_GROUP
 
 ------------------------------------------------------------------------
 
 local ignorewords = {
+	PLAYER, -- spammers seem to think addressing you by your character's name adds a personal touch...
 	"account",
 	"battle", "bonus", "buy", "blizz",
 	"cheap", "complain", "contest", "coupon", "customer",
@@ -130,7 +134,6 @@ local ignorewords = {
 	"welcome", "www",
 	"%d+%.?%d*eur", "%d+%.?%d*dollars",
 	"[\226\130\172$\194\163]%d+",
-	(UnitName("player")), -- spammers seem to think addressing you by your character's name adds a personal touch...
 }
 
 local lastForwardedTo, lastForwardedMessage
@@ -186,8 +189,8 @@ function module:CHAT_MSG_WHISPER(message, sender, _, _, _, flag, _, _, _, _, _, 
 			else
 				local spamwords = 0
 				local searchstring = gsub(strlower(message), "%W", "")
-				for _, word in ipairs(ignorewords) do
-					if strfind(searchstring, word) then
+				for i = #ignorewords do
+					if strfind(searchstring, ignorewords[i]) then
 						spamwords = spamwords + 1
 					end
 				end
@@ -240,7 +243,7 @@ function module:ReceiveAddonMessage(message, channel, sender)
 	self:Debug("HydraChat", sender, fwdEvent, fwdSender, fwdMessage)
 
 	if fwdEvent == "GM" then
-		local message = "\124TInterface\\ChatFrame\\UI-ChatIcon-Blizz.blp:0:2:0:-3\124t" .. format(L.WhisperFromGM, sender)
+		local message = format(L.WhisperFromGM, sender)
 		self:Debug(message)
 		self:Alert(message, true)
 		self:Print(message)
