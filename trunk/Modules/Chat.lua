@@ -189,7 +189,7 @@ function module:CHAT_MSG_WHISPER(message, sender, _, _, _, flag, _, _, _, _, _, 
 			else
 				local spamwords = 0
 				local searchstring = gsub(strlower(message), "%W", "")
-				for i = #ignorewords do
+				for i = 1, #ignorewords do
 					if strfind(searchstring, ignorewords[i]) then
 						spamwords = spamwords + 1
 					end
