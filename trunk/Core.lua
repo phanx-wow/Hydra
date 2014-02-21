@@ -26,11 +26,11 @@ BINDING_HEADER_HYDRA = GetAddOnMetadata(HYDRA, "Title")
 local SOLO, INSECURE, SECURE, LEADER = 0, 1, 2, 3
 core.STATE_SOLO, core.STATE_PARTY, core.STATE_TRUSTED, core.STATE_LEADER = SOLO, INSECURE, SECURE, LEADER
 
-local PLAYER, REALM = UnitName("player"), gsub(GetRealmName(), "%s+", "")
-local FULLNAME = format("%s-%s", PLAYER, REALM)
-core.PLAYER_NAME, core.REALM_NAME, core.PLAYER_FULLNAME = PLAYER, REALM, FULLNAME
+local PLAYER_NAME, PLAYER_REALM = UnitName("player"), gsub(GetRealmName(), "%s+", "")
+local PLAYER_FULLNAME = format("%s-%s", PLAYER_NAME, PLAYER_REALM)
+core.PLAYER_NAME, core.PLAYER_REALM, core.PLAYER_FULLNAME = PLAYER_NAME, PLAYER_REALM, PLAYER_FULLNAME
 
-local REALM_S = "%-" .. REALM .. "$"
+local REALM_S = "%-" .. PLAYER_REALM .. "$"
 
 ------------------------------------------------------------------------
 
@@ -114,24 +114,26 @@ function core:ValidateName(name, realm)
 	end
 	--name = Capitalize(name)
 	if realm and strlen(realm) > 0 then
-		realm = gsub(realm, "%s+", "") -- Capitalize(gsub(realm, "%s+", ""))
+		realm = Capitalize(gsub(realm, "%s+", ""), true)
 		self:Debug("ValidateName", name, realm, format("%s-%s", name, realm))
 		return format("%s-%s", name, realm), name
 	else
-		self:Debug("ValidateName", name, REALM, format("%s-%s", name, REALM))
-		return format("%s-%s", name, REALM), name
+		self:Debug("ValidateName", name, PLAYER_REALM, format("%s-%s", name, PLAYER_REALM))
+		return format("%s-%s", name, PLAYER_REALM), name
 	end
 end
 
 function core:IsTrusted(name, realm)
-	if name == FULLNAME or (name == PLAYER and realm == REALM) then
-		return PLAYER
+	if name == PLAYER_FULLNAME or (name == PLAYER_NAME and realm == PLAYER_REALM) then
+		return PLAYER_FULLNAME, PLAYER_NAME
 	end
 	local name, displayName = self:ValidateName(name, realm)
 	if not name then return end
 	local trusted = self.trusted[name]
 	self:Debug("IsTrusted", name, not not trusted)
-	return trusted and displayName
+	if trusted then
+		return name, displayName
+	end
 end
 
 function core:AddTrusted(name, realm, silent)
@@ -246,7 +248,7 @@ function f:PLAYER_LOGIN()
 	f:UnregisterEvent("PLAYER_LOGIN")
 
 	HydraTrustList = HydraTrustList or {}
-	HydraTrustList[format("%s-%s", PLAYER, REALM)] = true
+	HydraTrustList[format("%s-%s", PLAYER_NAME, PLAYER_REALM)] = true
 	core.trusted = HydraTrustList
 
 	HydraSettings = copyTable({ debug = {} }, HydraSettings)
@@ -285,7 +287,7 @@ end
 ------------------------------------------------------------------------
 
 function f:CHAT_MSG_ADDON(prefix, message, channel, sender)
-	if sender == FULLNAME or prefix ~= "Hydra" then return end
+	if sender == PLAYER_FULLNAME or prefix ~= "Hydra" then return end
 	prefix, message = strsplit(" ", message, 2)
 	local module = core.modules[prefix]
 	if not module or not module.enabled or not module.ReceiveAddonMessage then end
@@ -399,9 +401,9 @@ function core:SetupOptions(panel)
 	do
 		local info, temp = {}, {}
 		local sortNames = function(a, b)
-			if a == PLAYER then
+			if a == PLAYER_NAME then
 				return false
-			elseif b == PLAYER then
+			elseif b == PLAYER_NAME then
 				return true
 			end
 			return a < b
@@ -421,7 +423,7 @@ function core:SetupOptions(panel)
 				info.value = name
 				info.func  = OnClick
 				info.notCheckable = 1
-				info.disabled = name == PLAYER
+				info.disabled = name == PLAYER_NAME
 				UIDropDownMenu_AddButton(info)
 			end
 			wipe(temp)
@@ -432,7 +434,7 @@ function core:SetupOptions(panel)
 	removeAll:SetPoint("BOTTOMLEFT", removeName, "BOTTOMRIGHT", 20, 1)
 	removeAll.OnClick = function(self)
 		for name in pairs(core.trusted) do
-			if gsub(name, REALM_S, "") ~= PLAYER then
+			if gsub(name, REALM_S, "") ~= PLAYER_NAME then
 				core:RemoveTrusted(name, nil, true)
 			end
 		end

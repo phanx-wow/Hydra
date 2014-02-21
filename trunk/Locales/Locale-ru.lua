@@ -184,7 +184,7 @@ Type "|cffffffff/promoteme|r" while in a group to request to be promoted to grou
 L.AbandonQuests = "Отказываться от заданий"
 L.AbandonQuests_Info = "Отказываться от заданий, которые были брошены доверенным членом группы."
 --L.AcceptQuests = "Accept quests"
---L.AcceptQuests = "Automatically accept all quests."
+--L.AcceptQuests_Info = "Automatically accept all quests."
 --L.OnlySharedQuests = "Only shared quests"
 --L.OnlySharedQuests_Info = "Only accept quests shared by group members, escort quests started by group members, and quests from NPCs that trusted group members have already accepted."
 L.Quest = "Задание"
