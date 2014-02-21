@@ -16,7 +16,7 @@
 local _, core = ...
 local L = core.L
 local SOLO, PARTY, TRUSTED, LEADER = core.STATE_SOLO, core.STATE_PARTY, core.STATE_TRUSTED, core.STATE_LEADER
-local PLAYER = core.PLAYER_FULLNAME
+local PLAYER_FULLNAME = core.PLAYER_FULLNAME
 
 local followers, following, lastFollowing = {}
 
@@ -26,6 +26,10 @@ module.defaults = {
 	refollowAfterCombat = false,
 	verbose = true,
 }
+
+local ALERT_START_F, ALERT_START_S, ALERT_STOP = "START %s", "^START (%S+)", "STOP"
+local COMMAND_FOLLOW, COMMAND_RELEASE, COMMAND_ACCEPT = "FOLLOW", "RELEASE", "ACCEPT"
+local ALERT_SOULSTONE, ALERT_REINCARNATE, ALERT_SELFRES, ALERT_CANTRES, ALERT_WAIT, ALERT_WAIT_S = "RELEASE", "SS", "REINC", "SELFRES", "NORES", "WAIT %d", "^WAIT "
 
 ------------------------------------------------------------------------
 
@@ -48,9 +52,11 @@ end
 ------------------------------------------------------------------------
 
 function module:ReceiveAddonMessage(message, channel, sender)
-	if strmatch(message, "^START ") then
-		local target = strsub(message, 6)
-		if target == PLAYER then -- sender is following me
+	self:Debug("AddonMessage", channel, sender, message)
+
+	local target = strmatch(message, ALERT_START_S)
+	if target then
+		if target == PLAYER_FULLNAME then -- sender is following me
 			if self.db.verbose then
 				self:Print(L.FollowingYouStart, sender)
 			end
@@ -64,7 +70,7 @@ function module:ReceiveAddonMessage(message, channel, sender)
 			-- sender is following someone else
 		end
 
-	elseif message == "END" then
+	elseif message == ALERT_STOP then
 		if followers[sender] then -- sender stopped following me
 			if GetTime() - followers[sender] > 2 then
 				if self.db.verbose then
@@ -77,7 +83,7 @@ function module:ReceiveAddonMessage(message, channel, sender)
 			followers[sender] = nil
 		end
 
-	elseif message == "FOLLOW" then
+	elseif message == COMMAND_FOLLOW then
 		if core:IsTrusted(sender) and self.db.enable then -- sender wants me to follow them
 			if CheckInteractDistance(sender, 4) then
 				self:Debug(sender, "has sent a follow request.")
@@ -89,49 +95,49 @@ function module:ReceiveAddonMessage(message, channel, sender)
 			end
 		end
 
-	elseif message == "RELEASE" then
+	elseif message == COMMAND_RELEASE then
 		if UnitIsDead("player") and not UnitIsGhost("player") then
 			local ss = HasSoulstone()
 			if not ss then
 				RepopMe()
 			elseif ss == L.UseSoulstone then
-				self:SendAddonMessage("SS")
+				self:SendAddonMessage(ALERT_SOULSTONE)
 			elseif ss == L.Reincarnate then
-				self:SendAddonMessage("REINC")
+				self:SendAddonMessage(ALERT_REINCARNATE)
 			else -- probably "Twisting Nether"
-				self:SendAddonMessage("SELFRES")
+				self:SendAddonMessage(ALERT_SELFRES)
 			end
 		end
 
-	elseif message == "ACCEPT" then
+	elseif message == COMMAND_ACCEPT then
 		if UnitIsGhost("player") then
 			RetrieveCorpse()
 		elseif HasSoulstone() then
 			UseSoulstone()
 		end
 		if CannotBeResurrected() then
-			self:SendAddonMessage("NORES")
+			self:SendAddonMessage(ALERT_CANTRES)
 		else
 			local delay = GetCorpseRecorveryDelay()
 			if delay and delay > 0 then
-				self:SendAddonMessage("WAIT " .. delay)
+				self:SendAddonMessage(format(ALERT_WAIT, delay))
 			end
 		end
 
-	elseif strmatch(message, "^WAIT ") then
+	elseif strmatch(message, ALERT_WAIT_S) then
 		local delay = strmatch(message, "%d+")
 		self:Print(L.CantResDelay, sender, delay)
 
-	elseif message == "NORES" then
+	elseif message == ALERT_CANTRES then
 		self:Print(L.CantRes, sender)
 
-	elseif message == "SS" then
+	elseif message == ALERT_SOULSTONE then
 		self:Print(L.CanUseSoulstone, sender)
 
-	elseif message == "REINC" then
+	elseif message == ALERT_REINCARNATE then
 		self:Print(L.CanReincarnate, sender)
 
-	elseif message == "SELFRES" then
+	elseif message == ALERT_SELFRES then
 		self:Print(L.CanSelfRes, sender)
 	end
 end
@@ -139,7 +145,7 @@ end
 function module:AUTOFOLLOW_BEGIN(name)
 	name = core:ValidateName(UnitName(name)) -- arg doesn't include a realm name
 	self:Debug("Now following", name)
-	self:SendAddonMessage("BEGIN", name)
+	self:SendAddonMessage(format(ALERT_START_F, name))
 	following = name
 	lastFollowing = name
 end
@@ -147,7 +153,7 @@ end
 function module:AUTOFOLLOW_END()
 	if not following then return end -- we don't know who we were following!
 	self:Debug("No longer following", following)
-	self:SendAddonMessage("END", following)
+	self:SendAddonMessage(ALERT_STOP)
 	following = nil
 end
 
@@ -184,7 +190,7 @@ function SlashCmdList.HYDRA_FOLLOWME(command)
 			local trusted = core:IsTrusted(name)
 			if trusted and ( UnitInParty(trusted) or UnitInRaid(trusted) ) then
 				module:Debug("Sending follow command to:", trusted)
-				module:SendAddonMessage("FOLLOW", trusted)
+				module:SendAddonMessage(COMMAND_FOLLOW, trusted)
 				sent = sent + 1
 			end
 		end
@@ -196,13 +202,13 @@ function SlashCmdList.HYDRA_FOLLOWME(command)
 	local trusted = core:IsTrusted(UnitName("target"))
 	if trusted and module.db.targetedFollowMe and not UnitIsUnit(trusted, "player") and ( UnitInParty(trusted) or UnitInRaid(trusted) ) then
 		module:Debug("Sending follow command to target:", trusted)
-		module:SendAddonMessage("FOLLOW", trusted)
+		module:SendAddonMessage(COMMAND_FOLLOW, trusted)
 	else
 		module:Debug("Sending follow command to party")
-		module:SendAddonMessage("FOLLOW")
+		module:SendAddonMessage(COMMAND_FOLLOW)
 	end
 end
-
+_G.Hydra = core
 ------------------------------------------------------------------------
 
 SLASH_HYDRA_CORPSE1 = "/corpse"
@@ -213,9 +219,9 @@ function SlashCmdList.HYDRA_CORPSE(command)
 	command = command and strlower(strtrim(command)) or ""
 
 	if strmatch(command, L.CmdAccept) or strmatch(command, "^re?l?e?a?s?e?") then
-		module:SendAddonMessage("RELEASE")
+		module:SendAddonMessage(COMMAND_RELEASE)
 	elseif strmatch(command, L.CmdRelease) or strmatch(command, "^ac?c?e?p?t?") then
-		module:SendAddonMessage("ACCEPT")
+		module:SendAddonMessage(COMMAND_ACCEPT)
 	end
 end
 
