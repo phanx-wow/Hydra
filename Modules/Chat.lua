@@ -22,7 +22,7 @@
 local _, core = ...
 local L = core.L
 local SOLO, PARTY, TRUSTED, LEADER = core.STATE_SOLO, core.STATE_PARTY, core.STATE_TRUSTED, core.STATE_LEADER
-local PLAYER, REALM, PLAYERREALM = core.PLAYER_NAME, core.REALM_NAME, core.PLAYER_FULLNAME
+local PLAYER, REALM, PLAYERREALM = core.PLAYER_NAME, core.PLAYER_REALM, core.PLAYER_FULLNAME
 
 local groupForwardTime, groupForwardFrom, hasActiveConversation = 0
 local whisperForwardTime, whisperForwardTo, whisperForwardMessage = 0

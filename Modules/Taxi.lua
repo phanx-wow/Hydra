@@ -48,7 +48,7 @@ function module:ReceiveAddonMessage(message, channel, sender)
 		return core:Print("ERROR:", format(L.TaxiMismatchError, sender))
 	end
 
-	local node, nodeName = strmatch(strtrim(message), "^(%d+) (.+)$")
+	local node, nodeName = strsplit(" ", strtrim(message))
 	if node and nodeName then
 		core:Print(L.TaxiSet, sender, nodeName)
 		taxiNode, taxiNodeName, taxiTime = node, nodeName, GetTime()

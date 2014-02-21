@@ -21,19 +21,21 @@
 local _, core = ...
 local L = core.L
 local SOLO, PARTY, TRUSTED, LEADER = core.STATE_SOLO, core.STATE_PARTY, core.STATE_TRUSTED, core.STATE_LEADER
-local PLAYER = core.PLAYER_FULLNAME
-
-local assisters, assisting, pending = {}
+local PLAYER_FULLNAME = core.PLAYER_FULLNAME
 
 local module = core:NewModule("Assist")
 module.defaults = { respond = true, verbose = true }
 
+local assisters, assisting, pending = {}
+
+local MACRO_NAME, MACRO_ICON, MACRO_BODY = L.AssistMacro, "Spell_Priest_VowofUnity", "/click HydraAssistButton"
+local COMMAND_REQUEST, ALERT_SET, ALERT_SET_F, ALERT_UNSET, ALERT_COMBAT, ALERT_NOTRUST, ALERT_ERROR = "REQUEST", "SET", "SET %s", "UNSET", "COMBAT", "NOTRUST", "ERROR"
 local statusText = {
-	COMBAT  = L.AssistFailedCombat,
-	ERROR   = L.AssistFailed,
-	NOTRUST = L.AssistFailedTrust,
-	SET     = L.AssistSet,
-	UNSET   = L.AssistUnset,
+	[ALERT_COMBAT]  = L.AssistFailedCombat,
+	[ALERT_ERROR]   = L.AssistFailed,
+	[ALERT_NOTRUST] = L.AssistFailedTrust,
+	[ALERT_SET]     = L.AssistSet,
+	[ALERT_UNSET]   = L.AssistUnset,
 }
 
 ------------------------------------------------------------------------
@@ -51,8 +53,6 @@ end
 local button = CreateFrame("Button", "HydraAssistButton", nil, "SecureActionButtonTemplate")
 button:RegisterForClicks("AnyUp")
 button:SetAttribute("type", "macro")
-
-local MACRO_NAME, MACRO_ICON, MACRO_BODY = L.AssistMacro, "Spell_Priest_VowofUnity", "/click HydraAssistButton"
 
 function module:GetMacro()
 	local index = GetMacroIndexByName(MACRO_NAME)
@@ -78,7 +78,7 @@ function module:SetAssist(name)
 		self:RegisterEvent("PLAYER_REGEN_ENABLED")
 		pending = name
 		if name then
-			self:SendAddonMessage("COMBAT", name)
+			self:SendAddonMessage(ALERT_COMBAT, name)
 		end
 
 	elseif not name then
@@ -90,14 +90,14 @@ function module:SetAssist(name)
 	elseif not core:IsTrusted(name) then
 		-- Requester not trusted. Inform them.
 		self:Debug("not trusted")
-		self:SendAddonMessage("NOTRUST", name)
+		self:SendAddonMessage(ALERT_NOTRUST, name)
 
 	else
 		-- Set the requester to be assisted.
 		self:Debug("success")
 		button:SetAttribute("macrotext", SLASH_ASSIST1.." "..name)
 		assisting = name
-		self:SendAddonMessage("SET " .. name)
+		self:SendAddonMessage(format(ALERT_SET_F, name))
 	end
 
 	-- Clear pending if there was one.
@@ -116,19 +116,19 @@ function module:ReceiveAddonMessage(message, channel, sender)
 	self:Debug("AddonMessage", channel, sender, message)
 	local message, detail = strsplit(" ", message, 2)
 
-	if message == "REQUEST" then
+	if message == COMMAND_REQUEST then
 		-- sender wants to be the assist target
 		return self:SetAssist(sender)
 	end
 
-	if message == "SET" then
-		if detail == PLAYER then
+	if message == ALERT_SET then
+		if detail == PLAYER_FULLNAME then
 			-- sender is now assisting the player
 			assisters[sender] = true
 		elseif assisters[sender] then
 			-- sender was assisting the player, but now someone else
 			assisters[sender] = nil
-			message = "UNSET"
+			message = ALERT_UNSET
 		else
 			-- irrelevant
 			return
@@ -157,10 +157,10 @@ function SlashCmdList.HYDRA_ASSIST(command)
 			return self:Print(L.NobodyAssisting)
 		end
 		for name in pairs(assisting) do
-			self:Print(statusText["SET"], name)
+			self:Print(statusText[ALERT_SET], name)
 		end
 	else
-		self:SendAddonMessage("REQUEST")
+		self:SendAddonMessage(COMMAND_REQUEST)
 	end
 end
 
