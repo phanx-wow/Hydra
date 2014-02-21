@@ -1,9 +1,9 @@
 ## Interface: 50400
-## Version: 5.4.2.wowi:revision
+## Version: 5.4.7.wowi:revision
 
 ## Title: Hydra
 ## Notes: Multiboxing and group leveling helper.
-## Notes-deDE: Helfer für Multiboxing und Stufenaufstiegen als Gruppe.
+## Notes-deDE: Helfer für Multiboxing und Leveln als Gruppe.
 ## Notes-esES: Ayudante para el multibox y la subir en grupo.
 ## Notes-esMX: Ayudante para el multibox y la subir en grupo.
 ## Notes-frFR: Aide au leveling en multibox.
@@ -12,7 +12,7 @@
 
 ## Author: Phanx
 ## X-Email: addons@phanx.net
-## X-Copyright: Copyright (c) 2010-2013 Phanx. All rights reserved.
+## X-Copyright: Copyright (c) 2010-2014 Phanx. All rights reserved.
 ## X-License: See accompanying LICENSE file for details.
 ## X-CompatibleLocales: enUS, deDE, esES, esMX, frFR, itIT, koKR, ptBR, ruRU, zhCN, zhTW
 ## X-Localizations: enUS, deDE, esES, esMX, frFR, koKR, ruRU
