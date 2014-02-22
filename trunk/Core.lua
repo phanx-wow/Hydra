@@ -26,9 +26,19 @@ BINDING_HEADER_HYDRA = GetAddOnMetadata(HYDRA, "Title")
 local SOLO, INSECURE, SECURE, LEADER = 0, 1, 2, 3
 core.STATE_SOLO, core.STATE_PARTY, core.STATE_TRUSTED, core.STATE_LEADER = SOLO, INSECURE, SECURE, LEADER
 
+function core:GetStateFlags()
+	return SOLO, INSECURE, SECURE, LEADER
+end
+
+------------------------------------------------------------------------
+
 local PLAYER_NAME, PLAYER_REALM = UnitName("player"), gsub(GetRealmName(), "%s+", "")
 local PLAYER_FULLNAME = format("%s-%s", PLAYER_NAME, PLAYER_REALM)
 core.PLAYER_NAME, core.PLAYER_REALM, core.PLAYER_FULLNAME = PLAYER_NAME, PLAYER_REALM, PLAYER_FULLNAME
+
+function core:GetPlayerInfo()
+	return PLAYER_FULLNAME, PLAYER_NAME, PLAYER_REALM
+end
 
 local REALM_S = "%-" .. PLAYER_REALM .. "$"
 
@@ -112,7 +122,7 @@ function core:ValidateName(name, realm)
 	if strmatch(name, "%-") then
 		name, realm = strsplit("-", name, 2)
 	end
-	--name = Capitalize(name)
+	name = Capitalize(name)
 	if realm and strlen(realm) > 0 then
 		realm = Capitalize(gsub(realm, "%s+", ""), true)
 		self:Debug("ValidateName", name, realm, format("%s-%s", name, realm))

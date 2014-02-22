@@ -24,10 +24,6 @@ local L = core.L
 local SOLO, PARTY, TRUSTED, LEADER = core.STATE_SOLO, core.STATE_PARTY, core.STATE_TRUSTED, core.STATE_LEADER
 local PLAYER, REALM, PLAYERREALM = core.PLAYER_NAME, core.PLAYER_REALM, core.PLAYER_FULLNAME
 
-local groupForwardTime, groupForwardFrom, hasActiveConversation = 0
-local whisperForwardTime, whisperForwardTo, whisperForwardMessage = 0
-local frameTime, hasFocus = 0
-
 local module = core:NewModule("Chat")
 module:SetScript("OnUpdate", function() frameTime = GetTime() end)
 module:Hide()
@@ -37,6 +33,10 @@ module.defaults = {
 	mode = "LEADER", -- APPFOCUS | LEADER
 	timeout = 300,
 }
+
+local groupForwardTime, groupForwardFrom, hasActiveConversation = 0
+local whisperForwardTime, whisperForwardTo, whisperForwardMessage = 0
+local frameTime, hasFocus = 0
 
 L.WhisperFromGM = "\124TInterface\\ChatFrame\\UI-ChatIcon-Blizz.blp:0:2:0:-3\124t" .. L.WhisperFromGM
 

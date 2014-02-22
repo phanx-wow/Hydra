@@ -14,13 +14,16 @@ local _, core = ...
 local L = core.L
 local SOLO, PARTY, TRUSTED, LEADER = core.STATE_SOLO, core.STATE_PARTY, core.STATE_TRUSTED, core.STATE_LEADER
 
-local responding
-
 local module = core:NewModule("Mount")
 module.defaults = {
 	mount = true,
 	dismount = true,
 }
+
+local ACTION_DISMOUNT, ACTION_MOUNT = "DISMOUNT", "MOUNT"
+local MESSAGE_ERROR = "ERROR"
+
+local responding
 
 ------------------------------------------------------------------------
 
@@ -42,12 +45,12 @@ function module:ReceiveAddonMessage(message, channel, sender)
 	if not core:IsTrusted(sender) or not (UnitInParty(sender) or UnitInRaid(sender)) then return end
 	self:Debug("ReceiveAddonMessage", message, channel, sender)
 
-	if message == "ERROR" then
+	local remoteID, remoteName = strsplit(" ", message, 2)
+
+	if remoteID == MESSAGE_ERROR then
 		self:Print("ERROR: " .. L.MountMissing, sender)
 		return
-	end
-
-	if message == "DISMOUNT" then
+	elseif remoteID == "DISMOUNT" then
 		self:Debug(sender, "dismounted")
 		if self.db.dismount then
 			responding = true
@@ -57,16 +60,15 @@ function module:ReceiveAddonMessage(message, channel, sender)
 		return
 	end
 
-	if not self.db.mount then return end
-
-	local remoteID, remoteName = strmatch(message, "^(%d+) (.+)$")
-	if not remoteID or not remoteName then return end
+	if not remoteID or not remoteName or not self.db.mount then return end
 
 	remoteID = tonumber(remoteID)
 	self:Debug(sender, "mounted on", remoteID, remoteName)
 
 	if IsMounted() then return self:Debug("Already mounted.") end
-	if not UnitIsVisible(sender) then return self:Debug("Not mounting because", sender, "is out of range.") end
+
+	local target = Ambiguate(sender, "none")
+	if not UnitIsVisible(target) then return self:Debug("Not mounting because", sender, "is out of range.") end
 
 	responding = true
 
@@ -113,7 +115,7 @@ function module:ReceiveAddonMessage(message, channel, sender)
 		return
 	end
 
-	self:SendAddonMessage("ERROR")
+	self:SendAddonMessage(MESSAGE_ERROR)
 	responding = nil
 end
 
@@ -142,7 +144,7 @@ end)
 hooksecurefunc("Dismount", function()
 	if responding or core.state == SOLO then return end
 	module:Debug("Dismount")
-	module:SendAddonMessage("DISMOUNT")
+	module:SendAddonMessage(ACTION_DISMOUNT)
 end)
 
 ------------------------------------------------------------------------

@@ -14,13 +14,14 @@ local _, core = ...
 local L = core.L
 local SOLO, PARTY, TRUSTED, LEADER = core.STATE_SOLO, core.STATE_PARTY, core.STATE_TRUSTED, core.STATE_LEADER
 
-local taxiTime, taxiNode, taxiNodeName = 0
-
 local module = core:NewModule("Taxi")
 module.defaults = {
 	enable = true,
 	timeout = 60,
 }
+
+local MESSAGE_MISMATCH, MESSAGE_TIMEOUT = "MISMATCH", "TIMEOUT"
+local taxiTime, taxiNode, taxiNodeName = 0
 
 ------------------------------------------------------------------------
 
@@ -42,13 +43,13 @@ function module:ReceiveAddonMessage(message, channel, sender)
 	if not core:IsTrusted(sender) then return end
 	self:Debug("Comm received from", sender, "->", message)
 
-	if message == "TIMEOUT" then
+	if message == MESSAGE_TIMEOUT then
 		return core:Print("ERROR:", format(L.TaxiTimeoutError, sender))
-	elseif message == "MISMATCH" then
+	elseif message == MESSAGE_MISMATCH then
 		return core:Print("ERROR:", format(L.TaxiMismatchError, sender))
 	end
 
-	local node, nodeName = strsplit(" ", strtrim(message))
+	local node, nodeName = strsplit(" ", message)
 	if node and nodeName then
 		core:Print(L.TaxiSet, sender, nodeName)
 		taxiNode, taxiNodeName, taxiTime = node, nodeName, GetTime()
@@ -61,7 +62,7 @@ function module:TAXIMAP_OPENED()
 
 	if GetTime() - taxiTime > self.db.timeout then
 		taxiNode, taxiNodeName, taxiTime = nil, nil, 0
-		return self:SendAddonMessage("TIMEOUT")
+		return self:SendAddonMessage(MESSAGE_TIMEOUT)
 	end
 
 	if TaxiNodeName(taxiNode) ~= taxiNodeName then
@@ -74,7 +75,7 @@ function module:TAXIMAP_OPENED()
 		end
 		if not found then
 			taxiNode, taxiNodeName, taxiTime = nil, nil, 0
-			return self:SendAddonMessage("MISMATCH")
+			return self:SendAddonMessage(MESSAGE_MISMATCH)
 		end
 	end
 

@@ -27,8 +27,7 @@
 local _, core = ...
 local L = core.L
 local SOLO, PARTY, TRUSTED, LEADER = core.STATE_SOLO, core.STATE_PARTY, core.STATE_TRUSTED, core.STATE_LEADER
-
-local accept, accepted = {}, {}
+local PLAYER_FULLNAME, PLAYER_NAME, PLAYER_REALM = core.PLAYER_FULLNAME, core.PLAYER_NAME, core.PLAYER_REALM
 
 local module = core:NewModule("Quest")
 module.defaults = {
@@ -39,6 +38,9 @@ module.defaults = {
 	share = false,
 	abandon = false,
 }
+
+local ACTION_ABANDON, ACTION_ACCEPT, ACTION_TURNIN = "ABANDON", "ACCEPT", "TURNIN"
+local accept, accepted = {}, {}
 
 ------------------------------------------------------------------------
 
@@ -103,7 +105,8 @@ local ignoredQuests = {
 ------------------------------------------------------------------------
 
 function module:QUEST_ACCEPT_CONFIRM(name, qname)
-	if self.db.accept and (UnitInRaid(name) or UnitInParty(name)) then
+	local displayName = Ambiguate(name, "none")
+	if self.db.accept and (UnitInRaid(displayName) or UnitInParty(displayName)) then
 		self:Debug("Accepting quest", qname, "started by", name)
 		ConfirmAcceptQuest()
 		StaticPopup_Hide("QUEST_ACCEPT")
@@ -119,17 +122,17 @@ function module:ReceiveAddonMessage(message, channel, sender)
 
 	local action, qlink = strsplit(" ", message, 2)
 
-	if action == "ACCEPT" then
+	if action == ACTION_ACCEPT then
 		local qname = strlower(strmatch(qlink, "%[(.-)%]"))
 		if not accepted[qname] then
 			accept[qname] = qlink
 		end
 		return self:Print(L.QuestAccepted, sender, qlink)
 
-	elseif action == "TURNIN" then
+	elseif action == ACTION_TURNIN then
 		return self:Print(L.QuestTurnedIn, sender, qlink)
 
-	elseif action == "ABANDON" and self.db.abandon then
+	elseif action == ACTION_ABANDON and self.db.abandon then
 		for i = 1, GetNumQuestLogEntries() do
 			local link = GetQuestLink(i)
 			if link == qlink then
@@ -391,10 +394,10 @@ function module:QUEST_LOG_UPDATE()
 		if not currentquests[id] then
 			if abandoning then
 				self:Debug("Abandoned quest", link)
-				self:SendAddonMessage("ABANDON " .. link)
+				self:SendAddonMessage(ACTION_ABANDON .. " " .. link)
 			else
 				self:Debug("Turned in quest", link)
-				self:SendAddonMessage("TURNIN " .. link)
+				self:SendAddonMessage(ACTION_TURNIN .. " " .. link)
 			end
 		end
 	end
@@ -404,7 +407,7 @@ function module:QUEST_LOG_UPDATE()
 	for id, link in pairs(currentquests) do
 		if not oldquests[id] then
 			self:Debug("Accepted quest", link)
-			self:SendAddonMessage("ACCEPT " .. link)
+			self:SendAddonMessage(ACTION_ACCEPT .. " " .. link)
 
 			local qname = link:match("%[(.-)%]"):lower()
 			if self.db.share and not accept[qname] and not accepted[qname] then
