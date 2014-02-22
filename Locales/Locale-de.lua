@@ -7,7 +7,7 @@
 	http://www.curse.com/addons/wow/hydra
 ------------------------------------------------------------------------
 	German localization
-	Last updated 2014-01-04 by Phanx
+	Last updated 2014-02-22 by Phanx
 	***
 ----------------------------------------------------------------------]]
 
@@ -39,6 +39,29 @@ L.RemoveName_Info = "Enterfernt einen Name aus der Vertrauensliste."
 L.Timeout = "Ablauf"
 L.Verbose = "Wortreich"
 L.Verbose_Info = "Aktiviert Benachrichtigungen von diesem Modul."
+
+------------
+-- Assist --
+------------
+
+L.Assist = "Unterstützen"
+--L.Assist_Info = "Synchronizes an assist target across trusted group members."
+L.AssistFailed = "Wegen eines unbekannten Fehler kann %s Euch jetzt nicht unterstützen."
+L.AssistFailedCombat = "%s wird Euch nach dem Kampf unterstützen."
+L.AssistFailedTrust = "%s kann Euch nicht unterstützen, weil Ihr nicht auf ihrer Vertrauensliste seid."
+L.AssistGetMacro = "Makro erhalten"
+--L.AssistGetMacro_Info = "If you prefer to activate the Assist function from your action bars, you can use this button to get a macro you can drop onto any action button."
+--L.AssistHelpText = "This module is really only useful in combination with key cloning software. You should set your selected |cffffffffAssist|r key to be sent to your secondary clients."
+L.AssistMacro = "Unterstützen"
+L.AssistMacro_Info = "Belegt eine Taste, um ihre Unterstützungsziel zu helfen."
+L.AssistRespond = "Unterstützen"
+L.AssistRespond_Info = "Auf Unterstützungsanfragen von vertrauenswürdige Gruppenmitglieder reagieren."
+L.AssistSet = "%s wird Euch jetzt unterstützen."
+L.AssistUnset = "%s wird %s anstatt Euer jetzt unterstützen."
+L.NobodyAssisting = "Niemand assistiert Euch momentan."
+L.RequestAssist = "Assistenz anfordern"
+L.RequestAssist_Info = "Belegt eine Taste, um alle Gruppenmitglieder befehlen, Euch als ihr Unterstützungsziel zu einstellen."
+L.SlashAssistMe = "/assistieremir"
 
 ----------------
 -- Automation --
@@ -142,21 +165,6 @@ L.TargetedFollowMe_Info = "Wenn Eure aktuelle Ziel ist ein vertrauenswürdiges G
 L.UseSoulstone = "Use Soulstone" -- Must match Blizzard self-res dialog!
 
 -----------
--- Mount --
------------
-
-L.Dismount = "Absitzen bei Gruppe"
-L.Dismount_Info = "Sitzt ab, wenn ein anderes vertrauenswürdiges Gruppenmitglied sitzt ab."
-L.Mount = "Aufsitzen"
-L.Mount_Info = "Mit diesem Modul kann die Gruppe zusammen aufsizten und absitzen."
---L.MountHelpText = ""
-L.MountMissing = "%s hat keine verfügbaren Reittiere!"
-L.MountRandom = "Zufälliges Reittier verwenden"
-L.MountRandom_Info = "Verwendet ein zufälliges Reittier der gleichen Art wie Eure vertrauenswürdigen Gruppenmitglied.\nWenn diese Option deaktiviert, werdet Ihr das gleiche Reittier verwenden, wenn Ihr das habt, oder sonst das erste Reittier der gleichen Art."
-L.MountTogether = "Mit Gruppe aufsitzen"
-L.MountTogether_Info = "Sitzt auf, wenn ein anderes vertrauenswürdiges Gruppenmitglied sitzt auf."
-
------------
 -- Group --
 -----------
 
@@ -174,6 +182,21 @@ Gebt "|cffffffff/ladetmich Name|r" ein, um eine Gruppeneinladung von "Name" zu a
 Gebt "|cffffffff/befördernmich|r" ein, während Ihr in einer Gruppe seid, um eine Förderung als Gruppenanführer zu anforden.]]
 L.SlashInviteMe = "/einladenmich"
 L.SlashPromoteMe = "/befördernmich"
+
+-----------
+-- Mount --
+-----------
+
+L.Dismount = "Absitzen bei Gruppe"
+L.Dismount_Info = "Sitzt ab, wenn ein anderes vertrauenswürdiges Gruppenmitglied sitzt ab."
+L.Mount = "Aufsitzen"
+L.Mount_Info = "Mit diesem Modul kann die Gruppe zusammen aufsizten und absitzen."
+--L.MountHelpText = ""
+L.MountMissing = "%s hat keine verfügbaren Reittiere!"
+L.MountRandom = "Zufälliges Reittier verwenden"
+L.MountRandom_Info = "Verwendet ein zufälliges Reittier der gleichen Art wie Eure vertrauenswürdigen Gruppenmitglied.\nWenn diese Option deaktiviert, werdet Ihr das gleiche Reittier verwenden, wenn Ihr das habt, oder sonst das erste Reittier der gleichen Art."
+L.MountTogether = "Mit Gruppe aufsitzen"
+L.MountTogether_Info = "Sitzt auf, wenn ein anderes vertrauenswürdiges Gruppenmitglied sitzt auf."
 
 -----------
 -- Quest --
@@ -197,7 +220,6 @@ L.ShareQuests_Info = "Automatisch teilt die Quests, die Ihr von NSCs nehmt an."
 L.TurnInQuests = "Quests abschließen"
 L.TurnInQuests_Info = "Automatisch schließt die Quests zu NSCs ab."
 
-
 ----------
 -- Taxi --
 ----------
@@ -213,3 +235,11 @@ L.TaxiMismatchError = "%s: Flugziele stimmen nicht überein!"
 L.TaxiSet = "%1$s hat die Gruppenflugziel auf %2$s festgelegt."
 L.TaxiTimeout_Info = "Wenn diese viele Sekunden sind vergangen, die Gruppenflugziel wird gelöscht."
 L.TaxiTimeoutError = "%s: Ablaufzeit des Gruppenflugziels ist vorbei."
+
+-----------
+-- Debug --
+-----------
+
+L.Debug = "Debugging"
+L.Debug_Info = "Debugging-Meldungen für die ausgewählten Teile von Hydra aktivieren."
+L.DebugCore = "Kern"

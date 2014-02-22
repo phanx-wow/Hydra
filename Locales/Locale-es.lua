@@ -7,7 +7,7 @@
 	http://www.curse.com/addons/wow/hydra
 ------------------------------------------------------------------------
 	Spanish localization
-	Last updated 2013-03-12 by Phanx
+	Last updated 2014-02-22 by Phanx
 	Previous contributors: Valdesca
 ----------------------------------------------------------------------]]
 
@@ -30,7 +30,7 @@ L.CoreHelpText = [[Hydra functiona sobre la base de "confianza". Añada una list
 Por ejemplo, los susurros sólo se reenvían al chat de grupo si todos en el grupo son de confianza.]]
 L.Enable = ENABLE
 L.Enable_Info = "Activar este módulo."
---L.Hydra_Info = "Hydra is a multiboxing and group leveling helper that aims to minimize the need to actively control secondary characters."
+L.Hydra_Info = "Hydra está un ayudante para el multibox y la subir en grupo, que trata de minimizar la necesidad para controlar los personajes secundarios."
 L.RemoveAll = "Quitar todos"
 L.RemoveAll_Info = "Vaciar la lista de confianza por la eliminación de todos los nombres de personajes."
 L.RemovedTrusted = "%s ha sido quitado de la lista de confianza."
@@ -39,6 +39,29 @@ L.RemoveName_Info = "Quitar de la lista de confianza un nombre de personaje."
 L.Timeout = "Tiempo de espera"
 L.Verbose = "Verboso"
 L.Verbose_Info = "Activar mensajes de notificación de este módulo."
+
+------------
+-- Assist --
+------------
+
+L.Assist = "Asistir"
+--L.Assist_Info = "Synchronizes an assist target across trusted group members."
+--L.AssistFailed = "%s could not assist you due to an unknown error."
+--L.AssistFailedCombat = "%s will assist you after combat."
+--L.AssistFailedTrust = "%s cannot assist you because you are not on their trusted list."
+--L.AssistGetMacro = "Get Macro"
+--L.AssistGetMacro_Info = "If you prefer to activate the Assist function from your action bars, you can use this button to get a macro you can drop onto any action button."
+--L.AssistHelpText = "This module is really only useful in combination with key cloning software. You should set your selected |cffffffffAssist|r key to be sent to your secondary clients."
+L.AssistMacro = "Asistir"
+--L.AssistMacro_Info = "Set a key binding to assist your current assist target."
+L.AssistRespond = "Asistir"
+--L.AssistRespond_Info = "Respond to assist requests from trusted group members."
+--L.AssistSet = "%s will now assist you."
+--L.AssistUnset = "%s is now assisting %s instead of you."
+--L.NobodyAssisting = "Nobody is currently assisting you."
+--L.RequestAssist = "Request Assist"
+--L.RequestAssist_Info = "Set a key binding to request that all group members set you as their assist target."
+L.SlashAssistMe = "/asistirme"
 
 ----------------
 -- Automation --
@@ -84,7 +107,7 @@ L.SummonExpired = "La invocación expiró!"
 -- Chat --
 ----------
 
-L.AppFocus = "Application focus"
+L.AppFocus = "Programa en foco"
 L.Chat = "Chat"
 L.Chat_Info = "Reenvía al chat del grupo los susurros que se enviaron a los personajes inactivos, y reenvía las respuestas al remitente original."
 L.ChatHelpText = [[Escribe en el chat de grupo para responder a la última susurro que se reenvió al chat de grupo por un otro personaje.
@@ -95,7 +118,7 @@ Escribe "|cffffffff@Nombre Mensaje aquí|r" en un susurro al otro personaje para
 L.DetectionMethod = "Método de detección"
 L.DetectionMethod_Info = [[Seleccione el método para utilizar para detectar el personaje principal.
 
-Si estás jugando en varios equipos, o estás ejecutando en la misma computadora múltiples copias de WoW en el modo de ventana, el método de detección "Programa en primer plano" probablemente no funcione. En este caso, debe utilizar el método "Líder del grupo" y asegúrate de que tu personaje principal es el líder del grupo.]]
+Si estás jugando en varios equipos, o estás ejecutando en la misma computadora múltiples copias de WoW en el modo de ventana, el método de detección "Programa en foco" probablemente no funcione. En este caso, debe utilizar el método "Líder del grupo" y asegúrate de que tu personaje principal es el líder del grupo.]]
 L.GroupLeader = "Líder del grupo"
 L.GroupTimeout_Info = "Después de estos segundos desde el último susurro, los mensajes escritos en el chat de grupo no se reenvían, a menos especificar explícitamente el objetivo."
 L.GroupTimeoutError = "Se ha alcanzado el tiempo de espera para el chat de grupo."
@@ -144,22 +167,7 @@ L.TargetedFollowMe_Info = "Si el objetivo actual es un miembro de confianza del 
 L.UseSoulstone = "Usa Piedra de alma" -- Must match Blizzard self-res dialog!
 
 -----------
--- Mount --
------------
-
-L.Dismount = "Desmontar juntos"
-L.Dismount_Info = "Desmontar cuando desmonta un miembro de confianza del grupo."
-L.Mount = "Montura"
-L.Mount_Info = "Montar y desmontar como un grupo."
---L.MountHelpText = ""
-L.MountMissing = "¡%s no tiene una montura equivalente!"
-L.MountRandom = "Monturas aleatorias"
-L.MountRandom_Info = "Al montar automáticamente, utilizar una montura aleatoria del mismo tipo del miembro de confianza del grupo.\nSi está desactivada, vas a utilizar la misma monutra si lo tienen, o el equivalente primero a encontrar."
-L.MountTogether = "Montar juntos"
-L.MountTogether_Info = "Montar cuando desmonta un miembro de confianza del grupo."
-
------------
--- Party --
+-- Group --
 -----------
 
 L.CantInviteNotLeader = "No te puedo invitar, porque no estoy el líder del grupo."
@@ -176,6 +184,21 @@ Escribe "|cffffffff/invitarme Nombre|r" para solictar una invitación de grupo d
 Escribe "|cffffffff/promoverme|r" mientras estás en el grupo para solicitar una promoción al líder del grupo.]]
 L.SlashInviteMe = "/invitarme"
 L.SlashPromoteMe = "/promoverme"
+
+-----------
+-- Mount --
+-----------
+
+L.Dismount = "Desmontar juntos"
+L.Dismount_Info = "Desmontar cuando desmonta un miembro de confianza del grupo."
+L.Mount = "Montura"
+L.Mount_Info = "Montar y desmontar como un grupo."
+--L.MountHelpText = ""
+L.MountMissing = "¡%s no tiene una montura equivalente!"
+L.MountRandom = "Monturas aleatorias"
+L.MountRandom_Info = "Al montar automáticamente, utilizar una montura aleatoria del mismo tipo del miembro de confianza del grupo.\nSi está desactivada, vas a utilizar la misma monutra si lo tienen, o el equivalente primero a encontrar."
+L.MountTogether = "Montar juntos"
+L.MountTogether_Info = "Montar cuando desmonta un miembro de confianza del grupo."
 
 -----------
 -- Quest --
@@ -214,3 +237,11 @@ L.TaxiMismatchError = "%s: El destino no coincide."
 L.TaxiSet = "%1$s estableció el destino compartido a %2$s."
 L.TaxiTimeout_Info = "Borrar la selección del destino compartido después de estos segundos."
 L.TaxiTimeoutError = "%s: Se ha alcanzado el tiempo de espera para el taxi."
+
+-----------
+-- Debug --
+-----------
+
+L.Debug = "Depurar"
+L.Debug_Info = "Activar los mensajes de depuración para los partes seleccionados de Hydra."
+L.DebugCore = "Núcleo"
