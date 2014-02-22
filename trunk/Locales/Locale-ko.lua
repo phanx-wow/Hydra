@@ -40,6 +40,29 @@ L.Timeout = "시간 초과"
 L.Verbose = "수다 모드"
 --L.Verbose_Info = "Enable notification messages from this module."
 
+------------
+-- Assist --
+------------
+
+--L.Assist = "Assist"
+--L.Assist_Info = "Synchronizes an assist target across trusted group members."
+--L.AssistFailed = "%s could not assist you due to an unknown error."
+--L.AssistFailedCombat = "%s will assist you after combat."
+--L.AssistFailedTrust = "%s cannot assist you because you are not on their trusted list."
+--L.AssistGetMacro = "Get Macro"
+--L.AssistGetMacro_Info = "If you prefer to activate the Assist function from your action bars, you can use this button to get a macro you can drop onto any action button."
+--L.AssistHelpText = "This module is really only useful in combination with key cloning software. You should set your selected |cffffffffAssist|r key to be sent to your secondary clients."
+--L.AssistMacro = "Assist"
+--L.AssistMacro_Info = "Set a key binding to assist your current assist target."
+--L.AssistRespond = "Assist"
+--L.AssistRespond_Info = "Respond to assist requests from trusted group members."
+--L.AssistSet = "%s will now assist you."
+--L.AssistUnset = "%s is now assisting %s instead of you."
+--L.NobodyAssisting = "Nobody is currently assisting you."
+--L.RequestAssist = "Request Assist"
+--L.RequestAssist_Info = "Set a key binding to request that all group members set you as their assist target."
+--L.SlashAssistMe = "/assistme"
+
 ----------------
 -- Automation --
 ----------------
@@ -98,7 +121,7 @@ L.DetectionMethod = "모드"
 If you are multiboxing on multiple physical machines, or are running multiple copies of WoW in windowed mode, the "Application Focus" mode will probably not work for you, and you should make sure that your primary character is the group leader.]] ]=]
 L.GroupLeader = "파티장"
 --L.GroupTimeout_Info = "If this many seconds have elapsed since the last forwarded message, don't forward messages typed in group chat to the last whisperer unless the target is explicitly specified."
-L.GroupTimeoutError = "Group chat forwarding timeout reached."
+--L.GroupTimeoutError = "Group chat forwarding timeout reached."
 L.WhisperFrom = "%1$s 님이 %2$s 님으로 부터 귓속말을 받았습니다."
 L.WhisperFromBnet = "%1$s 님이 %2$s 님으로 부터 Battle.net 귓속말을 받았습니다:\n%3$s"
 --L.WhisperFromConvo = "%1$s received a Battle.net message from %2$s:\n%3$s"
@@ -144,22 +167,7 @@ L.SlashFollowMe = "/따라와"
 --L.UseSoulstone = "Use Soulstone" -- Must match Blizzard self-res dialog!
 
 -----------
--- Mount --
------------
-
---L.Dismount = "Dismount with group"
---L.Dismount_Info = "Dismount when another trusted group member dismounts."
-L.Mount = "탈것"
---L.Mount_Info = "Group mounting and dismounting."
-L.MountHelpText = ""
-L.MountMissing = "%s 님은 탈 것이 없습니다!"
---L.MountRandom = "Use random mount"
---L.MountRandom_Info = "Use a random mount of the same type as your trusted group member.\nIf this is disabled, you will use the same mount if you have it, or the first equivalent mount otherwise."
-L.MountTogether = "탈것"
-L.MountTogether_Info = "다른 파티원이 탈것을 소환할 때, 당신의 탈것을 소환합니다."
-
------------
--- Party --
+-- Group --
 -----------
 
 L.CantInviteNotLeader = "저는 모듈 리더가 아니므로 당신을 초대할 수 없습니다."
@@ -176,6 +184,21 @@ Type "|cffffffff/inviteme Name|r" to request a group invitation from "Name".
 Type "|cffffffff/promoteme|r" while in a group to request to be promoted to group leader.]] ]=]
 L.SlashInviteMe = "/나초대"
 L.SlashPromoteMe = "/승급"
+
+-----------
+-- Mount --
+-----------
+
+--L.Dismount = "Dismount with group"
+--L.Dismount_Info = "Dismount when another trusted group member dismounts."
+L.Mount = "탈것"
+--L.Mount_Info = "Group mounting and dismounting."
+--L.MountHelpText = ""
+L.MountMissing = "%s 님은 탈 것이 없습니다!"
+--L.MountRandom = "Use random mount"
+--L.MountRandom_Info = "Use a random mount of the same type as your trusted group member.\nIf this is disabled, you will use the same mount if you have it, or the first equivalent mount otherwise."
+L.MountTogether = "탈것"
+L.MountTogether_Info = "다른 파티원이 탈것을 소환할 때, 당신의 탈것을 소환합니다."
 
 -----------
 -- Quest --
@@ -214,3 +237,11 @@ L.TaxiMismatchError = "%s: 님의 택시 노드가 일치하지 않습니다."
 L.TaxiSet = "%1$s 님이 지정한 파티 택시의 노드 %2$s."
 L.TaxiTimeout_Info = "이 시간(초)이 경과된 후에 택시 선택을 지웁니다."
 L.TaxiTimeoutError = "%s: 님의 택시가 시간 초과되었습니다."
+
+-----------
+-- Debug --
+-----------
+
+--L.Debug = "Debug"
+--L.Debug_Info = "Enable debugging messages for the selected parts of Hydra."
+--L.DebugCore = "Core"

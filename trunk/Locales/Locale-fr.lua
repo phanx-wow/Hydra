@@ -40,6 +40,29 @@ L.Timeout = "Délai"
 L.Verbose = "Mode verbose"
 L.Verbose_Info = "Activer les messages de notification de ce module."
 
+------------
+-- Assist --
+------------
+
+--L.Assist = "Assist"
+--L.Assist_Info = "Synchronizes an assist target across trusted group members."
+--L.AssistFailed = "%s could not assist you due to an unknown error."
+--L.AssistFailedCombat = "%s will assist you after combat."
+--L.AssistFailedTrust = "%s cannot assist you because you are not on their trusted list."
+--L.AssistGetMacro = "Get Macro"
+--L.AssistGetMacro_Info = "If you prefer to activate the Assist function from your action bars, you can use this button to get a macro you can drop onto any action button."
+--L.AssistHelpText = "This module is really only useful in combination with key cloning software. You should set your selected |cffffffffAssist|r key to be sent to your secondary clients."
+--L.AssistMacro = "Assist"
+--L.AssistMacro_Info = "Set a key binding to assist your current assist target."
+--L.AssistRespond = "Assist"
+--L.AssistRespond_Info = "Respond to assist requests from trusted group members."
+--L.AssistSet = "%s will now assist you."
+--L.AssistUnset = "%s is now assisting %s instead of you."
+--L.NobodyAssisting = "Nobody is currently assisting you."
+--L.RequestAssist = "Request Assist"
+--L.RequestAssist_Info = "Set a key binding to request that all group members set you as their assist target."
+--L.SlashAssistMe = "/assistme"
+
 ----------------
 -- Automation --
 ----------------
@@ -141,22 +164,7 @@ L.SlashFollowMe = "/suivezmoi"
 L.UseSoulstone = "Utiliser une pierre d'âme" -- Must match Blizzard self-res dialog!
 
 -----------
--- Mount --
------------
-
---L.Dismount = "Dismount with group"
---L.Dismount_Info = "Dismount when another trusted group member dismounts."
-L.Mount = "Monture"
---L.Mount_Info = "Group mounting and dismounting."
---L.MountHelpText = ""
-L.MountMissing = "%s ne connaît pas cette monture !"
---L.MountRandom = "Use random mount"
---L.MountRandom_Info = "Use a random mount of the same type as your trusted group member.\nIf this is disabled, you will use the same mount if you have it, or the first equivalent mount otherwise."
-L.MountTogether = "Monture"
-L.MountTogether_Info = "Invoque votre monture quand un autre membre du goupe invoque la sienne."
-
------------
--- Party --
+-- Group --
 -----------
 
 L.CantInviteNotLeader = "Je ne peux pas vous inviter, car je ne suis pas le chef du groupe."
@@ -173,6 +181,21 @@ Tapez "|cffffffff/invitezmoi Nom|r" pour demander un groupage à "Nom".
 Tapez "|cffffffff/promouvezmoi|r" en étant groupé pour demander une promotion comme chef du groupe.]]
 L.SlashInviteMe = "/invitezmoi"
 L.SlashPromoteMe = "/promouvezmoi"
+
+-----------
+-- Mount --
+-----------
+
+--L.Dismount = "Dismount with group"
+--L.Dismount_Info = "Dismount when another trusted group member dismounts."
+L.Mount = "Monture"
+--L.Mount_Info = "Group mounting and dismounting."
+--L.MountHelpText = ""
+L.MountMissing = "%s ne connaît pas cette monture !"
+--L.MountRandom = "Use random mount"
+--L.MountRandom_Info = "Use a random mount of the same type as your trusted group member.\nIf this is disabled, you will use the same mount if you have it, or the first equivalent mount otherwise."
+L.MountTogether = "Monture"
+L.MountTogether_Info = "Invoque votre monture quand un autre membre du goupe invoque la sienne."
 
 -----------
 -- Quest --
@@ -211,3 +234,11 @@ L.TaxiMismatchError = "%s : noeud de taxi inadéquat."
 L.TaxiSet = "%1$s a défini le taxi du groupe sur %2$s."
 L.TaxiTimeout_Info = "Effacer la sélection de taxi après ce nombre de secondes."
 L.TaxiTimeoutError = "%s : délai de taxi expiré."
+
+-----------
+-- Debug --
+-----------
+
+--L.Debug = "Debug"
+--L.Debug_Info = "Enable debugging messages for the selected parts of Hydra."
+--L.DebugCore = "Core"

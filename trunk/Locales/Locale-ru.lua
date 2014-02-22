@@ -40,6 +40,29 @@ L.Timeout = "Просрочка"
 L.Verbose = "Подробном режиме"
 L.Verbose_Info = "Включить сообщения оповещения от этого модуля."
 
+------------
+-- Assist --
+------------
+
+--L.Assist = "Assist"
+--L.Assist_Info = "Synchronizes an assist target across trusted group members."
+--L.AssistFailed = "%s could not assist you due to an unknown error."
+--L.AssistFailedCombat = "%s will assist you after combat."
+--L.AssistFailedTrust = "%s cannot assist you because you are not on their trusted list."
+--L.AssistGetMacro = "Get Macro"
+--L.AssistGetMacro_Info = "If you prefer to activate the Assist function from your action bars, you can use this button to get a macro you can drop onto any action button."
+--L.AssistHelpText = "This module is really only useful in combination with key cloning software. You should set your selected |cffffffffAssist|r key to be sent to your secondary clients."
+--L.AssistMacro = "Assist"
+--L.AssistMacro_Info = "Set a key binding to assist your current assist target."
+--L.AssistRespond = "Assist"
+--L.AssistRespond_Info = "Respond to assist requests from trusted group members."
+--L.AssistSet = "%s will now assist you."
+--L.AssistUnset = "%s is now assisting %s instead of you."
+--L.NobodyAssisting = "Nobody is currently assisting you."
+--L.RequestAssist = "Request Assist"
+--L.RequestAssist_Info = "Set a key binding to request that all group members set you as their assist target."
+--L.SlashAssistMe = "/assistme"
+
 ----------------
 -- Automation --
 ----------------
@@ -55,7 +78,7 @@ L.AcceptSummons = "Принимать призывы"
 --L.AcceptSummons_Info = "Accept summons from trusted players."
 L.Automation = "Автоматизация"
 L.Automation_Info = "Автоматизация простых повторяемых заданий, таких как нажатие на стандартные диалоги."
-L.AutomationHelpText = "" -- #TODO: Add text here
+--L.AutomationHelpText = ""
 L.DeclineArenas = "Отказываться от приглашений в арена-команды"
 --L.DeclineArenas_Info = "Decline arena team invitations and petitions from all players."
 L.DeclinedArena = "Отказался от приглашения в команду арены от %s."
@@ -144,22 +167,7 @@ L.FollowTooFar = "%s слишком далеко, чтобы следовать!
 --L.UseSoulstone = "Use Soulstone" -- Must match Blizzard self-res dialog!
 
 -----------
--- Mount --
------------
-
---L.Dismount = "Dismount with group"
---L.Dismount_Info = "Dismount when another trusted group member dismounts."
-L.Mount = "Транспорт"
---L.Mount_Info = "Group mounting and dismounting."
---L.MountHelpText = ""
---L.MountMissing = "%s has no available mount!"
---L.MountRandom = "Use random mount"
---L.MountRandom_Info = "Use a random mount of the same type as your trusted group member.\nIf this is disabled, you will use the same mount if you have it, or the first equivalent mount otherwise."
---L.MountTogether = "Mount with group"
---L.MountTogether_Info = "Mount when another trusted group member mounts."
-
------------
--- Party --
+-- Group --
 -----------
 
 --L.CantInviteNotLeader = "I cannot invite you, because I am not the group leader."
@@ -176,6 +184,21 @@ Type "|cffffffff/inviteme Name|r" to request a group invitation from "Name".
 Type "|cffffffff/promoteme|r" while in a group to request to be promoted to group leader.]] ]=]
 --L.SlashInviteMe = "/inviteme"
 --L.SlashPromoteMe = "/promoteme"
+
+-----------
+-- Mount --
+-----------
+
+--L.Dismount = "Dismount with group"
+--L.Dismount_Info = "Dismount when another trusted group member dismounts."
+L.Mount = "Транспорт"
+--L.Mount_Info = "Group mounting and dismounting."
+--L.MountHelpText = ""
+--L.MountMissing = "%s has no available mount!"
+--L.MountRandom = "Use random mount"
+--L.MountRandom_Info = "Use a random mount of the same type as your trusted group member.\nIf this is disabled, you will use the same mount if you have it, or the first equivalent mount otherwise."
+--L.MountTogether = "Mount with group"
+--L.MountTogether_Info = "Mount when another trusted group member mounts."
 
 -----------
 -- Quest --
@@ -214,3 +237,11 @@ Type "|cffffffff/cleartaxi|r" to clear the party taxi selection before the norma
 --L.TaxiSet = "%1$s set the party taxi to %2$s."
 --L.TaxiTimeout_Info = "Clear the taxi selection after this many seconds."
 --L.TaxiTimeoutError = "%s: Taxi timeout reached."
+
+-----------
+-- Debug --
+-----------
+
+--L.Debug = "Debug"
+--L.Debug_Info = "Enable debugging messages for the selected parts of Hydra."
+--L.DebugCore = "Core"

@@ -7,7 +7,7 @@
 	http://www.curse.com/addons/wow/hydra
 ------------------------------------------------------------------------
 	English localization
-	Last updated 2013-03-11 by Phanx
+	Last updated 2014-02-22 by Phanx
 	***
 ----------------------------------------------------------------------]]
 
@@ -165,21 +165,6 @@ L.TargetedFollowMe_Info = "If your current target is a trusted group member, you
 L.UseSoulstone = "Use Soulstone" -- Must match Blizzard self-res dialog!
 
 -----------
--- Mount --
------------
-
-L.Dismount = "Dismount with group"
-L.Dismount_Info = "Dismount when another trusted group member dismounts."
-L.Mount = "Mount"
-L.Mount_Info = "Group mounting and dismounting."
-L.MountHelpText = "" -- #TODO: Add text here
-L.MountMissing = "%s has no available mount!"
-L.MountRandom = "Use random mount"
-L.MountRandom_Info = "Use a random mount of the same type as your trusted group member.\nIf this is disabled, you will use the same mount if you have it, or the first equivalent mount otherwise."
-L.MountTogether = "Mount with group"
-L.MountTogether_Info = "Mount when another trusted group member mounts."
-
------------
 -- Group --
 -----------
 
@@ -197,6 +182,21 @@ Type "|cffffffff/inviteme Name|r" to request a group invitation from "Name".
 Type "|cffffffff/promoteme|r" while in a group to request to be promoted to group leader.]]
 L.SlashInviteMe = "/inviteme"
 L.SlashPromoteMe = "/promoteme"
+
+-----------
+-- Mount --
+-----------
+
+L.Dismount = "Dismount with group"
+L.Dismount_Info = "Dismount when another trusted group member dismounts."
+L.Mount = "Mount"
+L.Mount_Info = "Group mounting and dismounting."
+L.MountHelpText = "" -- #TODO: Add text here
+L.MountMissing = "%s has no available mount!"
+L.MountRandom = "Use random mount"
+L.MountRandom_Info = "Use a random mount of the same type as your trusted group member.\nIf this is disabled, you will use the same mount if you have it, or the first equivalent mount otherwise."
+L.MountTogether = "Mount with group"
+L.MountTogether_Info = "Mount when another trusted group member mounts."
 
 -----------
 -- Quest --
@@ -219,7 +219,6 @@ L.ShareQuests = "Share quests"
 L.ShareQuests_Info = "Automatically share quests you pick up from NPCs."
 L.TurnInQuests = "Turn in quests"
 L.TurnInQuests_Info = "Automatically turn in completed quests to NPCs."
-
 
 ----------
 -- Taxi --
