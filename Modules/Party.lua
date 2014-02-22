@@ -18,10 +18,12 @@ local _, core = ...
 local L = core.L
 local SOLO, PARTY, TRUSTED, LEADER = core.STATE_SOLO, core.STATE_PARTY, core.STATE_TRUSTED, core.STATE_LEADER
 
-local remote
-
 local module = core:NewModule("Group")
 module.defaults = { enable = true }
+
+local ACTION_INVITE, ACTION_PROMOTE = "INVITE", "PROMOTE"
+
+local remote
 
 ------------------------------------------------------------------------
 
@@ -38,35 +40,35 @@ end
 function module:ReceiveAddonMessage(message, channel, sender)
 	self:Debug("ReceiveAddonMessage", message, channel, sender)
 
-	if message == "INVITE" then
+	if message == ACTION_INVITE then
 		if not core:IsTrusted(sender) then
 			return self:SendChatMessage(L.CantInviteNotTrusted, sender)
 		end
 		if GetNumGroupMembers() > 0 and not UnitIsGroupLeader("player") then
 			return self:SendChatMessage(L.CantInviteNotLeader, sender)
 		end
-		InviteUnit(sender)
+		InviteUnit(Ambiguate(sender, "none"))
 
-	elseif message == "PROMOTE" then
+	elseif message == ACTION_PROMOTE then
 		if not core:IsTrusted(sender) then
 			return self:SendChatMessage(L.CantPromoteNotTrusted, sender)
 		end
 		if GetNumGroupMembers() == 0 then
 			remote = sender
 			self:RegisterEvent("PARTY_LEADER_CHANGED")
-			return self:ReceiveAddonMessage("INVITE", channel, sender)
+			return self:ReceiveAddonMessage(ACTION_INVITE, channel, sender)
 		end
 		if not UnitIsGroupLeader("player") then
 			return self:SendChatMessage(L.CantPromoteNotLeader, sender)
 		end
-		PromoteToLeader(sender)
+		PromoteToLeader(Ambiguate(sender, "none"))
 	end
 end
 
 function module:PARTY_LEADER_CHANGED()
 	if remote and GetNumGroupMembers() > 0 and UnitIsGroupLeader("player") then
 		self:UnregisterEvent("PARTY_LEADER_CHANGED")
-		PromoteToLeader(remote)
+		PromoteToLeader(Ambiguate(remote, "none"))
 		remote = nil
 	end
 end
@@ -125,7 +127,7 @@ SlashCmdList.HYDRA_INVITEME = function(name)
 
 	if name then
 		module:Debug("Sending invite request to", name)
-		module:SendAddonMessage("INVITE", name)
+		module:SendAddonMessage(ACTION_INVITE, name)
 	end
 end
 
@@ -155,7 +157,7 @@ SlashCmdList.HYDRA_PROMOTEME = function(name)
 		module:Debug("Sending promotion request...")
 	end
 
-	module:SendAddonMessage("PROMOTE", name)
+	module:SendAddonMessage(ACTION_PROMOTE, name)
 end
 
 ------------------------------------------------------------------------

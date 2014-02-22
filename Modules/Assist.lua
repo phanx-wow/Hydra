@@ -26,10 +26,10 @@ local PLAYER_FULLNAME = core.PLAYER_FULLNAME
 local module = core:NewModule("Assist")
 module.defaults = { respond = true, verbose = true }
 
+local COMMAND_REQUEST, ALERT_SET, ALERT_SET_F, ALERT_UNSET, ALERT_COMBAT, ALERT_NOTRUST, ALERT_ERROR = "REQUEST", "SET", "SET %s", "UNSET", "COMBAT", "NOTRUST", "ERROR"
+local MACRO_NAME, MACRO_ICON, MACRO_BODY = L.AssistMacro, "Spell_Priest_VowofUnity", "/click HydraAssistButton"
 local assisters, assisting, pending = {}
 
-local MACRO_NAME, MACRO_ICON, MACRO_BODY = L.AssistMacro, "Spell_Priest_VowofUnity", "/click HydraAssistButton"
-local COMMAND_REQUEST, ALERT_SET, ALERT_SET_F, ALERT_UNSET, ALERT_COMBAT, ALERT_NOTRUST, ALERT_ERROR = "REQUEST", "SET", "SET %s", "UNSET", "COMBAT", "NOTRUST", "ERROR"
 local statusText = {
 	[ALERT_COMBAT]  = L.AssistFailedCombat,
 	[ALERT_ERROR]   = L.AssistFailed,
