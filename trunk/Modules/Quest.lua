@@ -100,6 +100,8 @@ local ignoredQuests = {
 	[GetQuestName(32642)] = true, [GetQuestName(32647)] = true, [GetQuestName(32645)] = true, [GetQuestName(32649)] = true, [GetQuestName(32653)] = true, [GetQuestName(32658)] = true,
 	-- Fiona's Caravan
 	[GetQuestName(27560)] = true, [GetQuestName(27562)] = true, [GetQuestName(27555)] = true, [GetQuestName(27556)] = true, [GetQuestName(27558)] = true, [GetQuestName(27561)] = true, [GetQuestName(27557)] = true, [GetQuestName(27559)] = true,
+	-- Allegiance to the Aldor/Scryers
+	[GetQuestName(10551)] = true, [GetQuestName(10552)] = true,
 }
 
 ------------------------------------------------------------------------
@@ -136,9 +138,11 @@ function module:ReceiveAddonMessage(message, channel, sender)
 		for i = 1, GetNumQuestLogEntries() do
 			local link = GetQuestLink(i)
 			if link == qlink then
+				local qname = strlower(strmatch(qlink, "%[(.-)%]"))
 				SelectQuestLogEntry(i)
 				SetAbandonQuest()
 				AbandonQuest()
+				accept[qname], accepted[qname] = nil, nil
 				return self:Print(L.QuestAbandoned, sender, qlink)
 			end
 		end
