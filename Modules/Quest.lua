@@ -441,12 +441,11 @@ end
 
 module.displayName = L.Quest
 function module:SetupOptions(panel)
-	local CreateCheckbox = LibStub("PhanxConfig-Checkbox").CreateCheckbox
+	local title, notes = panel:CreateHeader(L.Quest, L.Quest_Info)
+
 	local enable, accept, acceptOnlyShared, turnin, share, abandon
 
-	local title, notes = LibStub("PhanxConfig-Header").CreateHeader(panel, L.Quest, L.Quest_Info)
-
-	local function OnValueChanged(this, value)
+	local function Callback(this, value)
 		self.db[this.key] = value
 		if this.key == "enable" then
 			accept:SetEnabled(value)
@@ -460,34 +459,34 @@ function module:SetupOptions(panel)
 		end
 	end
 
-	enable = CreateCheckbox(panel, L.Enable, L.Enable_Info)
+	enable = panel:CreateCheckbox(L.Enable, L.Enable_Info)
 	enable:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -8)
-	enable.OnValueChanged = OnValueChanged
+	enable.Callback = Callback
 	enable.key = "enable"
 
-	accept = CreateCheckbox(panel, L.AcceptQuests, L.AcceptQuests_Info)
+	accept = panel:CreateCheckbox(L.AcceptQuests, L.AcceptQuests_Info)
 	accept:SetPoint("TOPLEFT", enable, "BOTTOMLEFT", 0, -8)
-	accept.OnValueChanged = OnValueChanged
+	accept.Callback = Callback
 	accept.key = "accept"
 
-	acceptOnlyShared = CreateCheckbox(panel, L.OnlySharedQuests, L.OnlySharedQuests_Info)
+	acceptOnlyShared = panel:CreateCheckbox(L.OnlySharedQuests, L.OnlySharedQuests_Info)
 	acceptOnlyShared:SetPoint("TOPLEFT", accept, "BOTTOMLEFT", 26, -8)
-	acceptOnlyShared.OnValueChanged = OnValueChanged
+	acceptOnlyShared.Callback = Callback
 	acceptOnlyShared.key = "acceptOnlyShared"
 
-	turnin = CreateCheckbox(panel, L.TurnInQuests, L.TurnInQuests_Info)
+	turnin = panel:CreateCheckbox(L.TurnInQuests, L.TurnInQuests_Info)
 	turnin:SetPoint("TOPLEFT", acceptOnlyShared, "BOTTOMLEFT", -26, -8)
-	turnin.OnValueChanged = OnValueChanged
+	turnin.Callback = Callback
 	turnin.key = "turnin"
 
-	share = CreateCheckbox(panel, L.ShareQuests, L.ShareQuests_Info)
+	share = panel:CreateCheckbox(L.ShareQuests, L.ShareQuests_Info)
 	share:SetPoint("TOPLEFT", turnin, "BOTTOMLEFT", 0, -8)
-	share.OnValueChanged = OnValueChanged
+	share.Callback = Callback
 	share.key = "share"
 
-	abandon = CreateCheckbox(panel, L.AbandonQuests, L.AbandonQuests_Info)
+	abandon = panel:CreateCheckbox(L.AbandonQuests, L.AbandonQuests_Info)
 	abandon:SetPoint("TOPLEFT", share, "BOTTOMLEFT", 0, -8)
-	abandon.OnValueChanged = OnValueChanged
+	abandon.Callback = Callback
 	abandon.key = "abandon"
 
 	local help = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")

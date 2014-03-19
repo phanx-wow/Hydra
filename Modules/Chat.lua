@@ -294,9 +294,9 @@ end
 
 module.displayName = L.Chat
 function module:SetupOptions(panel)
-	local title, notes = LibStub("PhanxConfig-Header"):New(panel, L.Chat, L.Chat_Info)
+	local title, notes = panel:CreateHeader(L.Chat, L.Chat_Info)
 
-	local enable = LibStub("PhanxConfig-Checkbox"):New(panel, L.Enable, L.Enable_info)
+	local enable = panel:CreateCheckbox(L.Enable, L.Enable_info)
 	enable:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
 	enable.OnValueChanged = function(this, value)
 		self.db.enable = value
@@ -308,28 +308,22 @@ function module:SetupOptions(panel)
 		LEADER = L.GroupLeader,
 	}
 
-	local mode = LibStub("PhanxConfig-Dropdown"):New(panel, L.DetectionMethod, L.DetectionMethod_Info)
-	mode:SetPoint("TOPLEFT", enable, "BOTTOMLEFT", 0, -16)
-	mode:SetPoint("TOPRIGHT", notes, "BOTTOM", -8, -12 - enable:GetHeight() - 16)
+	local mode
 	do
-		local info = {
-			checked = function(this)
-				return self.db.mode == this.value
-			end,
-			func = function(this)
-				self.db.mode = this.value
-				self:Refresh()
-			end,
+		local checked = function(this)
+			return self.db.mode == this.value
+		end
+		local func = function(this)
+			self.db.mode = this.value
+			self:Refresh()
+		end
+		local menu = {
+			{ text = L.AppFocus, value = "APPFOCUS", checked = checked, func = func },
+			{ text = L.GroupLeader, value = "LEADER", checked = checked, func = func },
 		}
-		UIDropDownMenu_Initialize(mode.dropdown, function()
-			info.text = L.AppFocus
-			info.value = "APPFOCUS"
-			UIDropDownMenu_AddButton(info)
-
-			info.text = L.GroupLeader
-			info.value = "LEADER"
-			UIDropDownMenu_AddButton(info)
-		end)
+		mode = panel:CreateDropdown(L.DetectionMethod, L.DetectionMethod_Info, modesMenu)
+		mode:SetPoint("TOPLEFT", enable, "BOTTOMLEFT", 0, -16)
+		mode:SetPoint("TOPRIGHT", notes, "BOTTOM", -8, -12 - enable:GetHeight() - 16)
 	end
 
 	local timeout = LibStub("PhanxConfig-Slider"):New(panel, L.Timeout, L.GroupTimeout_Info, 30, 600, 30)

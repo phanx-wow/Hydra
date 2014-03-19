@@ -238,21 +238,18 @@ BINDING_NAME_HYDRA_ACCEPT_CORPSE = L.AcceptCorpse
 
 module.displayName = L.Follow
 function module:SetupOptions(panel)
-	local title, notes = LibStub("PhanxConfig-Header"):New(panel, L.Follow, L.Follow_Info)
+	local title, notes = panel:CreateHeader(L.Follow, L.Follow_Info)
 
-	local CreateCheckbox = LibStub("PhanxConfig-Checkbox").CreateCheckbox
-	local CreateKeyBinding = LibStub("PhanxConfig-KeyBinding").CreateKeyBinding
-
-	local enable = CreateCheckbox(panel, L.Enable, L.Enable_Info)
+	local enable = panel:CreateCheckbox(L.Enable, L.Enable_Info)
 	enable:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
-	enable.OnValueChanged = function(this, value)
+	function enable.Callback(this, value)
 		self.db.enable = value
 		self:Refresh()
 	end
 
-	local refollow = CreateCheckbox(panel, L.RefollowAfterCombat, L.RefollowAfterCombat_Info)
+	local refollow = panel:CreateCheckbox(L.RefollowAfterCombat, L.RefollowAfterCombat_Info)
 	refollow:SetPoint("TOPLEFT", enable, "BOTTOMLEFT", 0, -8)
-	refollow.OnValueChanged = function(this, value)
+	function refollow.Callback(this, value)
 		self.db.refollowAfterCombat = value
 		if value and self.db.enable then
 			self:RegisterEvent("PLAYER_REGEN_ENABLED")
@@ -261,31 +258,31 @@ function module:SetupOptions(panel)
 		end
 	end
 
-	local verbose = CreateCheckbox(panel, L.Verbose, L.Verbose_Info)
+	local verbose = panel:CreateCheckbox(L.Verbose, L.Verbose_Info)
 	verbose:SetPoint("TOPLEFT", refollow, "BOTTOMLEFT", 0, -8)
-	verbose.OnValueChanged = function(this, value)
+	function verbose.Callback(this, value)
 		self.db.verbose = value
 	end
 
-	local targeted = CreateCheckbox(panel, L.TargetedFollowMe, L.TargetedFollowMe_Info)
+	local targeted = panel:CreateCheckbox(L.TargetedFollowMe, L.TargetedFollowMe_Info)
 	targeted:SetPoint("TOPLEFT", verbose, "BOTTOMLEFT", 0, -8)
-	targeted.OnValueChanged = function(this, value)
+	function targeted.Callback(this, value)
 		self.db.targetedFollowMe = value
 	end
 
-	local follow = CreateKeyBinding(panel, L.FollowTarget, L.FollowTarget_Info, "HYDRA_FOLLOW_TARGET")
+	local follow = panel:CreateKeyBinding(L.FollowTarget, L.FollowTarget_Info, "HYDRA_FOLLOW_TARGET")
 	follow:SetPoint("TOPLEFT", notes, "BOTTOM", -8, -8)
 	follow:SetPoint("TOPRIGHT", notes, "BOTTOMRIGHT", 0, -8)
 
-	local followme = CreateKeyBinding(panel, L.FollowMe, L.FollowMe_Info, "HYDRA_FOLLOW_ME")
+	local followme = panel:CreateKeyBinding(L.FollowMe, L.FollowMe_Info, "HYDRA_FOLLOW_ME")
 	followme:SetPoint("TOPLEFT", follow, "BOTTOMLEFT", 0, -8)
 	followme:SetPoint("TOPRIGHT", follow, "BOTTOMRIGHT", 0, -8)
 
-	local release = CreateKeyBinding(panel, L.ReleaseCorpse, L.ReleaseCorpse_Info, "HYDRA_RELEASE_CORPSE")
+	local release = panel:CreateKeyBinding(L.ReleaseCorpse, L.ReleaseCorpse_Info, "HYDRA_RELEASE_CORPSE")
 	release:SetPoint("TOPLEFT", followme, "BOTTOMLEFT", 0, -8)
 	release:SetPoint("TOPRIGHT", followme, "BOTTOMRIGHT", 0, -8)
 
-	local acceptres = CreateKeyBinding(panel, L.AcceptCorpse, L.AcceptCorpse_Info, "HYDRA_ACCEPT_CORPSE")
+	local acceptres = panel:CreateKeyBinding(L.AcceptCorpse, L.AcceptCorpse_Info, "HYDRA_ACCEPT_CORPSE")
 	acceptres:SetPoint("TOPLEFT", release, "BOTTOMLEFT", 0, -8)
 	acceptres:SetPoint("TOPRIGHT", release, "BOTTOMRIGHT", 0, -8)
 

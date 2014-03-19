@@ -113,19 +113,19 @@ end
 
 module.displayName = L.Taxi
 function module:SetupOptions(panel)
-	local title, notes = LibStub("PhanxConfig-Header"):New(panel, L.Taxi, L.Taxi_Info)
+	local title, notes = panel:CreateHeader(L.Taxi, L.Taxi_Info)
 
-	local enable = LibStub("PhanxConfig-Checkbox"):New(panel, L.Enable, L.Enable_Info)
+	local enable = panel:CreateCheckbox(L.Enable, L.Enable_Info)
 	enable:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
-	enable.OnValueChanged = function(this, value)
+	function enable.Callback(this, value)
 		self.db.enable = value
 		self:Refresh()
 	end
 
-	local timeout = LibStub("PhanxConfig-Slider"):New(panel, L.Timeout, L.TaxiTimeout_Info, 30, 600, 30)
+	local timeout = panel:CreateSlider(L.Timeout, L.TaxiTimeout_Info, 30, 600, 30)
 	timeout:SetPoint("TOPLEFT", enable, "BOTTOMLEFT", 0, -16)
 	timeout:SetPoint("TOPRIGHT", notes, "BOTTOM", -8, -28 - enable:GetHeight())
-	timeout.OnValueChanged = function(this, value)
+	function timeout.Callback(this, value)
 		value = floor((value + 1) / 30) * 30
 		self.db.timeout = value
 		return value

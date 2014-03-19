@@ -64,7 +64,7 @@ tinsert(panels, OptionsPanel:New(L.Debug, HYDRA, function(self)
 	local corebox = CreateCheckbox(self, L.DebugCore)
 	corebox:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
 	corebox.module = HYDRA
-	corebox.OnValueChanged = change
+	corebox.Callback = change
 	tinsert(boxes, corebox)
 
 	local breakpoint = floor((#names + 1) / 2) + 1
@@ -77,7 +77,7 @@ tinsert(panels, OptionsPanel:New(L.Debug, HYDRA, function(self)
 			box:SetPoint("TOPLEFT", boxes[i], "BOTTOMLEFT", 0, -8) -- i, not i-1, because [1] = corebox
 		end
 		box.module = name
-		box.OnValueChanged = change
+		box.Callback = change
 		tinsert(boxes, box)
 	end
 
