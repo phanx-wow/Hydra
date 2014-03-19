@@ -173,29 +173,26 @@ BINDING_NAME_HYDRA_REQUEST_ASSIST = L.RequestAssist
 
 module.displayName = L.Assist
 function module:SetupOptions(panel)
-	local title, notes = LibStub("PhanxConfig-Header"):New(panel, L.Assist, L.Assist_Info)
+	local title, notes = panel:CreateHeader(L.Assist, L.Assist_Info)
 
-	local CreateCheckbox = LibStub("PhanxConfig-Checkbox").CreateCheckbox
-	local CreateKeyBinding = LibStub("PhanxConfig-KeyBinding").CreateKeyBinding
-
-	local respond = CreateCheckbox(panel, L.AssistRespond, L.AssistRespond_Info)
+	local respond = panel:CreateCheckbox(L.AssistRespond, L.AssistRespond_Info)
 	respond:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
-	respond.OnValueChanged = function(this, value)
+	function respond.Callback(this, value)
 		self.db.respond = value
 		self:Refresh()
 	end
 
-	local verbose = CreateCheckbox(panel, L.Verbose, L.Verbose_Info)
+	local verbose = panel:CreateCheckbox(L.Verbose, L.Verbose_Info)
 	verbose:SetPoint("TOPLEFT", respond, "BOTTOMLEFT", 0, -8)
-	verbose.OnValueChanged = function(this, value)
+	function verbose.Callback(this, value)
 		self.db.verbose = value
 	end
 
-	local usemacro = CreateKeyBinding(panel, L.AssistMacro, L.AssistMacro_Info, "CLICK HydraAssistButton")
+	local usemacro = panel:CreateKeyBinding(L.AssistMacro, L.AssistMacro_Info, "CLICK HydraAssistButton")
 	usemacro:SetPoint("TOPLEFT", notes, "BOTTOM", -8, -8)
 	usemacro:SetPoint("TOPRIGHT", notes, "BOTTOMRIGHT", 0, -8)
 
-	local request = CreateKeyBinding(panel, L.RequestAssist, L.RequestAssist_Info, "HYDRA_REQUEST_ASSIST")
+	local request = panel:CreateKeyBinding(L.RequestAssist, L.RequestAssist_Info, "HYDRA_REQUEST_ASSIST")
 	request:SetPoint("TOPLEFT", usemacro, "BOTTOMLEFT", 0, -8)
 	request:SetPoint("TOPRIGHT", usemacro, "BOTTOMRIGHT", 0, -8)
 
@@ -207,9 +204,9 @@ function module:SetupOptions(panel)
 	help:SetJustifyV("BOTTOM")
 	help:SetText(L.AssistHelpText)
 
-	local getmacro = LibStub("PhanxConfig-Button"):New(panel, L.AssistGetMacro, L.AssistGetMacro_Info)
+	local getmacro = panel:CreateButton(L.AssistGetMacro, L.AssistGetMacro_Info)
 	getmacro:SetPoint("BOTTOMRIGHT", help, "TOPRIGHT", 0, 24)
-	getmacro.OnClick = function(this, button)
+	getmacro.Callback = function(this, button)
 		PickupMacro(self:GetMacro())
 	end
 

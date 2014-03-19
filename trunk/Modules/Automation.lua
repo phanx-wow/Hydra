@@ -187,11 +187,9 @@ end
 
 module.displayName = L.Automation
 function module:SetupOptions(panel)
-	local CreateCheckbox = LibStub("PhanxConfig-Checkbox").CreateCheckbox
+	local title, notes = panel:CreateHeader(L.Automation, L.Automation_Info)
 
-	local title, notes = LibStub("PhanxConfig-Header"):New(panel, L.Automation, L.Automation_Info)
-
-	local function OnValueChanged(this, value)
+	local function Callback(this, value)
 		module.db[this.key] = value
 		if this.child then
 			this.child:SetEnabled(value)
@@ -201,57 +199,57 @@ function module:SetupOptions(panel)
 		end
 	end
 
-	local declineDuels = CreateCheckbox(panel, L.DeclineDuels, L.DeclineDuels_Info)
+	local declineDuels = panel:CreateCheckbox(L.DeclineDuels, L.DeclineDuels_Info)
 	declineDuels:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
-	declineDuels.OnValueChanged = OnValueChanged
+	declineDuels.Callback = Callback
 	declineDuels.key = "declineDuels"
 
-	local declineGuilds = CreateCheckbox(panel, L.DeclineGuilds, L.DeclineGuilds_Info)
+	local declineGuilds = panel:CreateCheckbox(L.DeclineGuilds, L.DeclineGuilds_Info)
 	declineGuilds:SetPoint("TOPLEFT", declineDuels, "BOTTOMLEFT", 0, -8)
-	function declineGuilds:OnValueChanged(value)
+	function declineGuilds:Callback(value)
 		SetAutoDeclineGuildInvites(value and 1 or 0)
 	end
 
-	local declineArenaTeams = CreateCheckbox(panel, L.DeclineArenas, L.DeclineArenas_Info)
+	local declineArenaTeams = panel:CreateCheckbox(L.DeclineArenas, L.DeclineArenas_Info)
 	declineArenaTeams:SetPoint("TOPLEFT", declineGuilds, "BOTTOMLEFT", 0, -8)
-	declineArenaTeams.OnValueChanged = OnValueChanged
+	declineArenaTeams.Callback = Callback
 	declineArenaTeams.key = "declineArenaTeams"
 
-	local acceptSummons = CreateCheckbox(panel, L.AcceptSummons, L.AcceptSummons_Info)
+	local acceptSummons = panel:CreateCheckbox(L.AcceptSummons, L.AcceptSummons_Info)
 	acceptSummons:SetPoint("TOPLEFT", declineArenaTeams, "BOTTOMLEFT", 0, -8)
-	acceptSummons.OnValueChanged = OnValueChanged
+	acceptSummons.Callback = Callback
 	acceptSummons.key = "acceptSummons"
 
-	local acceptResurrections = CreateCheckbox(panel, L.AcceptRes, L.AcceptRes_Info)
+	local acceptResurrections = panel:CreateCheckbox(L.AcceptRes, L.AcceptRes_Info)
 	acceptResurrections:SetPoint("TOPLEFT", acceptSummons, "BOTTOMLEFT", 0, -8)
-	acceptResurrections.OnValueChanged = OnValueChanged
+	acceptResurrections.Callback = Callback
 	acceptResurrections.key = "acceptResurrections"
 
-	local acceptResurrectionsInCombat = CreateCheckbox(panel, L.AcceptCombatRes, L.AcceptCombatRes_Info)
+	local acceptResurrectionsInCombat = panel:CreateCheckbox(L.AcceptCombatRes, L.AcceptCombatRes_Info)
 	acceptResurrectionsInCombat:SetPoint("TOPLEFT", acceptResurrections, "BOTTOMLEFT", 0, -8)
-	acceptResurrectionsInCombat.OnValueChanged = OnValueChanged
+	acceptResurrectionsInCombat.Callback = Callback
 	acceptResurrectionsInCombat.key = "acceptResurrectionsInCombat"
 
-	local repairEquipment = CreateCheckbox(panel, L.Repair, L.Repair_Info)
+	local repairEquipment = panel:CreateCheckbox(L.Repair, L.Repair_Info)
 	repairEquipment:SetPoint("TOPLEFT", acceptResurrectionsInCombat, "BOTTOMLEFT", 0, -8)
-	repairEquipment.OnValueChanged = OnValueChanged
+	repairEquipment.Callback = Callback
 	repairEquipment.key = "repairEquipment"
 
-	local repairWithGuildFunds = CreateCheckbox(panel, L.RepairGuild, L.RepairGuild_Info)
+	local repairWithGuildFunds = panel:CreateCheckbox(L.RepairGuild, L.RepairGuild_Info)
 	repairWithGuildFunds:SetPoint("TOPLEFT", repairEquipment, "BOTTOMLEFT", 24, -8)
-	repairWithGuildFunds.OnValueChanged = OnValueChanged
+	repairWithGuildFunds.Callback = Callback
 	repairWithGuildFunds.key = "repairWithGuildFunds"
 
 	repairEquipment.child = repairWithGuildFunds
 
-	local sellJunk = CreateCheckbox(panel, L.SellJunk, L.SellJunk_Info)
+	local sellJunk = panel:CreateCheckbox(L.SellJunk, L.SellJunk_Info)
 	sellJunk:SetPoint("TOPLEFT", repairWithGuildFunds, "BOTTOMLEFT", -24, -8)
-	sellJunk.OnValueChanged = OnValueChanged
+	sellJunk.Callback = Callback
 	sellJunk.key = "sellJunk"
 
-	local verbose = CreateCheckbox(panel, L.Verbose, L.Verbose_Info)
+	local verbose = panel:CreateCheckbox(L.Verbose, L.Verbose_Info)
 	verbose:SetPoint("TOPLEFT", sellJunk, "BOTTOMLEFT", 0, -24)
-	verbose.OnValueChanged = OnValueChanged
+	verbose.Callback = Callback
 	verbose.key = "verbose"
 
 	local help = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")

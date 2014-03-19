@@ -164,11 +164,11 @@ end
 
 module.displayName = L.Group
 function module:SetupOptions(panel)
-	local title, notes = LibStub("PhanxConfig-Header"):New(panel, L.Group, L.Group_Info)
+	local title, notes = panel:CreateHeader(L.Group, L.Group_Info)
 
-	local enable = LibStub("PhanxConfig-Checkbox"):New(panel, L.Enable, L.Enable_Info)
+	local enable = panel:CreateCheckbox(L.Enable, L.Enable_Info)
 	enable:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
-	enable.OnValueChanged = function(this, value)
+	function enable.Callback(this, value)
 		self.db.enable = value
 		self:Refresh()
 	end
