@@ -441,7 +441,7 @@ end
 
 module.displayName = L.Quest
 function module:SetupOptions(panel)
-	local title, notes = panel:CreateHeaderL.Quest, L.Quest_Info)
+	local title, notes = panel:CreateHeader(L.Quest, L.Quest_Info)
 
 	local enable, accept, acceptOnlyShared, turnin, share, abandon
 
