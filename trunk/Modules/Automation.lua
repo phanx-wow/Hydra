@@ -90,17 +90,6 @@ end
 
 ------------------------------------------------------------------------
 
-local function formatMoney(value)
-	-- coin icons with _AMOUNT_TEXTURE
-	if value >= 10000 then
-		return format("|cffffd700%d|r%s |cffc7c7cf%d|r%s %d%s", abs(value / 10000), GOLD_AMOUNT_SYMBOL, abs(mod(value / 100, 100)), SILVER_AMOUNT_SYMBOL, abs(mod(value, 100)), COPPER_AMOUNT_SYMBOL)
-	elseif value >= 100 then
-		return format("|cffc7c7cf%d|r%s %d%s", abs(mod(value / 100, 100)), SILVER_AMOUNT_SYMBOL, abs(mod(value, 100)), COPPER_AMOUNT_SYMBOL)
-	else
-		return format("%d%s", abs(mod(value, 100)), COPPER_AMOUNT_SYMBOL)
-	end
-end
-
 function module:MERCHANT_SHOW()
 	if IsShiftKeyDown() then return end
 
@@ -121,7 +110,7 @@ function module:MERCHANT_SHOW()
 			end
 		end
 		if num > 0 then
-			self:Print(L.SoldJunk, num, formatMoney(value))
+			self:Print(L.SoldJunk, num, GetCoinTextureString(value))
 		end
 	end
 
@@ -136,12 +125,12 @@ function module:MERCHANT_SHOW()
 
 			if guildmoney >= cost and self.db.repairWithGuildFunds and IsInGuild() then
 				RepairAllItems(1)
-				self:Print(L.RepairedGuild, formatMoney(cost))
+				self:Print(L.RepairedGuild, GetCoinTextureString(cost))
 			elseif self.db.repairWithGuildFunds and IsInGuild() then
 				self:Print(L.NoRepairMoneyGuild)
 			elseif money > cost then
 				RepairAllItems()
-				self:Print(L.Repaired, formatMoney(cost))
+				self:Print(L.Repaired, GetCoinTextureString(cost))
 			else
 				self:Print(L.NoRepairMoney)
 			end
