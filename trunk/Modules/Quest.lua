@@ -84,7 +84,7 @@ local repeatableQuestComplete = {
 	[GetQuestName(31603)] = function() return GetItemCount(87903) >= 6 end, -- Dread Amber Shards
 }
 
---	These quests are not automated as they provide suboptimal rewards.
+--	These quests are not automated as they provide suboptimal rewards or are mutually exclusive.
 local ignoredQuests = {
 	-- Blue Feather
 	[GetQuestName(30382)] = true, [GetQuestName(30419)] = true, [GetQuestName(30425)] = true, [GetQuestName(30388)] = true, [GetQuestName(30412)] = true, [GetQuestName(30437)] = true, [GetQuestName(30406)] = true, [GetQuestName(30431)] = true,
@@ -102,6 +102,8 @@ local ignoredQuests = {
 	[GetQuestName(27560)] = true, [GetQuestName(27562)] = true, [GetQuestName(27555)] = true, [GetQuestName(27556)] = true, [GetQuestName(27558)] = true, [GetQuestName(27561)] = true, [GetQuestName(27557)] = true, [GetQuestName(27559)] = true,
 	-- Allegiance to the Aldor/Scryers
 	[GetQuestName(10551)] = true, [GetQuestName(10552)] = true,
+	-- Little Orphan Kekek/Roo of the Wolvar/Oracles
+	[GetQuestName(13927)] = true, [GetQuestName(13926)] = true,
 }
 
 ------------------------------------------------------------------------
