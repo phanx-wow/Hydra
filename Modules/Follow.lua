@@ -50,7 +50,7 @@ end
 
 ------------------------------------------------------------------------
 
-function module:ReceiveAddonMessage(message, channel, sender)
+function module:OnAddonMessage(message, channel, sender)
 	self:Debug("AddonMessage", channel, sender, message)
 
 	local message, detail = strsplit(" ", message, 2)

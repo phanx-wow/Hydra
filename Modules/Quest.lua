@@ -84,26 +84,25 @@ local repeatableQuestComplete = {
 	[GetQuestName(31603)] = function() return GetItemCount(87903) >= 6 end, -- Dread Amber Shards
 }
 
---	These quests are not automated as they provide suboptimal rewards or are mutually exclusive.
 local ignoredQuests = {
-	-- Blue Feather
+	-- Suboptimal rewards: Blue Feather, Jade Cat, Lovely Apple, Marsh Lily, Ruby Shard
 	[GetQuestName(30382)] = true, [GetQuestName(30419)] = true, [GetQuestName(30425)] = true, [GetQuestName(30388)] = true, [GetQuestName(30412)] = true, [GetQuestName(30437)] = true, [GetQuestName(30406)] = true, [GetQuestName(30431)] = true,
-	-- Jade Cat
 	[GetQuestName(30399)] = true, [GetQuestName(30418)] = true, [GetQuestName(30387)] = true, [GetQuestName(30411)] = true, [GetQuestName(30436)] = true, [GetQuestName(30393)] = true, [GetQuestName(30405)] = true, [GetQuestName(30430)] = true,
-	-- Lovely Apple
 	[GetQuestName(30398)] = true, [GetQuestName(30189)] = true, [GetQuestName(30417)] = true, [GetQuestName(30423)] = true, [GetQuestName(30380)] = true, [GetQuestName(30410)] = true, [GetQuestName(30392)] = true, [GetQuestName(30429)] = true,
-	-- Marsh Lily
 	[GetQuestName(30401)] = true, [GetQuestName(30383)] = true, [GetQuestName(30426)] = true, [GetQuestName(30413)] = true, [GetQuestName(30438)] = true, [GetQuestName(30395)] = true, [GetQuestName(30407)] = true, [GetQuestName(30432)] = true,
- 	-- Ruby Shard
 	[GetQuestName(30397)] = true, [GetQuestName(30160)] = true, [GetQuestName(30416)] = true, [GetQuestName(30422)] = true, [GetQuestName(30379)] = true, [GetQuestName(30434)] = true, [GetQuestName(30391)] = true, [GetQuestName(30403)] = true,
-	-- Work Order
+	-- Mutually exclusive: Work Order
 	[GetQuestName(32642)] = true, [GetQuestName(32647)] = true, [GetQuestName(32645)] = true, [GetQuestName(32649)] = true, [GetQuestName(32653)] = true, [GetQuestName(32658)] = true,
-	-- Fiona's Caravan
+	-- Mutually exclusive: Fiona's Caravan
 	[GetQuestName(27560)] = true, [GetQuestName(27562)] = true, [GetQuestName(27555)] = true, [GetQuestName(27556)] = true, [GetQuestName(27558)] = true, [GetQuestName(27561)] = true, [GetQuestName(27557)] = true, [GetQuestName(27559)] = true,
-	-- Allegiance to the Aldor/Scryers
+	-- Mutually exclusive: Allegiance to the Aldor/Scryers
 	[GetQuestName(10551)] = true, [GetQuestName(10552)] = true,
-	-- Little Orphan Kekek/Roo of the Wolvar/Oracles
+	-- Mutually exclusive: Little Orphan Kekek/Roo of the Wolvar/Oracles
 	[GetQuestName(13927)] = true, [GetQuestName(13926)] = true,
+	-- No reward: Return to the Abyssal Shelf (Alliance/Horde)
+	[GetQuestName(10346)] = true, [GetQuestName(10347)] = true,
+	-- Stuck on 5-minute flight: To Venomspite!
+	[GetQuestName(12182)] = true,
 }
 
 ------------------------------------------------------------------------
@@ -121,7 +120,7 @@ end
 --	Respond to comms from others
 ------------------------------------------------------------------------
 
-function module:ReceiveAddonMessage(message, channel, sender)
+function module:OnAddonMessage(message, channel, sender)
 	if not core:IsTrusted(sender) then return end
 
 	local action, qlink = strsplit(" ", message, 2)

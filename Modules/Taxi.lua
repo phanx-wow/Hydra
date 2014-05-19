@@ -39,7 +39,7 @@ end
 
 ------------------------------------------------------------------------
 
-function module:ReceiveAddonMessage(message, channel, sender)
+function module:OnAddonMessage(message, channel, sender)
 	if not core:IsTrusted(sender) then return end
 	self:Debug("Comm received from", sender, "->", message)
 

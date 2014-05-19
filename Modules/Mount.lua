@@ -31,26 +31,22 @@ function module:ShouldEnable()
 	return core.state > SOLO and (self.db.mount or self.db.dismount)
 end
 
-function module:Enable()
+function module:OnEnable()
 	self:RegisterEvent("UNIT_SPELLCAST_SENT")
-end
-
-function module:Disable()
-	self:UnregisterAllEvents()
 end
 
 ------------------------------------------------------------------------
 
-function module:ReceiveAddonMessage(message, channel, sender)
+function module:OnAddonMessage(message, channel, sender)
 	if not core:IsTrusted(sender) or not (UnitInParty(sender) or UnitInRaid(sender)) then return end
-	self:Debug("ReceiveAddonMessage", message, channel, sender)
+	self:Debug("OnAddonMessage", message, channel, sender)
 
 	local remoteID, remoteName = strsplit(" ", message, 2)
 
 	if remoteID == MESSAGE_ERROR then
 		self:Print("ERROR: " .. L.MountMissing, sender)
 		return
-	elseif remoteID == "DISMOUNT" then
+	elseif remoteID == ACTION_DISMOUNT then
 		self:Debug(sender, "dismounted")
 		if self.db.dismount then
 			responding = true
@@ -115,6 +111,7 @@ function module:ReceiveAddonMessage(message, channel, sender)
 		return
 	end
 
+	-- 3. Admit defeat
 	self:SendAddonMessage(MESSAGE_ERROR)
 	responding = nil
 end
