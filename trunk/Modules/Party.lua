@@ -37,8 +37,30 @@ end
 
 ------------------------------------------------------------------------
 
-function module:ReceiveAddonMessage(message, channel, sender)
-	self:Debug("ReceiveAddonMessage", message, channel, sender)
+local function GetGroupLeader()
+	if not IsInGroup() then
+		return
+	end
+
+	local u, n
+	if IsInRaid() then
+		u, n = "raid", GetNumGroupMembers()
+	else
+		u, n = "party", GetNumGroupMembers() - 1
+	end
+
+	for i = 1, n do
+		local unit = u..i
+		if UnitIsGroupLeader(unit) then
+			return unit
+		end
+	end
+end
+
+------------------------------------------------------------------------
+
+function module:OnAddonMessage(message, channel, sender)
+	self:Debug("OnAddonMessage", message, channel, sender)
 
 	if message == ACTION_INVITE then
 		if not core:IsTrusted(sender) then
@@ -56,9 +78,10 @@ function module:ReceiveAddonMessage(message, channel, sender)
 		if GetNumGroupMembers() == 0 then
 			remote = sender
 			self:RegisterEvent("PARTY_LEADER_CHANGED")
-			return self:ReceiveAddonMessage(ACTION_INVITE, channel, sender)
+			return self:OnAddonMessage(ACTION_INVITE, channel, sender)
 		end
 		if not UnitIsGroupLeader("player") then
+			-- This should never happen.
 			return self:SendChatMessage(L.CantPromoteNotLeader, sender)
 		end
 		PromoteToLeader(Ambiguate(sender, "none"))
@@ -141,7 +164,10 @@ if L.SlashPromoteMe ~= SLASH_HYDRA_PROMOTEME1 and L.SlashPromoteMe ~= SLASH_HYDR
 end
 
 SlashCmdList.HYDRA_PROMOTEME = function(name)
-	if GetNumGroupMembers() == 0 then
+	if IsInGroup() then
+		name = GetUnitName(GetGroupLeader(), true)
+		module:Debug("Sending promotion request to", name)
+	else
 		name = name and strtrim(name) or ""
 		if strlen(name) == 0 and UnitCanCooperate("player", "target") then
 			name = core:IsTrusted(UnitName("target"))
@@ -152,9 +178,6 @@ SlashCmdList.HYDRA_PROMOTEME = function(name)
 			return module:Debug("/promoteme - Not in group, no valid name specified.")
 		end
 		module:Debug("Sending invite+promote request to", name)
-	else
-		name = nil
-		module:Debug("Sending promotion request...")
 	end
 
 	module:SendAddonMessage(ACTION_PROMOTE, name)

@@ -300,8 +300,8 @@ function f:CHAT_MSG_ADDON(prefix, message, channel, sender)
 	if sender == PLAYER_FULLNAME or prefix ~= "Hydra" then return end
 	prefix, message = strsplit(" ", message, 2)
 	local module = core.modules[prefix]
-	if not module or not module.enabled or not module.ReceiveAddonMessage then end
-	module:ReceiveAddonMessage(message, channel, sender)
+	if not module or not module.enabled or not module.OnAddonMessage then end
+	module:OnAddonMessage(message, channel, sender)
 end
 
 ------------------------------------------------------------------------

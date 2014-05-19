@@ -236,7 +236,7 @@ end
 
 ------------------------------------------------------------------------
 
-function module:ReceiveAddonMessage(message, channel, sender)
+function module:OnAddonMessage(message, channel, sender)
 	if not core:IsTrusted(sender) or not UnitInParty(sender) or not UnitInRaid(sender) then return end
 
 	local fwdEvent, fwdSender, fwdMessage = strmatch(message, "^([^%s§]+)[%§]([^%s§]+)[%§]?(.*)$")
