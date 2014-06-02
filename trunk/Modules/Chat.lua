@@ -296,9 +296,9 @@ module.displayName = L.Chat
 function module:SetupOptions(panel)
 	local title, notes = panel:CreateHeader(L.Chat, L.Chat_Info)
 
-	local enable = panel:CreateCheckbox(L.Enable, L.Enable_info)
+	local enable = panel:CreateCheckbox(L.Enable, L.Enable_Info)
 	enable:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
-	enable.OnValueChanged = function(this, value)
+	function enable.Callback(this, value)
 		self.db.enable = value
 		self:Refresh()
 	end
@@ -329,7 +329,7 @@ function module:SetupOptions(panel)
 	local timeout = LibStub("PhanxConfig-Slider"):New(panel, L.Timeout, L.GroupTimeout_Info, 30, 600, 30)
 	timeout:SetPoint("TOPLEFT", mode, "BOTTOMLEFT", 0, -16)
 	timeout:SetPoint("TOPRIGHT", mode, "BOTTOMRIGHT", 0, -16)
-	timeout.OnValueChanged = function(this, value)
+	timeout.Callback = function(this, value)
 		value = floor((value + 1) / 30) * 30
 		self.db.timeout = value
 		return value
@@ -344,7 +344,7 @@ function module:SetupOptions(panel)
 	help:SetText(L.ChatHelpText)
 
 	panel.refresh = function()
-		enable:SetChecked(self.db.enable)
+		enable:SetValue(self.db.enable)
 		mode:SetValue(modes[self.db.mode])
 		timeout:SetValue(self.db.timeout)
 	end
