@@ -387,65 +387,83 @@ function core:SetupOptions(panel)
 	local addName = LibStub("PhanxConfig-EditBox").CreateEditBox(panel, L.AddName, L.AddName_Info, 12)
 	addName:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
 	addName:SetPoint("TOPRIGHT", notes, "BOTTOM", -8, -12)
-	function addName:OnValueChanged(name)
+	addName.Callback = function(this, name)
 		name = strtrim(name)
 		if strlen(name) > 2 then
-			core:AddTrusted(name)
+			self:AddTrusted(name)
 		end
-		self:SetText("")
+		this:SetText("")
 	end
 
 	local addGroup = LibStub("PhanxConfig-Button").CreateButton(panel, L.AddGroup, L.AddGroup_Info)
 	addGroup:SetPoint("BOTTOMLEFT", addName, "BOTTOMRIGHT", 20, 8)
-	function addGroup:OnClick()
+	function addGroup.Callback(this)
 		local unit = IsInRaid() and "raid" or "party"
 		for i = 1, GetNumGroupMembers() do
-			core:AddTrusted(UnitName(unit..i))
+			self:AddTrusted(UnitName(unit..i))
 		end
-		core:TriggerEvent("GROUP_ROSTER_UPDATE")
+		self:TriggerEvent("GROUP_ROSTER_UPDATE")
 	end
 
-	local removeName = LibStub("PhanxConfig-Dropdown").CreateDropdown(panel, L.RemoveName, L.RemoveName_Info)
-	removeName:SetPoint("TOPLEFT", addName, "BOTTOMLEFT", 0, -16)
-	removeName:SetPoint("TOPRIGHT", addName, "BOTTOMRIGHT", 0, -16)
+	local removeName
 	do
-		local info, temp = {}, {}
-		local sortNames = function(a, b)
-			if a == PLAYER_NAME then
+		local temp, pool = {}, {}
+		local function new()
+			local t = next(pool) or {}
+			pool[t] = nil
+			return t
+		end
+		local function del(t)
+			pool[t] = true -- don't need to wipe for this specific application
+		end
+		local function SortNames(a, b)
+			if a.text == PLAYER_NAME then
 				return false
-			elseif b == PLAYER_NAME then
+			elseif b.text == PLAYER_NAME then
 				return true
 			end
-			return a < b
+			return a.text < b.text
 		end
-		local OnClick = function(self)
-			core:RemoveTrusted(self.value, nil, true)
-		end
-		UIDropDownMenu_Initialize(removeName.dropdown, function()
-			for name in pairs(core.trusted) do
-				name = gsub(name, REALM_S, "")
-				temp[#temp + 1] = name
-			end
-			sort(temp, sortNames)
+		local function UpdateNameList()
 			for i = 1, #temp do
-				local name = temp[i]
-				info.text  = name
-				info.value = name
-				info.func  = OnClick
-				info.notCheckable = 1
-				info.disabled = name == PLAYER_NAME
-				UIDropDownMenu_AddButton(info)
+				temp[i] = del(temp[i])
 			end
-			wipe(temp)
-		end)
+			for name in pairs(self.trusted) do
+				local text = gsub(name, REALM_S, "")
+				if text ~= PLAYER_NAME then
+					local t = new()
+					t.text = text
+					t.value = name
+					temp[#temp + 1] = t
+				end
+			end
+			sort(temp, SortNames)
+		end
+		UpdateNameList()
+
+		removeName = LibStub("PhanxConfig-ScrollingDropdown"):New(panel, L.RemoveName, L.RemoveName_Info, temp)
+		removeName:SetPoint("TOPLEFT", addName, "BOTTOMLEFT", 0, -16)
+		removeName:SetPoint("TOPRIGHT", addName, "BOTTOMRIGHT", 0, -16)
+
+		removeName.PreUpdate = UpdateNameList
+
+		function removeName.Callback(this, value)
+			local name = value
+			if not strfind(name, "%-") then
+				name = name .. "-" .. PLAYER_REALM
+			end
+			self:RemoveTrusted(value, nil, true)
+			UpdateNameList()
+			this:SetValue()
+		end
 	end
 
 	local removeAll = LibStub("PhanxConfig-Button").CreateButton(panel, L.RemoveAll, L.RemoveAll_Info)
 	removeAll:SetPoint("BOTTOMLEFT", removeName, "BOTTOMRIGHT", 20, 1)
-	removeAll.OnClick = function(self)
-		for name in pairs(core.trusted) do
+	function removeAll.Callback(this)
+		for name in pairs(self.trusted) do
 			if gsub(name, REALM_S, "") ~= PLAYER_NAME then
-				core:RemoveTrusted(name, nil, true)
+				self:RemoveTrusted(name, nil, true)
 			end
 		end
 	end
