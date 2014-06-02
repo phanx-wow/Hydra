@@ -33,6 +33,7 @@ Libs\PhanxConfig-EditBox\PhanxConfig-EditBox.lua
 Libs\PhanxConfig-Header\PhanxConfig-Header.lua
 Libs\PhanxConfig-KeyBinding\PhanxConfig-KeyBinding.lua
 Libs\PhanxConfig-OptionsPanel\PhanxConfig-OptionsPanel.lua
+Libs\PhanxConfig-ScrollingDropdown\PhanxConfig-ScrollingDropdown.lua
 Libs\PhanxConfig-Slider\PhanxConfig-Slider.lua
 
 Locales\Locale-en.lua
