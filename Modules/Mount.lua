@@ -668,13 +668,14 @@ module.mountSpecial = {
 	},
 }
 
-local function GetProfessionSkill(name)
-	local a, b, arch, fish, cook, faid = GetProfessions()
-	if not (a or b or arch or fish or cook or faid) then return end
-	for i = math.min(a, b, arch, fish, cook, faid), math.max(a, b, arch, fish, cook, faid) do
-		local professionName, _, professionSkill = GetProfessionInfo(i)
-		if professionName == name then
-			return professionSkill
+local function GetProfessionSkill(profession)
+	for i = 1, 6 do
+		local index = select(i, GetProfessions())
+		if index then
+			local name, _, skill = GetProfessionInfo(index)
+			if name == profession then
+				return skill
+			end
 		end
 	end
 end
