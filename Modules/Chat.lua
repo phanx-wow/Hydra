@@ -140,8 +140,9 @@ local lastForwardedTo, lastForwardedMessage
 
 function module:CHAT_MSG_WHISPER(message, sender, _, _, _, flag, _, _, _, _, _, guid)
 	self:Debug("CHAT_MSG_WHISPER", flag, sender, message)
+	local senderNameOnly = Ambiguate(sender, "none")
 
-	if UnitInRaid(sender) or UnitInParty(sender) then
+	if UnitInRaid(senderNameOnly) or UnitInParty(senderNameOnly) then
 		self:Debug("Sender in group.")
 
 		-- a group member whispered me "@Someone Hello!"

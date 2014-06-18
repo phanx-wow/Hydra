@@ -190,10 +190,13 @@ function SlashCmdList.HYDRA_FOLLOWME(command)
 		local sent = 0
 		for name in gmatch(command, "%S+") do
 			local name, displayName = core:IsTrusted(name)
-			if name and ( UnitInParty(displayName) or UnitInRaid(displayName) ) then
-				module:Debug("Sending follow command to:", name)
-				module:SendAddonMessage(ACTION_FOLLOW, name)
-				sent = sent + 1
+			if name then
+				local target = name and Ambiguate(name, "none")
+				if UnitInParty(target) or UnitInRaid(target) then
+					module:Debug("Sending follow command to:", name)
+					module:SendAddonMessage(ACTION_FOLLOW, name)
+					sent = sent + 1
+				end
 			end
 		end
 		if sent > 0 then
