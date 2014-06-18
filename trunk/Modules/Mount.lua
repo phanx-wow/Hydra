@@ -14,7 +14,7 @@ local _, core = ...
 local L = core.L
 local SOLO, PARTY, TRUSTED, LEADER = core.STATE_SOLO, core.STATE_PARTY, core.STATE_TRUSTED, core.STATE_LEADER
 
-local module = core:NewModule("Mount")
+local module = core:NewModule("Mount") HydraMount = module
 module.defaults = {
 	mount = true,
 	dismount = true,
@@ -38,7 +38,8 @@ end
 ------------------------------------------------------------------------
 
 function module:OnAddonMessage(message, channel, sender)
-	if not core:IsTrusted(sender) or not (UnitInParty(sender) or UnitInRaid(sender)) then return end
+	local target = Ambiguate(sender, "none")
+	if not core:IsTrusted(sender) or not (UnitInParty(target) or UnitInRaid(target)) then return end
 	self:Debug("OnAddonMessage", message, channel, sender)
 
 	local remoteID, remoteName = strsplit(" ", message, 2)
@@ -63,7 +64,6 @@ function module:OnAddonMessage(message, channel, sender)
 
 	if IsMounted() then return self:Debug("Already mounted.") end
 
-	local target = Ambiguate(sender, "none")
 	if not UnitIsVisible(target) then return self:Debug("Not mounting because", sender, "is out of range.") end
 
 	responding = true
