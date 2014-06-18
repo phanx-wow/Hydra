@@ -261,7 +261,7 @@ function module:QUEST_DETAIL()
 	elseif self.db.accept then
 		local go
 		if self.db.acceptOnlyShared then
-			if not accept[strlower(quest)] then return end
+			if not UnitInGroup(giver) and not UnitInRaid(giver) and not accept[strlower(quest)] then return end
 			accepted[strlower(quest)] = true
 		else
 			local item, _, _, _, minLevel = GetItemInfo(giver or "")
