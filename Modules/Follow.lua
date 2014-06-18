@@ -164,7 +164,7 @@ function module:PLAYER_REGEN_ENABLED()
 		return
 	end
 
-	local target = Ambiguate(sender, "none")
+	local target = Ambiguate(lastFollowing, "none")
 	if CheckInteractDistance(target, 4) then
 		self:Debug("Refollowing", lastFollowing)
 		FollowUnit(target)
