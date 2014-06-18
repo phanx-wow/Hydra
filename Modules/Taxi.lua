@@ -20,8 +20,8 @@ module.defaults = {
 	timeout = 60,
 }
 
-local MESSAGE_MISMATCH, MESSAGE_TIMEOUT = "MISMATCH", "TIMEOUT"
-local taxiTime, taxiNode, taxiNodeName = 0
+local MESSAGE_UNKNOWN, MESSAGE_TIMEOUT = "UNKNOWN", "TIMEOUT"
+local taxiTime, taxiName = 0
 
 ------------------------------------------------------------------------
 
@@ -29,12 +29,12 @@ function module:ShouldEnable()
 	return core.state > SOLO and self.db.enable
 end
 
-function module:Enable()
+function module:OnEnable()
 	self:RegisterEvent("TAXIMAP_OPENED")
 end
 
-function module:Disable()
-	taxiNode, taxiNodeName, taxiTime = nil, nil, 0
+function module:OnDisable()
+	taxiTime, taxiName = 0, nil
 end
 
 ------------------------------------------------------------------------
@@ -45,53 +45,44 @@ function module:OnAddonMessage(message, channel, sender)
 
 	if message == MESSAGE_TIMEOUT then
 		return core:Print("ERROR:", format(L.TaxiTimeoutError, sender))
-	elseif message == MESSAGE_MISMATCH then
-		return core:Print("ERROR:", format(L.TaxiMismatchError, sender))
-	end
-
-	local node, nodeName = strsplit(" ", message)
-	if node and nodeName then
-		core:Print(L.TaxiSet, sender, nodeName)
-		taxiNode, taxiNodeName, taxiTime = node, nodeName, GetTime()
+	elseif message == MESSAGE_UNKNOWN then
+		return core:Print("ERROR:", format(L.TaxiMismatchError, sender)) -- #TODO: update message text
+	else
+		core:Print(L.TaxiSet, sender, message)
+		taxiName, taxiTime = message, GetTime()
 	end
 end
 
 function module:TAXIMAP_OPENED()
-	if not taxiNode or taxiNode == "INVALID" then return end -- we're picking the taxi
+	if not taxiName or taxiName == "INVALID" then return end -- we're picking the taxi
 	if IsShiftKeyDown() then return end -- we're doing something else
 
 	if GetTime() - taxiTime > self.db.timeout then
-		taxiNode, taxiNodeName, taxiTime = nil, nil, 0
+		taxiTime, taxiName = 0, nil
 		return self:SendAddonMessage(MESSAGE_TIMEOUT)
 	end
 
-	if TaxiNodeName(taxiNode) ~= taxiNodeName then
-		local found
-		for i = 1, NumTaxiNodes() do
-			if TaxiNodeName(i) == taxiNodeName then
-				taxiNode = i
-				found = true
-			end
-		end
-		if not found then
-			taxiNode, taxiNodeName, taxiTime = nil, nil, 0
-			return self:SendAddonMessage(MESSAGE_MISMATCH)
+	for i = 1, NumTaxiNodes() do
+		if TaxiNodeName(i) == taxiName then
+			if IsMounted() then Dismount() end -- #TODO: druids unshift?
+			TakeTaxiNode(i)
+			taxiTime, taxiName = 0, nil
+			return
 		end
 	end
 
-	if IsMounted() then Dismount() end -- #TODO: druids unshift?
-	TakeTaxiNode(taxiNode)
-	taxiNode, taxiNodeName, taxiTime = nil, nil, 0
+	taxiTime, taxiName = 0, nil
+	return self:SendAddonMessage(MESSAGE_UNKNOWN)
 end
 
 ------------------------------------------------------------------------
 
 hooksecurefunc("TakeTaxiNode", function(i)
-	if taxiNode then return end -- we're following someone
+	if taxiName then return end -- we're following someone
 	if IsShiftKeyDown() then return end -- we're doing something else
 	local name = TaxiNodeName(i)
 	module:Debug("Broadcasting taxi node", i, name)
-	module:SendAddonMessage(i .. " " .. name)
+	module:SendAddonMessage(name)
 end)
 
 ------------------------------------------------------------------------
@@ -103,8 +94,8 @@ if L.SlashClearTaxi ~= SLASH_HYDRA_CLEARTAXI1 then
 end
 
 function SlashCmdList.HYDRA_CLEARTAXI()
-	if taxiNode then
-		taxiTime, taxiNode, taxiNodeName = 0, nil, nil
+	if taxiName then
+		taxiTime, taxiName = 0, nil
 		module:Print(L.TaxiCleared)
 	end
 end
