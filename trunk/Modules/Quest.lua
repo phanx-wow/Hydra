@@ -76,6 +76,12 @@ local function GetQuestName(id)
 	return name or UNKNOWN
 end
 
+local function CleanLink(link)
+	link = gsub("|c%x%x%x%x%x%x%x%x", "")
+	link = gsub("|r", "")
+	return link
+end
+
 --	No API to see if a repeatable quest can be completed.
 local repeatableQuestComplete = {
 	-- Replenishing the Pantry
@@ -125,9 +131,9 @@ function module:OnAddonMessage(message, channel, sender)
 	self:Debug("OnAddonMessage", sender, message)
 
 	local action, qlink = strsplit(" ", message, 2)
+	local qid, qname = strmatch(strlower(qlink), "quest:(%d+).*%[(.-)%]")
 
 	if action == ACTION_ACCEPT then
-		local qname = strlower(strmatch(qlink, "%[(.-)%]"))
 		if not accepted[qname] then
 			accept[qname] = qlink
 		end
@@ -139,8 +145,8 @@ function module:OnAddonMessage(message, channel, sender)
 	elseif action == ACTION_ABANDON and self.db.abandon then
 		for i = 1, GetNumQuestLogEntries() do
 			local link = GetQuestLink(i)
-			if link == qlink then
-				local qname = strlower(strmatch(qlink, "%[(.-)%]"))
+			local id, name = strmatch(strlower(link), "quest:(%d+).*%[(.-)%]")
+			if id == qid then
 				SelectQuestLogEntry(i)
 				SetAbandonQuest()
 				AbandonQuest()
@@ -261,7 +267,7 @@ function module:QUEST_DETAIL()
 	elseif self.db.accept then
 		local go
 		if self.db.acceptOnlyShared then
-			if not UnitInGroup(giver) and not UnitInRaid(giver) and not accept[strlower(quest)] then return end
+			if not UnitInParty(giver) and not UnitInRaid(giver) and not accept[strlower(quest)] then return end
 			accepted[strlower(quest)] = true
 		else
 			local item, _, _, _, minLevel = GetItemInfo(giver or "")
