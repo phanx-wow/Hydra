@@ -88,7 +88,8 @@ function module:OnAddonMessage(message, channel, sender)
 	for i = 1, GetNumCompanions("MOUNT") do
 		local _, name, id = GetCompanionInfo("MOUNT", i)
 		--self:Debug("Checking mount", name)
-		if mounts[id] and self:IsUsableMount(id) then
+		local _, _, usable = self:GetMountInfo(id)
+		if usable and mounts[id] then
 			if type(equivalent) == "table" then
 				tinsert(equivalent, i)
 			elseif type(equivalent) == "number" then
