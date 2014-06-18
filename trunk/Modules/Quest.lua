@@ -145,13 +145,15 @@ function module:OnAddonMessage(message, channel, sender)
 	elseif action == ACTION_ABANDON and self.db.abandon then
 		for i = 1, GetNumQuestLogEntries() do
 			local link = GetQuestLink(i)
-			local id, name = strmatch(strlower(link), "quest:(%d+).*%[(.-)%]")
-			if id == qid then
-				SelectQuestLogEntry(i)
-				SetAbandonQuest()
-				AbandonQuest()
-				accept[qname], accepted[qname] = nil, nil
-				return self:Print(L.QuestAbandoned, sender, qlink)
+			if link then
+				local id, name = strmatch(strlower(link), "quest:(%d+).*%[(.-)%]")
+				if id == qid then
+					SelectQuestLogEntry(i)
+					SetAbandonQuest()
+					AbandonQuest()
+					accept[qname], accepted[qname] = nil, nil
+					return self:Print(L.QuestAbandoned, sender, qlink)
+				end
 			end
 		end
 	end
