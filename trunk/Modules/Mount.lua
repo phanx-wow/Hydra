@@ -353,6 +353,8 @@ module.mountData = {
 		[149801] = "AIR", -- Emerald Hippogryph
 		[153489] = "AIR", -- Iron Skyreaver
 		[155741] = "AIR", -- Dread Raven
+		-- Patch 5.4.8
+		[163024] = "AIR", -- Warforged Nightmare
 		-- UNKNOWN
 		[147595] = "AIR", -- Stormcrow
 	},

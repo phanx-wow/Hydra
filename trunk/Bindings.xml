@@ -1,13 +1,5 @@
 <Bindings>
-	<Binding name="CLICK HydraAssistButton" header="HYDRA">
-		-- click it!
-	</Binding>
-	<Binding name="HYDRA_REQUEST_ASSIST" header="HYDRA">
-		if SlashCmdList.HYDRA_ASSIST then
-			SlashCmdList.HYDRA_ASSIST()
-		end
-	</Binding>
-	<Binding name="HYDRA_FOLLOW_TARGET">
+	<Binding name="HYDRA_FOLLOW_TARGET" header="HYDRA">
 		if UnitIsPlayer("target") and UnitIsFriend("player", "target") and CheckInteractDistance("target", 4) then
 			FollowUnit("target")
 		end

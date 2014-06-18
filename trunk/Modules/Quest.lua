@@ -108,8 +108,8 @@ local ignoredQuests = {
 ------------------------------------------------------------------------
 
 function module:QUEST_ACCEPT_CONFIRM(name, qname)
-	local displayName = Ambiguate(name, "none")
-	if self.db.accept and (UnitInRaid(displayName) or UnitInParty(displayName)) then
+	local target = Ambiguate(name, "none")
+	if self.db.accept and (UnitInRaid(target) or UnitInParty(target)) then
 		self:Debug("Accepting quest", qname, "started by", name)
 		ConfirmAcceptQuest()
 		StaticPopup_Hide("QUEST_ACCEPT")
