@@ -151,6 +151,7 @@ function module:OnAddonMessage(message, channel, sender)
 					SelectQuestLogEntry(i)
 					SetAbandonQuest()
 					AbandonQuest()
+					PlaySound("igQuestLogAbandonQuest")
 					accept[qname], accepted[qname] = nil, nil
 					return self:Print(L.QuestAbandoned, sender, qlink)
 				end
