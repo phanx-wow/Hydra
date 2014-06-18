@@ -122,6 +122,7 @@ end
 
 function module:OnAddonMessage(message, channel, sender)
 	if not core:IsTrusted(sender) then return end
+	self:Debug("OnAddonMessage", sender, message)
 
 	local action, qlink = strsplit(" ", message, 2)
 
