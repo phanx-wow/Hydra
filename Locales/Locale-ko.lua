@@ -33,6 +33,7 @@ L.Enable = ENABLE
 L.Hydra_Info = "Hydra는 두번째 캐릭터를 직접 조종하는 것을 최소화하는 것에 초점을 맞춘 멀티박스 레벨링 도우미입니다."
 --L.RemoveAll = "Remove All"
 --L.RemoveAll_Info = "Clear your existing trusted list, removing all characters from all servers."
+--L.RemoveEmpty = "Your trusted list is empty."
 L.RemovedTrusted = "%s 님을 신뢰하는 목록에서 제거했습니다."
 L.RemoveName = "이름 제거"
 L.RemoveName_Info = "신뢰하는 목록에서 이름을 제거합니다."
