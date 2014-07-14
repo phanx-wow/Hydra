@@ -447,14 +447,23 @@ function core:SetupOptions(panel)
 
 		removeName.PreUpdate = UpdateNameList
 
-		function removeName.Callback(this, value)
+		function removeName.ListButtonCallback(dropdown, button, item, selected)
+			if type(item) == "table" and item.empty then
+				button:SetText(L.RemoveEmpty)
+				button:EnableMouse(false)
+			else
+				button:EnableMouse(true)
+			end
+		end
+
+		function removeName.Callback(dropdown, value)
 			local name = value
 			if not strfind(name, "%-") then
 				name = name .. "-" .. PLAYER_REALM
 			end
 			self:RemoveTrusted(value, nil, true)
 			UpdateNameList()
-			this:SetValue()
+			dropdown:SetValue()
 		end
 	end
 

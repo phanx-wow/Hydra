@@ -34,6 +34,7 @@ L.Hydra_Info = "Hydra está un ayudante para el multibox y la subir en grupo, qu
 L.RemoveAll = "Quitar todos"
 L.RemoveAll_Info = "Vaciar la lista de confianza por la eliminación de todos los nombres de personajes."
 L.RemovedTrusted = "%s ha sido quitado de la lista de confianza."
+L.RemoveEmpty = "La lista de confianza está vacía."
 L.RemoveName = "Quitar un numbre"
 L.RemoveName_Info = "Quitar de la lista de confianza un nombre de personaje."
 L.Timeout = "Tiempo de espera"
