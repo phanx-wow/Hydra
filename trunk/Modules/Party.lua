@@ -38,17 +38,12 @@ end
 ------------------------------------------------------------------------
 
 local function GetGroupLeader()
-	if not IsInGroup() then
-		return
-	end
-
 	local u, n
 	if IsInRaid() then
 		u, n = "raid", GetNumGroupMembers()
 	else
 		u, n = "party", GetNumGroupMembers() - 1
 	end
-
 	for i = 1, n do
 		local unit = u..i
 		if UnitIsGroupLeader(unit) then
@@ -158,19 +153,17 @@ end
 
 SLASH_HYDRA_PROMOTEME1 = "/promoteme"
 SLASH_HYDRA_PROMOTEME2 = "/pme"
-
-if L.SlashPromoteMe ~= SLASH_HYDRA_PROMOTEME1 and L.SlashPromoteMe ~= SLASH_HYDRA_PROMOTEME2 then
-	SLASH_HYDRA_PROMOTEME3 = L.SlashPromoteMe
-end
+SLASH_HYDRA_PROMOTEME3 = L.SlashPromoteMe
 
 SlashCmdList.HYDRA_PROMOTEME = function(name)
-	if IsInGroup() then
+	if UnitIsGroupLeader("player") then
+		return module:Debug("You are already the leader")
+	elseif IsInGroup() then
 		name = GetUnitName(GetGroupLeader(), true)
-		module:Debug("Sending promotion request to", name)
 	else
 		name = name and strtrim(name) or ""
 		if strlen(name) == 0 and UnitCanCooperate("player", "target") then
-			name = core:IsTrusted(UnitName("target"))
+			name = core:IsTrusted(UnitFullName("target"))
 		else
 			name = core:IsTrusted(name)
 		end
