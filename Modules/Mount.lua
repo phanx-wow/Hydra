@@ -23,7 +23,7 @@ module.defaults = {
 local ACTION_DISMOUNT, ACTION_MOUNT = "DISMOUNT", "MOUNT"
 local MESSAGE_ERROR = "ERROR"
 
-local responding
+local isCasting, isMounted, responding
 
 ------------------------------------------------------------------------
 
@@ -32,22 +32,52 @@ function module:ShouldEnable()
 end
 
 function module:OnEnable()
-	self:RegisterEvent("UNIT_SPELLCAST_SENT")
+	self:RegisterEvent("PLAYER_REGEN_DISABLED")
+	self:RegisterEvent("PLAYER_REGEN_ENABLED")
+	if not UnitAffectingCombat("player") then
+		self:PLAYER_REGEN_ENABLED()
+	end
+
+	if IsMounted() then
+		for i = 1, GetNumCompanions("MOUNT") do
+			local _, _, id = GetCompanionInfo("MOUNT", i)
+			local name = GetSpellInfo(id)
+			if UnitBuff("player", name) then
+				self:Debug("Already mounted:", name)
+				isMounted = name
+				self:RegisterUnitEvent("UNIT_AURA", "player")
+				break
+			end
+		end
+	end
 end
 
 ------------------------------------------------------------------------
+
+local mountTypeString = {
+	-- http://www.wowinterface.com/forums/showthread.php?p=294988#post294988
+	[230] = "GROUND",
+	[231] = "TURTLE",
+	[232] = "VASHJIR",
+	[241] = "AQ40",
+	[242] = "GHOST",
+	[247] = "AIR",
+	[248] = "AIR",
+	[254] = "VASHJIR",
+	[269] = "WATER_WALKING",
+}
 
 function module:OnAddonMessage(message, channel, sender)
 	local target = Ambiguate(sender, "none")
 	if not core:IsTrusted(sender) or not (UnitInParty(target) or UnitInRaid(target)) then return end
 	self:Debug("OnAddonMessage", message, channel, sender)
 
-	local remoteID, remoteName = strsplit(" ", message, 2)
+	local action, remoteID, remoteName = strsplit(" ", message, 3)
 
-	if remoteID == MESSAGE_ERROR then
+	if action == MESSAGE_ERROR then
 		self:Print("ERROR: " .. L.MountMissing, sender)
 		return
-	elseif remoteID == ACTION_DISMOUNT then
+	elseif action == ACTION_DISMOUNT then
 		self:Debug(sender, "dismounted")
 		if self.db.dismount then
 			responding = true
@@ -57,59 +87,112 @@ function module:OnAddonMessage(message, channel, sender)
 		return
 	end
 
-	if not remoteID or not remoteName or not self.db.mount then return end
+	if action ~= ACTION_MOUNT or not remoteID or not remoteName or not self.db.mount then return end
 
 	remoteID = tonumber(remoteID)
 	self:Debug(sender, "mounted on", remoteID, remoteName)
 
 	if IsMounted() then return self:Debug("Already mounted.") end
-
 	if not UnitIsVisible(target) then return self:Debug("Not mounting because", sender, "is out of range.") end
 
 	responding = true
 
 	-- 1. Look for same mount
 	if not self.db.mountRandom then
-		for i = 1, GetNumCompanions("MOUNT") do
-			local _, name, id = GetCompanionInfo("MOUNT", i)
-			if id == remoteID then
-				self:Debug("Found same mount", name)
-				CallCompanion("MOUNT", i)
-				responding = nil
-				return
+		if C_MountJournal then
+			for i = 1, C_MountJournal.GetNumMounts() do
+				local name, id = C_MountJournal.GetMountInfo(i)
+				if id == remoteID then
+					self:Debug("Found same mount", name)
+					C_MountJournal.Summon(i)
+					responding = nil
+					return
+				end
 			end
-		end
-	end
-
-	-- 2. Look for equivalent mount
-	local mountType, passengers = self:GetMountInfo(remoteID)
-	local mounts = self.mountData[mountType]
-	local equivalent
-	for i = 1, GetNumCompanions("MOUNT") do
-		local _, name, id = GetCompanionInfo("MOUNT", i)
-		--self:Debug("Checking mount", name)
-		local _, _, usable = self:GetMountInfo(id)
-		if usable and mounts[id] then
-			if type(equivalent) == "table" then
-				tinsert(equivalent, i)
-			elseif type(equivalent) == "number" then
-				equivalent = { equivalent, i }
-			else
-				equivalent = i
-				if not self.db.mountRandom then
-					break
+		else
+			for i = 1, GetNumCompanions("MOUNT") do
+				local _, name, id = GetCompanionInfo("MOUNT", i)
+				if id == remoteID then
+					self:Debug("Found same mount", name)
+					CallCompanion("MOUNT", i)
+					responding = nil
+					return
 				end
 			end
 		end
 	end
 
-	local i = type(equivalent) == "table" and equivalent[random(#equivalent)] or equivalent
-	if i then
-		local _, name = GetCompanionInfo("MOUNT", i)
-		self:Debug("Found equivalent mount", name)
-		CallCompanion("MOUNT", i)
-		responding = nil
-		return
+	-- 2. Look for equivalent mount
+	if C_MountJournal then
+		local numMounts = C_MountJournal.GetNumMounts()
+		local mountType
+		local equivalent
+		for i = 1, numMounts do
+			local _, id = C_MountJournal.GetMountInfo(i)
+			if id == remoteID then
+				local _, _, _, _, mountTypeID = C_MountJournal.GetMountInfoExtra(i)
+				mountType = mountTypeString[mountTypeID]
+				break
+			end
+		end
+		if not mountType then
+			return self:Debug("Mount type not recognized")
+		end
+		for i = 1, numMounts do
+			local _, id, _, _, usable = C_MountJournal.GetMountInfo(i)
+			if usable then
+				local _, _, _, _, mountTypeID = C_MountJournal.GetMountInfoExtra(i)
+				if mountTypeString[mountTypeID] == mountType then
+					if not equivalent then
+						equivalent = i
+						if not self.db.mountRandom then
+							break
+						end
+					elseif type(equivalent) == "table" then
+						tinsert(equivalent, i)
+					else
+						equivalent = { equivalent, i }
+					end
+				end
+			end
+		end
+		local i = type(equivalent) == "table" and equivalent[random(#equivalent)] or equivalent
+		if i then
+			local name = C_MountJournal.GetMountInfo(i)
+			self:Debug("Found equivalent mount", name)
+			C_MountJournal.Summon(i)
+			responding = nil
+			return
+		end
+	else
+		local mountType = self:GetMountInfo(remoteID)
+		local mounts = self.mountData[mountType]
+		local equivalent
+		for i = 1, GetNumCompanions("MOUNT") do
+			local _, name, id = GetCompanionInfo("MOUNT", i)
+			--self:Debug("Checking mount", name)
+			local _, _, usable = self:GetMountInfo(id)
+			if usable and mounts[id] then
+				if not equivalent then
+					equivalent = i
+					if not self.db.mountRandom then
+						break
+					end
+				elseif type(equivalent) == "table" then
+					tinsert(equivalent, i)
+				else
+					equivalent = { equivalent, i }
+				end
+			end
+		end
+		local i = type(equivalent) == "table" and equivalent[random(#equivalent)] or equivalent
+		if i then
+			local _, name = GetCompanionInfo("MOUNT", i)
+			self:Debug("Found equivalent mount", name)
+			CallCompanion("MOUNT", i)
+			responding = nil
+			return
+		end
 	end
 
 	-- 3. Admit defeat
@@ -119,31 +202,72 @@ end
 
 ------------------------------------------------------------------------
 
-function module:UNIT_SPELLCAST_SENT(unit, spell)
-	if responding or unit ~= "player" or core.state == SOLO or UnitAffectingCombat("player") then return end
-	for i = 1, GetNumCompanions("MOUNT") do
-		local _, name, id = GetCompanionInfo("MOUNT", i)
-		if name == spell or GetSpellInfo(id) == spell then -- stupid paladin mount summon spell doesn't match companion name
-			self:Debug("Summoning mount", name, id)
-			self:SendAddonMessage(id .. " " .. name)
+function module:PLAYER_REGEN_DISABLED()
+	self:RegisterUnitEvent("UNIT_SPELLCAST_START", "player")
+end
+
+function module:PLAYER_REGEN_ENABLED()
+	self:UnregisterEvent("UNIT_SPELLCAST_START")
+end
+
+if C_MountJournal then
+	function module:UNIT_SPELLCAST_START(unit, spellName, _, castID, spellID)
+		self:Debug("UNIT_SPELLCAST_START", spellName)
+		for i = 1, C_MountJournal.GetNumMounts() do
+			local name, id = C_MountJournal.GetMountInfo(i)
+			if id == spellID then
+				if not responding then
+					self:Debug("Summoning mount", name, id)
+					self:SendAddonMessage(ACTION_MOUNT .. " " .. id .. " " .. name)
+					isCasting = spellName
+				end
+				self:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player")
+				self:RegisterUnitEvent("UNIT_SPELLCAST_STOP", "player")
+			end
+		end
+	end
+else
+	function module:UNIT_SPELLCAST_START(unit, spellName, _, castID, spellID)
+		self:Debug("UNIT_SPELLCAST_START", spellName)
+		for i = 1, GetNumCompanions("MOUNT") do
+			local _, name, id = GetCompanionInfo("MOUNT", i)
+			if id == spellID then
+				if not responding then
+					self:Debug("Summoning mount", name, id)
+					self:SendAddonMessage(ACTION_MOUNT .. " " .. id .. " " .. name)
+				end
+				isCasting = spellName
+				self:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player")
+				self:RegisterUnitEvent("UNIT_SPELLCAST_STOP", "player")
+			end
 		end
 	end
 end
 
-hooksecurefunc("CallCompanion", function(type, i)
-	if responding or core.state == SOLO then return end
-	if type == "MOUNT" then
-		local _, name, id = GetCompanionInfo(type, i)
-		module:Debug("CallCompanion", type, i, name, id)
-		module:SendAddonMessage(id .. " " .. name)
+function module:UNIT_SPELLCAST_SUCCEEDED(unit, spellName, _, castID, spellID)
+	self:Debug("UNIT_SPELLCAST_SUCCEEDED", spellName)
+	if spellName == isCasting then
+		isMounted = spellName
+		self:RegisterUnitEvent("UNIT_AURA", "player")
 	end
-end)
+end
 
-hooksecurefunc("Dismount", function()
-	if responding or core.state == SOLO then return end
-	module:Debug("Dismount")
-	module:SendAddonMessage(ACTION_DISMOUNT)
-end)
+function module:UNIT_SPELLCAST_STOP(unit, spellName, _, castID, spellID)
+	self:Debug("UNIT_SPELLCAST_STOP", spellName)
+	self:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+	self:UnregisterEvent("UNIT_SPELLCAST_STOP")
+end
+
+function module:UNIT_AURA(unit)
+	if not UnitBuff(unit, isMounted) then
+		if not responding then
+			self:Debug("Dismounted")
+			self:SendAddonMessage(ACTION_DISMOUNT)
+		end
+		self:UnregisterEvent("UNIT_AURA")
+		isMounted = nil
+	end
+end
 
 ------------------------------------------------------------------------
 
