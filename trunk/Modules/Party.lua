@@ -160,6 +160,7 @@ SlashCmdList.HYDRA_PROMOTEME = function(name)
 		return module:Debug("You are already the leader")
 	elseif IsInGroup() then
 		name = GetUnitName(GetGroupLeader(), true)
+		module:Debug("Sending promote request to", name)
 	else
 		name = name and strtrim(name) or ""
 		if strlen(name) == 0 and UnitCanCooperate("player", "target") then
