@@ -50,6 +50,9 @@ function module:OnAddonMessage(message, channel, sender)
 	else
 		core:Print(L.TaxiSet, sender, message)
 		taxiName, taxiTime = message, GetTime()
+		if TaxiRouteMap:IsShown() then
+			self:TAXIMAP_OPENED()
+		end
 	end
 end
 
