@@ -111,6 +111,9 @@ local ignoredQuests = {
 	[GetQuestName(10346)] = true, [GetQuestName(10347)] = true,
 	-- Stuck on 5-minute flight: To Venomspite!
 	[GetQuestName(12182)] = true,
+	-- Profession specializations: Elixir/Potion/Transmutation Master, Goblin/Gnomish Engineering
+	[GetQuestName(29481)] = true, [GetQuestName(29067)] = true, [GetQuestName(29482)] = true,
+	[GetQuestName(29475)] = true, [GetQuestName(29477)] = true,
 }
 
 ------------------------------------------------------------------------
