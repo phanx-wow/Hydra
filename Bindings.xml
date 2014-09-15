@@ -1,20 +1,20 @@
 <Bindings>
-	<Binding name="HYDRA_FOLLOW_TARGET" header="HYDRA" category="HYDRA">
+	<Binding name="HYDRA_FOLLOW_TARGET" header="HYDRA" category="ADDONS">
 		if UnitIsPlayer("target") and UnitIsFriend("player", "target") and CheckInteractDistance("target", 4) then
 			FollowUnit("target")
 		end
 	</Binding>
-	<Binding name="HYDRA_FOLLOW_ME" category="HYDRA">
+	<Binding name="HYDRA_FOLLOW_ME" category="ADDONS">
 		if SlashCmdList.HYDRA_FOLLOWME then
 			SlashCmdList.HYDRA_FOLLOWME()
 		end
 	</Binding>
-	<Binding name="HYDRA_RELEASE_CORPSE" category="HYDRA">
+	<Binding name="HYDRA_RELEASE_CORPSE" category="ADDONS">
 		if SlashCmdList.HYDRA_CORPSE then
 			SlashCmdList.HYDRA_CORPSE("release")
 		end
 	</Binding>
-	<Binding name="HYDRA_ACCEPT_CORPSE" category="HYDRA">
+	<Binding name="HYDRA_ACCEPT_CORPSE" category="ADDONS">
 		if SlashCmdList.HYDRA_CORPSE then
 			SlashCmdList.HYDRA_CORPSE("accept")
 		end
