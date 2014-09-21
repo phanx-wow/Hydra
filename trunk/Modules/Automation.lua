@@ -103,7 +103,7 @@ function module:MERCHANT_SHOW()
 					if q == ITEM_QUALITY_POOR then
 						local _, n = GetContainerItemInfo(bag, slot)
 						num = num + n
-						value = value + v
+						value = value + (v * n)
 						UseContainerItem(bag, slot)
 					end
 				end
