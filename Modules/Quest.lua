@@ -41,6 +41,7 @@ module.defaults = {
 
 local ACTION_ABANDON, ACTION_ACCEPT, ACTION_TURNIN = "ABANDON", "ACCEPT", "TURNIN"
 local accept, accepted = {}, {}
+local PopulateQuestNames
 
 ------------------------------------------------------------------------
 
@@ -49,6 +50,11 @@ function module:ShouldEnable()
 end
 
 function module:OnEnable()
+	-- Fill in quest names that the client was too slow to get in the main chunk:
+	if PopulateQuestNames and PopulateQuestNames() then
+		PopulateQuestNames = nil
+	end
+
 	self:RegisterEvent("GOSSIP_SHOW")
 	self:RegisterEvent("QUEST_GREETING")
 	self:RegisterEvent("QUEST_DETAIL")
@@ -73,7 +79,7 @@ local function GetQuestName(id)
 	GameTooltip:SetHyperlink("quest:" .. id)
 	local name = GameTooltipTextLeft1:GetText()
 	GameTooltip:Hide()
-	return name or UNKNOWN
+	return name or id
 end
 
 local function CleanLink(link)
@@ -115,6 +121,38 @@ local ignoredQuests = {
 	[GetQuestName(29481)] = true, [GetQuestName(29067)] = true, [GetQuestName(29482)] = true,
 	[GetQuestName(29475)] = true, [GetQuestName(29477)] = true,
 }
+
+HQIGNORE = ignoredQuests -- debugging
+
+function PopulateQuestNames() -- local at top of file
+	module:Debug("PopulateQuestNames")
+	local complete = true
+	for id, func in pairs(repeatableQuestComplete) do
+		if type(id) == "number" then
+			local name = GetQuestName(id)
+			if name then
+				repeatableQuestComplete[name] = func
+				repeatableQuestComplete[id] = nil
+			else
+				module:Debug("Repeatable quest name not found: |Hquest:"..id.."|h[quest:"..id.."]|h")
+				complete = false
+			end
+		end
+	end
+	for id in pairs(ignoredQuests) do
+		if type(id) == "number" then
+			local name = GetQuestName(id)
+			if name then
+				ignoredQuests[name] = true
+				ignoredQuests[id] = nil
+			else
+				module:Debug("Ignored quest name not found: |Hquest:"..id.."|h[quest:"..id.."]|h")
+				complete = false
+			end
+		end
+	end
+	return complete
+end
 
 ------------------------------------------------------------------------
 
@@ -202,10 +240,10 @@ function module:GOSSIP_SHOW()
 
 	-- Pick up available quests:
 	for i = 1, GetNumGossipAvailableQuests() do
-		local go
 		local title, level, isLowLevel, isDaily, isRepeatable, isLegendary = select(i * 6 - 5, GetGossipAvailableQuests())
-		self:Debug(i, title, isLowLevel, isRepeatable)
+		self:Debug(i, '"'..title..'"', isLowLevel, isRepeatable)
 		if not ignoredQuests[title] then
+			local go
 			if isRepeatable and repeatableQuestComplete[title] then
 				go = repeatableQuestComplete[title]()
 				self:Debug("Repeatable", go)
