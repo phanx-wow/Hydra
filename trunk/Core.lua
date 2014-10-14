@@ -381,10 +381,10 @@ end
 ------------------------------------------------------------------------
 
 function core:SetupOptions(panel)
-	local title, notes = LibStub("PhanxConfig-Header").CreateHeader(panel, panel.name, L.Hydra_Info)
+	local title, notes = panel:CreateHeader(panel.name, L.Hydra_Info)
 	notes:SetHeight(notes:GetHeight() * 1.5)
 
-	local addName = LibStub("PhanxConfig-EditBox").CreateEditBox(panel, L.AddName, L.AddName_Info, 12)
+	local addName = panel:CreateEditBox(L.AddName, L.AddName_Info, 12)
 	addName:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
 	addName:SetPoint("TOPRIGHT", notes, "BOTTOM", -8, -12)
 	addName.Callback = function(this, name)
@@ -395,7 +395,7 @@ function core:SetupOptions(panel)
 		this:SetText("")
 	end
 
-	local addGroup = LibStub("PhanxConfig-Button").CreateButton(panel, L.AddGroup, L.AddGroup_Info)
+	local addGroup = panel:CreateButton(L.AddGroup, L.AddGroup_Info)
 	addGroup:SetPoint("BOTTOMLEFT", addName, "BOTTOMRIGHT", 20, 8)
 	function addGroup.Callback(this)
 		local unit = IsInRaid() and "raid" or "party"
@@ -441,7 +441,7 @@ function core:SetupOptions(panel)
 		end
 		UpdateNameList()
 
-		removeName = LibStub("PhanxConfig-ScrollingDropdown"):New(panel, L.RemoveName, L.RemoveName_Info, temp)
+		removeName = panel:CreateScrollingDropdown(L.RemoveName, L.RemoveName_Info, temp)
 		removeName:SetPoint("TOPLEFT", addName, "BOTTOMLEFT", 0, -16)
 		removeName:SetPoint("TOPRIGHT", addName, "BOTTOMRIGHT", 0, -16)
 
@@ -467,7 +467,7 @@ function core:SetupOptions(panel)
 		end
 	end
 
-	local removeAll = LibStub("PhanxConfig-Button").CreateButton(panel, L.RemoveAll, L.RemoveAll_Info)
+	local removeAll = panel:CreateButton(L.RemoveAll, L.RemoveAll_Info)
 	removeAll:SetPoint("BOTTOMLEFT", removeName, "BOTTOMRIGHT", 20, 1)
 	function removeAll.Callback(this)
 		for name in pairs(self.trusted) do

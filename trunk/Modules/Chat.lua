@@ -322,12 +322,12 @@ function module:SetupOptions(panel)
 			{ text = L.AppFocus, value = "APPFOCUS", checked = checked, func = func },
 			{ text = L.GroupLeader, value = "LEADER", checked = checked, func = func },
 		}
-		mode = panel:CreateDropdown(L.DetectionMethod, L.DetectionMethod_Info, modesMenu)
+		mode = panel:CreateScrollingDropdown(L.DetectionMethod, L.DetectionMethod_Info, menu)
 		mode:SetPoint("TOPLEFT", enable, "BOTTOMLEFT", 0, -16)
 		mode:SetPoint("TOPRIGHT", notes, "BOTTOM", -8, -12 - enable:GetHeight() - 16)
 	end
 
-	local timeout = LibStub("PhanxConfig-Slider"):New(panel, L.Timeout, L.GroupTimeout_Info, 30, 600, 30)
+	local timeout = panel:CreateSlider(L.Timeout, L.GroupTimeout_Info, 30, 600, 30)
 	timeout:SetPoint("TOPLEFT", mode, "BOTTOMLEFT", 0, -16)
 	timeout:SetPoint("TOPRIGHT", mode, "BOTTOMRIGHT", 0, -16)
 	timeout.Callback = function(this, value)
