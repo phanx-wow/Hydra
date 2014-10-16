@@ -159,15 +159,17 @@ end
 ------------------------------------------------------------------------
 
 function module:PLAYER_REGEN_DISABLED()
-	self:RegisterUnitEvent("UNIT_SPELLCAST_START", "player")
-end
-
-function module:PLAYER_REGEN_ENABLED()
+	--self:Debug("PLAYER_REGEN_DISABLED", UnitAffectingCombat("player"))
 	self:UnregisterEvent("UNIT_SPELLCAST_START")
 end
 
+function module:PLAYER_REGEN_ENABLED()
+	--self:Debug("PLAYER_REGEN_ENABLED", UnitAffectingCombat("player"))
+	self:RegisterUnitEvent("UNIT_SPELLCAST_START", "player")
+end
+
 function module:UNIT_SPELLCAST_START(unit, spellName, _, castID, spellID)
-	self:Debug("UNIT_SPELLCAST_START", spellName)
+	--self:Debug("UNIT_SPELLCAST_START", spellName)
 	for i = 1, C_MountJournal.GetNumMounts() do
 		local name, id = C_MountJournal.GetMountInfo(i)
 		if id == spellID then
@@ -183,15 +185,16 @@ function module:UNIT_SPELLCAST_START(unit, spellName, _, castID, spellID)
 end
 
 function module:UNIT_SPELLCAST_SUCCEEDED(unit, spellName, _, castID, spellID)
-	self:Debug("UNIT_SPELLCAST_SUCCEEDED", spellName)
+	--self:Debug("UNIT_SPELLCAST_SUCCEEDED", spellName)
 	if spellName == isCasting then
 		isMounted = spellName
+		self:Debug("Mounted!")
 		self:RegisterUnitEvent("UNIT_AURA", "player")
 	end
 end
 
 function module:UNIT_SPELLCAST_STOP(unit, spellName, _, castID, spellID)
-	self:Debug("UNIT_SPELLCAST_STOP", spellName)
+	--self:Debug("UNIT_SPELLCAST_STOP", spellName)
 	self:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 	self:UnregisterEvent("UNIT_SPELLCAST_STOP")
 end
