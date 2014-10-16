@@ -20,7 +20,7 @@ local _, core = ...
 local L = core.L
 
 local module = core:NewModule("Automation")
-
+module.debug = true
 module.defaults = {
 	acceptResurrections = false,
 	acceptResurrectionsInCombat = false,
@@ -92,29 +92,33 @@ end
 
 function module:MERCHANT_SHOW()
 	if IsShiftKeyDown() then return end
+	self:Debug("MERCHANT_SHOW")
 
 	if self.db.sellJunk then
+		self:Debug("Selling junk...")
 		local num, value = 0, 0
 		for bag = 0, 4 do
 			for slot = 0, GetContainerNumSlots(bag) do
 				local link = GetContainerItemLink(bag, slot)
 				if link then
 					local _, _, q, _, _, _, _, _, _, _, v = GetItemInfo(link)
-					if q == ITEM_QUALITY_POOR then
+					if q < 1 then
 						local _, n = GetContainerItemInfo(bag, slot)
 						num = num + n
 						value = value + (v * n)
 						UseContainerItem(bag, slot)
+						--self:Debug("Sold:", link, "@", GetMoneyString(v), "x", n, "=", GetMoneyString(v*n))
 					end
 				end
 			end
 		end
 		if num > 0 then
-			self:Print(L.SoldJunk, num, GetCoinTextureString(value))
+			self:Print(L.SoldJunk, num, GetMoneyString(value))
 		end
 	end
 
 	if self.db.repairEquipment then
+		print("Repairing...")
 		local cost = GetRepairAllCost()
 		if cost > 0 then
 			local money = GetMoney()
@@ -125,12 +129,12 @@ function module:MERCHANT_SHOW()
 
 			if guildmoney >= cost and self.db.repairWithGuildFunds and IsInGuild() then
 				RepairAllItems(1)
-				self:Print(L.RepairedGuild, GetCoinTextureString(cost))
+				self:Print(L.RepairedGuild, GetMoneyString(cost))
 			elseif self.db.repairWithGuildFunds and IsInGuild() then
 				self:Print(L.NoRepairMoneyGuild)
 			elseif money > cost then
 				RepairAllItems()
-				self:Print(L.Repaired, GetCoinTextureString(cost))
+				self:Print(L.Repaired, GetMoneyString(cost))
 			else
 				self:Print(L.NoRepairMoney)
 			end
