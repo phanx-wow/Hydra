@@ -372,12 +372,11 @@ function module:QUEST_COMPLETE(source)
 		self:Debug("QUEST_COMPLETE")
 		if not self.db.turnin or IsShiftKeyDown() then return end
 	end
-
 	local choices = GetNumQuestChoices()
 	if choices > 1 then
 		self:Debug("Quest has multiple rewards, not automating")
 		QuestRewardScrollFrame:SetVerticalScroll(QuestRewardScrollFrame:GetVerticalScrollRange())
-
+--[[
 		local best, bestID = 0
 		for i = 1, choices do
 			local link = GetQuestItemLink("choice", i)
@@ -399,6 +398,7 @@ function module:QUEST_COMPLETE(source)
 			choiceFinished = true
 			_G["QuestInfoItem"..bestID]:Click()
 		end
+]]
 	else
 		self:Debug("Completing quest", StripTitle(GetTitleText()), choices == 1 and "with only reward" or "with no reward")
 		GetQuestReward(1)
