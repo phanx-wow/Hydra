@@ -118,7 +118,6 @@ function module:MERCHANT_SHOW()
 	end
 
 	if self.db.repairEquipment then
-		print("Repairing...")
 		local cost = GetRepairAllCost()
 		if cost > 0 then
 			local money = GetMoney()
