@@ -376,7 +376,7 @@ function module:QUEST_COMPLETE(source)
 	if choices > 1 then
 		self:Debug("Quest has multiple rewards, not automating")
 		QuestRewardScrollFrame:SetVerticalScroll(QuestRewardScrollFrame:GetVerticalScrollRange())
---[[
+
 		local best, bestID = 0
 		for i = 1, choices do
 			local link = GetQuestItemLink("choice", i)
@@ -396,9 +396,8 @@ function module:QUEST_COMPLETE(source)
 		end
 		if bestID then
 			choiceFinished = true
-			_G["QuestInfoItem"..bestID]:Click()
+			QuestInfoItem_OnClick(_G["QuestInfoRewardsFrameQuestInfoItem"..bestID])
 		end
-]]
 	else
 		self:Debug("Completing quest", StripTitle(GetTitleText()), choices == 1 and "with only reward" or "with no reward")
 		GetQuestReward(1)
