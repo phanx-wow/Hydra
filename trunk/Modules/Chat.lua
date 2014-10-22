@@ -322,7 +322,7 @@ function module:SetupOptions(panel)
 			{ text = L.AppFocus, value = "APPFOCUS", checked = checked, func = func },
 			{ text = L.GroupLeader, value = "LEADER", checked = checked, func = func },
 		}
-		mode = panel:CreateScrollingDropdown(L.DetectionMethod, L.DetectionMethod_Info, menu)
+		mode = panel:CreateDropdown(L.DetectionMethod, L.DetectionMethod_Info, menu)
 		mode:SetPoint("TOPLEFT", enable, "BOTTOMLEFT", 0, -16)
 		mode:SetPoint("TOPRIGHT", notes, "BOTTOM", -8, -12 - enable:GetHeight() - 16)
 	end

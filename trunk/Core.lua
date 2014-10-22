@@ -441,7 +441,7 @@ function core:SetupOptions(panel)
 		end
 		UpdateNameList()
 
-		removeName = panel:CreateScrollingDropdown(L.RemoveName, L.RemoveName_Info, temp)
+		removeName = panel:CreateDropdown(L.RemoveName, L.RemoveName_Info, temp)
 		removeName:SetPoint("TOPLEFT", addName, "BOTTOMLEFT", 0, -16)
 		removeName:SetPoint("TOPRIGHT", addName, "BOTTOMRIGHT", 0, -16)
 
