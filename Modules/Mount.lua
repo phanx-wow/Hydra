@@ -58,13 +58,13 @@ local mountTypeString = {
 	-- http://www.wowinterface.com/forums/showthread.php?p=294988#post294988
 	[230] = "GROUND",
 	[231] = "TURTLE",
-	[232] = "VASHJIR",
+	[232] = "VASHJIR", -- Abyssal / Vashj'ir Seahorse, 450% swim speed, zone limited
 	[241] = "AQ40",
 	[242] = "GHOST",
-	[247] = "AIR",
+	[247] = "AIR", -- Red Flying Cloud
 	[248] = "AIR",
-	[254] = "VASHJIR",
-	[269] = "WATER_WALKING",
+	[254] = "WATER", -- Subdued Seahorse, 300% swim speed
+	[269] = "WATER_WALKING", -- Azure/Crimson Water Strider
 }
 
 function module:OnAddonMessage(message, channel, sender)
