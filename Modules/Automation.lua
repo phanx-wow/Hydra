@@ -102,7 +102,7 @@ function module:MERCHANT_SHOW()
 				local link = GetContainerItemLink(bag, slot)
 				if link then
 					local _, _, q, _, _, _, _, _, _, _, v = GetItemInfo(link)
-					if q < 1 then
+					if q and q < 1 then -- no idea how q can be nil!
 						local _, n = GetContainerItemInfo(bag, slot)
 						num = num + n
 						value = value + (v * n)
