@@ -1,0 +1,22 @@
+package-as: Hydra
+
+manual-changelog:
+   filename: CHANGELOG.md
+   markup-type: markdown
+
+ignore:
+   - README.md
+
+enable-nolib-creation: no
+
+externals:
+   Libs/LibAboutPanel: git@git.curseforge.net:wow/libaboutpanel/mainline.git
+   Libs/LibStub: svn://svn.wowace.com/wow/libstub/mainline/tags/1.0
+   Libs/PhanxConfig-Button: svn://svn.wowinterface.com/PhanxConfigWidgets-486/trunk/PhanxConfig-Button
+   Libs/PhanxConfig-Checkbox: svn://svn.wowinterface.com/PhanxConfigWidgets-486/trunk/PhanxConfig-Checkbox
+   Libs/PhanxConfig-EditBox: svn://svn.wowinterface.com/PhanxConfigWidgets-486/trunk/PhanxConfig-EditBox
+   Libs/PhanxConfig-Header: svn://svn.wowinterface.com/PhanxConfigWidgets-486/trunk/PhanxConfig-Header
+   Libs/PhanxConfig-KeyBinding: svn://svn.wowinterface.com/PhanxConfigWidgets-486/trunk/PhanxConfig-KeyBinding
+   Libs/PhanxConfig-OptionsPanel: svn://svn.wowinterface.com/PhanxConfigWidgets-486/trunk/PhanxConfig-OptionsPanel
+   Libs/PhanxConfig-Dropdown: svn://svn.wowinterface.com/PhanxConfigWidgets-486/trunk/PhanxConfig-Dropdown
+   Libs/PhanxConfig-Slider: svn://svn.wowinterface.com/PhanxConfigWidgets-486/trunk/PhanxConfig-Slider

@@ -1,5 +1,5 @@
 ## Interface: 60000
-## Version: 6.0.2.wowi:revision
+## Version: 6.0.2.206
 
 ## Title: Hydra
 ## Notes: Multiboxing and group leveling helper.
@@ -13,12 +13,7 @@
 ## Author: Phanx
 ## X-Email: addons@phanx.net
 ## X-Copyright: Copyright (c) 2010-2014 Phanx. All rights reserved.
-## X-License: See accompanying LICENSE file for details.
-## X-CompatibleLocales: enUS, deDE, esES, esMX, frFR, itIT, koKR, ptBR, ruRU, zhCN, zhTW
-## X-Localizations: enUS, deDE, esES, esMX, frFR, koKR, ruRU
-## X-Website: http://www.wowinterface.com/downloads/info17572-Hydra.html
-## X-Curse-Project-ID: hydra
-## X-WoWI-ID: 17572
+## X-Website: https://github.com/Phanx/Hydra
 
 ## OptionalDependencies: BadBoy, BadBoy_Guilded, BadBoy_Levels, PhanxConfigWidgets
 ## SavedVariables: HydraTrustList
