@@ -5,18 +5,19 @@ manual-changelog:
    markup-type: markdown
 
 ignore:
+   - CHANGELOG.md
    - README.md
 
 enable-nolib-creation: no
 
 externals:
-   Libs/LibAboutPanel: git@git.curseforge.net:wow/libaboutpanel/mainline.git
+   Libs/LibAboutPanel: svn://svn.wowinterface.com/PhanxLibraryMirrors-805/trunk/LibAboutPanel
    Libs/LibStub: svn://svn.wowace.com/wow/libstub/mainline/tags/1.0
-   Libs/PhanxConfig-Button: svn://svn.wowinterface.com/PhanxConfigWidgets-486/trunk/PhanxConfig-Button
-   Libs/PhanxConfig-Checkbox: svn://svn.wowinterface.com/PhanxConfigWidgets-486/trunk/PhanxConfig-Checkbox
-   Libs/PhanxConfig-EditBox: svn://svn.wowinterface.com/PhanxConfigWidgets-486/trunk/PhanxConfig-EditBox
-   Libs/PhanxConfig-Header: svn://svn.wowinterface.com/PhanxConfigWidgets-486/trunk/PhanxConfig-Header
-   Libs/PhanxConfig-KeyBinding: svn://svn.wowinterface.com/PhanxConfigWidgets-486/trunk/PhanxConfig-KeyBinding
-   Libs/PhanxConfig-OptionsPanel: svn://svn.wowinterface.com/PhanxConfigWidgets-486/trunk/PhanxConfig-OptionsPanel
-   Libs/PhanxConfig-Dropdown: svn://svn.wowinterface.com/PhanxConfigWidgets-486/trunk/PhanxConfig-Dropdown
-   Libs/PhanxConfig-Slider: svn://svn.wowinterface.com/PhanxConfigWidgets-486/trunk/PhanxConfig-Slider
+   Libs/PhanxConfig-Button: git://github.com/Phanx/PhanxConfig-Button.git
+   Libs/PhanxConfig-Checkbox: git://github.com/Phanx/PhanxConfig-Checkbox.git
+   Libs/PhanxConfig-EditBox: git://github.com/Phanx/PhanxConfig-EditBox.git
+   Libs/PhanxConfig-Header: git://github.com/Phanx/PhanxConfig-Header.git
+   Libs/PhanxConfig-KeyBinding: git://github.com/Phanx/PhanxConfig-KeyBinding.git
+   Libs/PhanxConfig-OptionsPanel: git://github.com/Phanx/PhanxConfig-OptionsPanel.git
+   Libs/PhanxConfig-Dropdown: git://github.com/Phanx/PhanxConfig-Dropdown.git
+   Libs/PhanxConfig-Slider: git://github.com/Phanx/PhanxConfig-Slider.git
