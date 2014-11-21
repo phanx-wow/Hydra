@@ -13,7 +13,7 @@
 local _, core = ...
 local L = core.L
 local SOLO, PARTY, TRUSTED, LEADER = core.STATE_SOLO, core.STATE_PARTY, core.STATE_TRUSTED, core.STATE_LEADER
-SOLO = -1 -- #DEBUG
+
 local module = core:NewModule("Mount")
 module.defaults = {
 	mount = true,
