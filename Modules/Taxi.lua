@@ -59,6 +59,7 @@ end
 function module:TAXIMAP_OPENED()
 	if not taxiName or taxiName == "INVALID" then return end -- we're picking the taxi
 	if IsShiftKeyDown() then return end -- we're doing something else
+	self:Debug("TAXIMAP_OPENED", taxiName)
 
 	if GetTime() - taxiTime > self.db.timeout then
 		taxiTime, taxiName = 0, nil
