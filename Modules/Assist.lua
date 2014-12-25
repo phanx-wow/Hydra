@@ -18,13 +18,13 @@
 	4. On leaving combat, update assist macro.
 --]]
 
-local _, core = ...
-local L = core.L
-local SOLO, PARTY, TRUSTED, LEADER = core.STATE_SOLO, core.STATE_PARTY, core.STATE_TRUSTED, core.STATE_LEADER
-local PLAYER_FULLNAME = core.PLAYER_FULLNAME
+local _, Hydra = ...
+local L = Hydra.L
+local SOLO, PARTY, TRUSTED, LEADER = Hydra.STATE_SOLO, Hydra.STATE_PARTY, Hydra.STATE_TRUSTED, Hydra.STATE_LEADER
+local PLAYER_FULLNAME = Hydra.PLAYER_FULLNAME
 
-local module = core:NewModule("Assist")
-module.defaults = { respond = true, verbose = true }
+local Assist = Hydra:NewModule("Assist")
+Assist.defaults = { respond = true, verbose = true }
 
 local COMMAND_REQUEST, ALERT_SET, ALERT_SET_F, ALERT_UNSET, ALERT_COMBAT, ALERT_NOTRUST, ALERT_ERROR = "REQUEST", "SET", "SET %s", "UNSET", "COMBAT", "NOTRUST", "ERROR"
 local MACRO_NAME, MACRO_ICON, MACRO_BODY = L.AssistMacro, "Spell_Priest_VowofUnity", "/click HydraAssistButton"
@@ -40,11 +40,11 @@ local statusText = {
 
 ------------------------------------------------------------------------
 
-function module:ShouldEnable()
-	return core.state > SOLO
+function Assist:ShouldEnable()
+	return Hydra.state > SOLO
 end
 
-function module:OnDisable(silent)
+function Assist:OnDisable(silent)
 	assisters, assisting, pending = wipe(assisters), nil, nil
 end
 
@@ -54,7 +54,7 @@ local button = CreateFrame("Button", "HydraAssistButton", nil, "SecureActionButt
 button:RegisterForClicks("AnyUp")
 button:SetAttribute("type", "macro")
 
-function module:GetMacro()
+function Assist:GetMacro()
 	local index = GetMacroIndexByName(MACRO_NAME)
 	if InCombatLockdown() then
 		return index
@@ -69,7 +69,7 @@ function module:GetMacro()
 	end
 end
 
-function module:SetAssist(name)
+function Assist:SetAssist(name)
 	self:Debug("SetAssist", name)
 
 	if InCombatLockdown() then
@@ -87,7 +87,7 @@ function module:SetAssist(name)
 		button:SetAttribute("macrotext", nil)
 		assisting = nil
 
-	elseif not core:IsTrusted(name) then
+	elseif not Hydra:IsTrusted(name) then
 		-- Requester not trusted. Inform them.
 		self:Debug("not trusted")
 		self:SendAddonMessage(ALERT_NOTRUST, name)
@@ -106,13 +106,13 @@ end
 
 ------------------------------------------------------------------------
 
-function module:PLAYER_REGEN_ENABLED()
+function Assist:PLAYER_REGEN_ENABLED()
 	self:Debug("combat ended, trying again...")
 	self:UnregisterEvent("PLAYER_REGEN_ENABLED")
 	self:SetAssist(pending)
 end
 
-function module:OnAddonMessage(message, channel, sender)
+function Assist:OnAddonMessage(message, channel, sender)
 	self:Debug("AddonMessage", channel, sender, message)
 	local message, detail = strsplit(" ", message, 2)
 
@@ -149,7 +149,7 @@ SLASH_HYDRA_ASSIST1 = "/assistme"
 SLASH_HYDRA_ASSIST2 = L.SlashAssistMe
 
 function SlashCmdList.HYDRA_ASSIST(command)
-	if not module.enabled then return end
+	if not Assist.enabled then return end
 	command = command and strlower(strtrim(command))
 
 	if command == "who" then
@@ -171,21 +171,21 @@ BINDING_NAME_HYDRA_REQUEST_ASSIST = L.RequestAssist
 
 ------------------------------------------------------------------------
 
-module.displayName = L.Assist
-function module:SetupOptions(panel)
+Assist.displayName = L.Assist
+function Assist:SetupOptions(panel)
 	local title, notes = panel:CreateHeader(L.Assist, L.Assist_Info)
 
 	local respond = panel:CreateCheckbox(L.AssistRespond, L.AssistRespond_Info)
 	respond:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
-	function respond.Callback(this, value)
-		self.db.respond = value
-		self:Refresh()
+	function respond:OnValueChanged(value)
+		Assist.db.respond = value
+		Assist:Refresh()
 	end
 
 	local verbose = panel:CreateCheckbox(L.Verbose, L.Verbose_Info)
 	verbose:SetPoint("TOPLEFT", respond, "BOTTOMLEFT", 0, -8)
-	function verbose.Callback(this, value)
-		self.db.verbose = value
+	function verbose:OnValueChanged(value)
+		Assist.db.verbose = value
 	end
 
 	local usemacro = panel:CreateKeyBinding(L.AssistMacro, L.AssistMacro_Info, "CLICK HydraAssistButton")
@@ -206,13 +206,13 @@ function module:SetupOptions(panel)
 
 	local getmacro = panel:CreateButton(L.AssistGetMacro, L.AssistGetMacro_Info)
 	getmacro:SetPoint("BOTTOMRIGHT", help, "TOPRIGHT", 0, 24)
-	getmacro.Callback = function(this, button)
-		PickupMacro(self:GetMacro())
+	function getmacro:OnClicked(button)
+		PickupMacro(Assist:GetMacro())
 	end
 
 	panel.refresh = function()
-		respond:SetChecked(self.db.respond)
-		verbose:SetChecked(self.db.verbose)
+		respond:SetChecked(Assist.db.respond)
+		verbose:SetChecked(Assist.db.verbose)
 		usemacro:RefreshValue()
 		request:RefreshValue()
 	end

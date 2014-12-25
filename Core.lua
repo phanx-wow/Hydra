@@ -7,26 +7,26 @@
 	https://github.com/Phanx/Hydra
 ----------------------------------------------------------------------]]
 
-local HYDRA, core = ...
-core.name = HYDRA
-core.modules = {}
+local HYDRA, Hydra = ...
+Hydra.name = HYDRA
+Hydra.modules = {}
 
-local L = setmetatable(core.L or {}, { __index = function(t, k)
+local L = setmetatable(Hydra.L or {}, { __index = function(t, k)
 	if k == nil then return "" end
 	local v = tostring(k)
 	rawset(t, k, v)
 	return v
 end })
-core.L = L
+Hydra.L = L
 
 BINDING_HEADER_HYDRA = GetAddOnMetadata(HYDRA, "Title")
 
 ------------------------------------------------------------------------
 
 local SOLO, INSECURE, SECURE, LEADER = 0, 1, 2, 3
-core.STATE_SOLO, core.STATE_PARTY, core.STATE_TRUSTED, core.STATE_LEADER = SOLO, INSECURE, SECURE, LEADER
+Hydra.STATE_SOLO, Hydra.STATE_PARTY, Hydra.STATE_TRUSTED, Hydra.STATE_LEADER = SOLO, INSECURE, SECURE, LEADER
 
-function core:GetStateFlags()
+function Hydra:GetStateFlags()
 	return SOLO, INSECURE, SECURE, LEADER
 end
 
@@ -34,9 +34,9 @@ end
 
 local PLAYER_NAME, PLAYER_REALM = UnitName("player"), gsub(GetRealmName(), "%s+", "")
 local PLAYER_FULLNAME = format("%s-%s", PLAYER_NAME, PLAYER_REALM)
-core.PLAYER_NAME, core.PLAYER_REALM, core.PLAYER_FULLNAME = PLAYER_NAME, PLAYER_REALM, PLAYER_FULLNAME
+Hydra.PLAYER_NAME, Hydra.PLAYER_REALM, Hydra.PLAYER_FULLNAME = PLAYER_NAME, PLAYER_REALM, PLAYER_FULLNAME
 
-function core:GetPlayerInfo()
+function Hydra:GetPlayerInfo()
 	return PLAYER_FULLNAME, PLAYER_NAME, PLAYER_REALM
 end
 
@@ -44,8 +44,8 @@ local REALM_S = "%-" .. PLAYER_REALM .. "$"
 
 ------------------------------------------------------------------------
 
-function core:Debug(str, ...)
-	if not str or not core.db.debug[self.name] then return end
+function Hydra:Debug(str, ...)
+	if not str or not Hydra.db.debug[self.name] then return end
 	if strmatch(str, "%%[dsx%d%.]") then
 		print("|cffff9999Hydra:|r", format(str, ...))
 	else
@@ -53,7 +53,7 @@ function core:Debug(str, ...)
 	end
 end
 
-function core:Print(str, ...)
+function Hydra:Print(str, ...)
 	if strmatch(str, "%%[dsx%d%.]") then
 		print("|cffffcc00Hydra:|r", format(str, ...))
 	else
@@ -61,11 +61,11 @@ function core:Print(str, ...)
 	end
 end
 
-function core:Alert(message, flash, r, g, b)
+function Hydra:Alert(message, flash, r, g, b)
 	UIErrorsFrame:AddMessage(message, r or 1, g or 1, b or 0, 1, UIERRORS_HOLD_TIME)
 end
 
-function core:SendAddonMessage(message, target)
+function Hydra:SendAddonMessage(message, target)
 	if not message then
 		return
 	end
@@ -80,7 +80,7 @@ function core:SendAddonMessage(message, target)
 	end
 end
 
-function core:SendChatMessage(message, target)
+function Hydra:SendChatMessage(message, target)
 	if not message then
 		return
 	end
@@ -112,7 +112,7 @@ local function Capitalize(str, firstOnly)
 	return strupper(a)..(firstOnly and b or strlower(b))
 end
 
-function core:ValidateName(name, realm)
+function Hydra:ValidateName(name, realm)
 	--assert(type(name) == "string" and strlen(name) >= 2, "Invalid name!")
 	name = name and strtrim(name)
 	realm = realm and strtrim(realm)
@@ -133,7 +133,7 @@ function core:ValidateName(name, realm)
 	end
 end
 
-function core:IsTrusted(name, realm)
+function Hydra:IsTrusted(name, realm)
 	if name == PLAYER_FULLNAME or (name == PLAYER_NAME and realm == PLAYER_REALM) then
 		return PLAYER_FULLNAME, PLAYER_NAME
 	end
@@ -146,7 +146,7 @@ function core:IsTrusted(name, realm)
 	end
 end
 
-function core:AddTrusted(name, realm, silent)
+function Hydra:AddTrusted(name, realm, silent)
 	local name, displayName = self:ValidateName(name, realm)
 	self:Debug("AddTrusted", name)
 	if not name or self.trusted[name] then return end
@@ -157,7 +157,7 @@ function core:AddTrusted(name, realm, silent)
 	self:TriggerEvent("GROUP_ROSTER_UPDATE")
 end
 
-function core:RemoveTrusted(name, realm, skipValidation)
+function Hydra:RemoveTrusted(name, realm, skipValidation)
 	local displayName = name
 	--if not skipValidation then
 		name, displayName = self:ValidateName(name, realm)
@@ -171,17 +171,17 @@ end
 ------------------------------------------------------------------------
 
 local modulePrototype = {
-	Alert = core.Alert,
-	Debug = core.Debug,
-	Print = core.Print,
-	SendAddonMessage = core.SendAddonMessage,
-	SendChatMessage = core.SendChatMessage,
+	Alert = Hydra.Alert,
+	Debug = Hydra.Debug,
+	Print = Hydra.Print,
+	SendAddonMessage = Hydra.SendAddonMessage,
+	SendChatMessage = Hydra.SendChatMessage,
 	IsEnabled = function(self)
 		return self.enabled
 	end,
 	Enable = function(self, silent)
 		if not silent then
-			core:Debug("Enabling module:", self.name)
+			Hydra:Debug("Enabling module:", self.name)
 		end
 		self.enabled = true
 		if self.OnEnable then
@@ -190,7 +190,7 @@ local modulePrototype = {
 	end,
 	Disable = function(self, silent)
 		if not silent then
-			core:Debug("Disabling module:", self.name)
+			Hydra:Debug("Disabling module:", self.name)
 		end
 		self.enabled = nil
 		self:UnregisterAllEvents()
@@ -200,7 +200,7 @@ local modulePrototype = {
 	end,
 	Refresh = function(self)
 		local enable = self:ShouldEnable()
-		core:Debug("Refreshing module:", self.name, enable)
+		Hydra:Debug("Refreshing module:", self.name, enable)
 		self:Disable(true)
 		if enable then
 			self:Enable(true)
@@ -212,7 +212,7 @@ local modulePrototype = {
 	end,
 }
 
-function core:NewModule(name)
+function Hydra:NewModule(name)
 	assert(type(name) == "string", "Module name must be a string!")
 	assert(not self.modules[name], "Module " .. name .. " is already registered!")
 
@@ -229,7 +229,7 @@ function core:NewModule(name)
 	return module
 end
 
-function core:GetModule(name)
+function Hydra:GetModule(name)
 	local module = self.modules[name]
 	assert(module, "Module " .. name .. " is not registered!")
 	return module
@@ -259,28 +259,28 @@ function f:PLAYER_LOGIN()
 
 	HydraTrustList = HydraTrustList or {}
 	HydraTrustList[format("%s-%s", PLAYER_NAME, PLAYER_REALM)] = true
-	core.trusted = HydraTrustList
+	Hydra.trusted = HydraTrustList
 
 	HydraSettings = copyTable({ debug = {} }, HydraSettings)
-	core.db = HydraSettings
+	Hydra.db = HydraSettings
 
-	core:Debug("Loading...")
+	Hydra:Debug("Loading...")
 
-	for name, module in pairs(core.modules) do
+	for name, module in pairs(Hydra.modules) do
 		if module.defaults then
-			core:Debug("Initializing settings for module", name)
-			module.db = copyTable(module.defaults, core.db[name])
-			--for k, v in pairs(module.db) do core:Debug(k, "=", v) end
+			Hydra:Debug("Initializing settings for module", name)
+			module.db = copyTable(module.defaults, Hydra.db[name])
+			--for k, v in pairs(module.db) do Hydra:Debug(k, "=", v) end
 		else
-			core:Debug("No defaults for module", name)
-			module.db = core.db[name]
+			Hydra:Debug("No defaults for module", name)
+			module.db = Hydra.db[name]
 		end
 		module.db.debug = nil -- TEMP
 		if next(module.db) then
-			core.db[name] = module.db
+			Hydra.db[name] = module.db
 		else
 			module.db = nil -- remove empty
-			core.db[name] = nil
+			Hydra.db[name] = nil
 		end
 	end
 
@@ -299,7 +299,7 @@ end
 function f:CHAT_MSG_ADDON(prefix, message, channel, sender)
 	if sender == PLAYER_FULLNAME or prefix ~= "Hydra" then return end
 	prefix, message = strsplit(" ", message, 2)
-	local module = core.modules[prefix]
+	local module = Hydra.modules[prefix]
 	if not module or not module.enabled or not module.OnAddonMessage then end
 	module:OnAddonMessage(message, channel, sender)
 end
@@ -322,7 +322,7 @@ function f:CheckParty(unit)
 			n = n - 1
 		end
 		for i = 1, n do
-			if not core:IsTrusted(UnitName(u .. i)) then
+			if not Hydra:IsTrusted(UnitName(u .. i)) then
 				newstate = INSECURE
 				break
 			end
@@ -332,27 +332,27 @@ function f:CheckParty(unit)
 		end
 	end
 
-	core:Debug("Party changed:", core.state, "->", newstate)
+	Hydra:Debug("Party changed:", Hydra.state, "->", newstate)
 
 	if UnitIsGroupLeader("player") then
 		local loot = GetLootMethod()
 		if newstate >= SECURE then
 			if loot ~= "freeforall" then
-				core:Debug("Setting loot method to Free For All.")
+				Hydra:Debug("Setting loot method to Free For All.")
 				SetLootMethod("freeforall")
 			end
 		elseif newstate > SOLO then
 			if loot == "freeforall" then
-				core:Debug("Setting loot method to Group.")
+				Hydra:Debug("Setting loot method to Group.")
 				SetLootMethod("group")
 			end
 		end
 	end
 
-	if newstate ~= core.state then
-		core.state = newstate
-		for name, module in pairs(core.modules) do
-			core:Debug("Checking state for module:", name)
+	if newstate ~= Hydra.state then
+		Hydra.state = newstate
+		for name, module in pairs(Hydra.modules) do
+			Hydra:Debug("Checking state for module:", name)
 			local enable = module:ShouldEnable()
 			if enable ~= module.enabled then
 				if enable then
@@ -372,7 +372,7 @@ f.UNIT_NAME_UPDATE = f.CheckParty
 
 ------------------------------------------------------------------------
 
-function core:TriggerEvent(event, ...)
+function Hydra:TriggerEvent(event, ...)
 	if f:IsEventRegistered(event) then
 		f:GetScript("OnEvent")(f, event, ...)
 	end
@@ -380,27 +380,27 @@ end
 
 ------------------------------------------------------------------------
 
-function core:SetupOptions(panel)
+function Hydra:SetupOptions(panel)
 	local title, notes = panel:CreateHeader(panel.name, L.Hydra_Info)
 	notes:SetHeight(notes:GetHeight() * 1.5)
 
 	local addName = panel:CreateEditBox(L.AddName, L.AddName_Info, 12)
 	addName:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
 	addName:SetPoint("TOPRIGHT", notes, "BOTTOM", -8, -12)
-	addName.Callback = function(this, name)
+	function addName:OnValueChanged(name)
 		name = strtrim(name)
 		if strlen(name) > 2 then
-			self:AddTrusted(name)
+			Hydra:AddTrusted(name)
 		end
-		this:SetText("")
+		self:SetText("")
 	end
 
 	local addGroup = panel:CreateButton(L.AddGroup, L.AddGroup_Info)
 	addGroup:SetPoint("BOTTOMLEFT", addName, "BOTTOMRIGHT", 20, 8)
-	function addGroup.Callback(this)
+	function addGroup:OnClicked()
 		local unit = IsInRaid() and "raid" or "party"
 		for i = 1, GetNumGroupMembers() do
-			self:AddTrusted(UnitName(unit..i))
+			Hydra:AddTrusted(UnitName(unit..i))
 		end
 		self:TriggerEvent("GROUP_ROSTER_UPDATE")
 	end
@@ -447,7 +447,7 @@ function core:SetupOptions(panel)
 
 		removeName.PreUpdate = UpdateNameList
 
-		function removeName.ListButtonCallback(dropdown, button, item, selected)
+		function removeName:OnListButtonChanged(button, item, selected)
 			if type(item) == "table" and item.empty then
 				button:SetText(L.RemoveEmpty)
 				button:EnableMouse(false)
@@ -456,23 +456,23 @@ function core:SetupOptions(panel)
 			end
 		end
 
-		function removeName.Callback(dropdown, value)
+		function removeName:OnValueChanged(value)
 			local name = value
 			if not strfind(name, "%-") then
 				name = name .. "-" .. PLAYER_REALM
 			end
-			self:RemoveTrusted(value, nil, true)
+			Hydra:RemoveTrusted(value, nil, true)
 			UpdateNameList()
-			dropdown:SetValue()
+			self:SetValue()
 		end
 	end
 
 	local removeAll = panel:CreateButton(L.RemoveAll, L.RemoveAll_Info)
 	removeAll:SetPoint("BOTTOMLEFT", removeName, "BOTTOMRIGHT", 20, 1)
-	function removeAll.Callback(this)
-		for name in pairs(self.trusted) do
+	function removeAll:OnValueChanged()
+		for name in pairs(Hydra.trusted) do
 			if gsub(name, REALM_S, "") ~= PLAYER_NAME then
-				self:RemoveTrusted(name, nil, true)
+				Hydra:RemoveTrusted(name, nil, true)
 			end
 		end
 	end

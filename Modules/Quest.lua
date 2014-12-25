@@ -24,13 +24,13 @@
 	* Tekkub - Quecho
 ----------------------------------------------------------------------]]
 
-local _, core = ...
-local L = core.L
-local SOLO, PARTY, TRUSTED, LEADER = core.STATE_SOLO, core.STATE_PARTY, core.STATE_TRUSTED, core.STATE_LEADER
-local PLAYER_FULLNAME, PLAYER_NAME, PLAYER_REALM = core.PLAYER_FULLNAME, core.PLAYER_NAME, core.PLAYER_REALM
+local _, Hydra = ...
+local L = Hydra.L
+local SOLO, PARTY, TRUSTED, LEADER = Hydra.STATE_SOLO, Hydra.STATE_PARTY, Hydra.STATE_TRUSTED, Hydra.STATE_LEADER
+local PLAYER_FULLNAME, PLAYER_NAME, PLAYER_REALM = Hydra.PLAYER_FULLNAME, Hydra.PLAYER_NAME, Hydra.PLAYER_REALM
 
-local module = core:NewModule("Quest")
-module.defaults = {
+local Quest = Hydra:NewModule("Quest")
+Quest.defaults = {
 	enable = true,
 	accept = true,
 	acceptOnlyShared = false,
@@ -45,11 +45,11 @@ local PopulateQuestNames
 
 ------------------------------------------------------------------------
 
-function module:ShouldEnable()
+function Quest:ShouldEnable()
 	return self.db.enable
 end
 
-function module:OnEnable()
+function Quest:OnEnable()
 	-- Fill in quest names that the client was too slow to get in the main chunk:
 	if PopulateQuestNames and PopulateQuestNames() then
 		PopulateQuestNames = nil
@@ -66,7 +66,7 @@ function module:OnEnable()
 	self:RegisterEvent("QUEST_FINISHED")
 	self:RegisterEvent("QUEST_AUTOCOMPLETE")
 
-	if core.state > SOLO then
+	if Hydra.state > SOLO then
 		self:RegisterEvent("QUEST_ACCEPT_CONFIRM")
 		self:RegisterEvent("QUEST_LOG_UPDATE")
 	end
@@ -125,7 +125,7 @@ local ignoredQuests = {
 HQIGNORE = ignoredQuests -- debugging
 
 function PopulateQuestNames() -- local at top of file
-	module:Debug("PopulateQuestNames")
+	Quest:Debug("PopulateQuestNames")
 	local complete = true
 	for id, func in pairs(repeatableQuestComplete) do
 		if type(id) == "number" then
@@ -134,7 +134,7 @@ function PopulateQuestNames() -- local at top of file
 				repeatableQuestComplete[name] = func
 				repeatableQuestComplete[id] = nil
 			else
-				module:Debug("Repeatable quest name not found: |Hquest:"..id.."|h[quest:"..id.."]|h")
+				Quest:Debug("Repeatable quest name not found: |Hquest:"..id.."|h[quest:"..id.."]|h")
 				complete = false
 			end
 		end
@@ -146,7 +146,7 @@ function PopulateQuestNames() -- local at top of file
 				ignoredQuests[name] = true
 				ignoredQuests[id] = nil
 			else
-				module:Debug("Ignored quest name not found: |Hquest:"..id.."|h[quest:"..id.."]|h")
+				Quest:Debug("Ignored quest name not found: |Hquest:"..id.."|h[quest:"..id.."]|h")
 				complete = false
 			end
 		end
@@ -156,7 +156,7 @@ end
 
 ------------------------------------------------------------------------
 
-function module:QUEST_ACCEPT_CONFIRM(name, qname)
+function Quest:QUEST_ACCEPT_CONFIRM(name, qname)
 	local target = Ambiguate(name, "none")
 	if self.db.accept and (UnitInRaid(target) or UnitInParty(target)) then
 		self:Debug("Accepting quest", qname, "started by", name)
@@ -169,8 +169,8 @@ end
 --	Respond to comms from others
 ------------------------------------------------------------------------
 
-function module:OnAddonMessage(message, channel, sender)
-	if not core:IsTrusted(sender) then return end
+function Quest:OnAddonMessage(message, channel, sender)
+	if not Hydra:IsTrusted(sender) then return end
 	self:Debug("OnAddonMessage", sender, message)
 
 	local action, qlink = strsplit(" ", message, 2)
@@ -224,7 +224,7 @@ local function IsTrackingTrivial()
 	end
 end
 
-function module:GOSSIP_SHOW()
+function Quest:GOSSIP_SHOW()
 	self:Debug("GOSSIP_SHOW")
 	if IsShiftKeyDown() then return end
 
@@ -262,7 +262,7 @@ function module:GOSSIP_SHOW()
 	end
 end
 
-function module:QUEST_GREETING()
+function Quest:QUEST_GREETING()
 	self:Debug("QUEST_GREETING")
 	if IsShiftKeyDown() then return end
 
@@ -300,7 +300,7 @@ function module:QUEST_GREETING()
 	end
 end
 
-function module:QUEST_DETAIL()
+function Quest:QUEST_DETAIL()
 	self:Debug("QUEST_DETAIL")
 	if IsShiftKeyDown() then return end
 
@@ -326,7 +326,7 @@ function module:QUEST_DETAIL()
 	end
 end
 
-function module:QUEST_ACCEPT_CONFIRM(giver, quest)
+function Quest:QUEST_ACCEPT_CONFIRM(giver, quest)
 	self:Debug("QUEST_ACCEPT_CONFIRM", giver, quest)
 	if not self.db.accept or IsShiftKeyDown() then return end
 
@@ -339,7 +339,7 @@ function module:QUEST_ACCEPT_CONFIRM(giver, quest)
 	AcceptQuest()
 end
 
-function module:QUEST_ACCEPTED(id)
+function Quest:QUEST_ACCEPTED(id)
 	self:Debug("QUEST_ACCEPTED", id)
 	if not GetCVarBool("autoQuestWatch") or IsQuestWatched(id) or GetNumQuestWatches() >= MAX_WATCHABLE_QUESTS then return end
 
@@ -351,7 +351,7 @@ end
 --	Turn in completed quests
 ------------------------------------------------------------------------
 
-function module:QUEST_PROGRESS()
+function Quest:QUEST_PROGRESS()
 	self:Debug("QUEST_PROGRESS")
 	if not self.db.turnin or IsShiftKeyDown() or not IsQuestCompletable() then return end
 
@@ -361,13 +361,13 @@ end
 
 local choicePending, choiceFinished
 
-function module:QUEST_ITEM_UPDATE()
+function Quest:QUEST_ITEM_UPDATE()
 	if choicePending then
 		self:QUEST_COMPLETE("QUEST_ITEM_UPDATE")
 	end
 end
 
-function module:QUEST_COMPLETE(source)
+function Quest:QUEST_COMPLETE(source)
 	if source ~= "QUEST_ITEM_UPDATE" then
 		self:Debug("QUEST_COMPLETE")
 		if not self.db.turnin or IsShiftKeyDown() then return end
@@ -404,14 +404,14 @@ function module:QUEST_COMPLETE(source)
 	end
 end
 
-function module:QUEST_FINISHED()
+function Quest:QUEST_FINISHED()
 	self:Debug("QUEST_FINISHED")
 	if choiceFinished then
 		choicePending = false
 	end
 end
 
-function module:QUEST_AUTOCOMPLETE(id)
+function Quest:QUEST_AUTOCOMPLETE(id)
 	self:Debug("QUEST_AUTOCOMPLETE", id)
 	local index = GetQuestLogIndexByID(id)
 	if GetQuestLogIsAutoComplete(index) then
@@ -431,7 +431,7 @@ local qids = setmetatable({}, { __index = function(t,i)
 	return v
 end })
 
-function module:QUEST_LOG_UPDATE()
+function Quest:QUEST_LOG_UPDATE()
 	currentquests, oldquests = oldquests, currentquests
 	wipe(currentquests)
 
@@ -475,7 +475,7 @@ function module:QUEST_LOG_UPDATE()
 							self:Debug("Sharing quest...")
 							QuestLogPushQuest()
 						else
-							core:Print(L.QuestNotShareable)
+							Hydra:Print(L.QuestNotShareable)
 						end
 					end
 				end
@@ -492,54 +492,54 @@ end
 
 ------------------------------------------------------------------------
 
-module.displayName = L.Quest
-function module:SetupOptions(panel)
+Quest.displayName = L.Quest
+function Quest:SetupOptions(panel)
 	local title, notes = panel:CreateHeader(L.Quest, L.Quest_Info)
 
 	local enable, accept, acceptOnlyShared, turnin, share, abandon
 
-	local function Callback(this, value)
-		self.db[this.key] = value
-		if this.key == "enable" then
+	local function OnValueChanged(self, value)
+		Quest.db[self.key] = value
+		if self.key == "enable" then
 			accept:SetEnabled(value)
-			acceptOnlyShared:SetEnabled(value and self.db.accept)
+			acceptOnlyShared:SetEnabled(value and Quest.db.accept)
 			turnin:SetEnabled(value)
 			share:SetEnabled(value)
 			abandon:SetEnabled(value)
-			module:Refresh()
-		elseif this.key == "accept" then
+			Quest:Refresh()
+		elseif self.key == "accept" then
 			acceptOnlyShared:SetEnabled(value)
 		end
 	end
 
 	enable = panel:CreateCheckbox(L.Enable, L.Enable_Info)
 	enable:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -8)
-	enable.Callback = Callback
+	enable.OnValueChanged = OnValueChanged
 	enable.key = "enable"
 
 	accept = panel:CreateCheckbox(L.AcceptQuests, L.AcceptQuests_Info)
 	accept:SetPoint("TOPLEFT", enable, "BOTTOMLEFT", 0, -8)
-	accept.Callback = Callback
+	accept.OnValueChanged = OnValueChanged
 	accept.key = "accept"
 
 	acceptOnlyShared = panel:CreateCheckbox(L.OnlySharedQuests, L.OnlySharedQuests_Info)
 	acceptOnlyShared:SetPoint("TOPLEFT", accept, "BOTTOMLEFT", 26, -8)
-	acceptOnlyShared.Callback = Callback
+	acceptOnlyShared.OnValueChanged = OnValueChanged
 	acceptOnlyShared.key = "acceptOnlyShared"
 
 	turnin = panel:CreateCheckbox(L.TurnInQuests, L.TurnInQuests_Info)
 	turnin:SetPoint("TOPLEFT", acceptOnlyShared, "BOTTOMLEFT", -26, -8)
-	turnin.Callback = Callback
+	turnin.OnValueChanged = OnValueChanged
 	turnin.key = "turnin"
 
 	share = panel:CreateCheckbox(L.ShareQuests, L.ShareQuests_Info)
 	share:SetPoint("TOPLEFT", turnin, "BOTTOMLEFT", 0, -8)
-	share.Callback = Callback
+	share.OnValueChanged = OnValueChanged
 	share.key = "share"
 
 	abandon = panel:CreateCheckbox(L.AbandonQuests, L.AbandonQuests_Info)
 	abandon:SetPoint("TOPLEFT", share, "BOTTOMLEFT", 0, -8)
-	abandon.Callback = Callback
+	abandon.OnValueChanged = OnValueChanged
 	abandon.key = "abandon"
 
 	local help = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
@@ -551,17 +551,17 @@ function module:SetupOptions(panel)
 	help:SetText(L.QuestHelpText)
 
 	panel.refresh = function()
-		local enabled = self.db.enable
+		local enabled = Quest.db.enable
 
 		enable:SetChecked(enabled)
-		accept:SetChecked(self.db.accept)
-		acceptOnlyShared:SetChecked(self.db.acceptOnlyShared)
-		turnin:SetChecked(self.db.turnin)
-		share:SetChecked(self.db.share)
-		abandon:SetChecked(self.db.abandon)
+		accept:SetChecked(Quest.db.accept)
+		acceptOnlyShared:SetChecked(Quest.db.acceptOnlyShared)
+		turnin:SetChecked(Quest.db.turnin)
+		share:SetChecked(Quest.db.share)
+		abandon:SetChecked(Quest.db.abandon)
 
 		accept:SetEnabled(enabled)
-		acceptOnlyShared:SetEnabled(enabled and self.db.accept)
+		acceptOnlyShared:SetEnabled(enabled and Quest.db.accept)
 		turnin:SetEnabled(enabled)
 		share:SetEnabled(enabled)
 		abandon:SetEnabled(enabled)

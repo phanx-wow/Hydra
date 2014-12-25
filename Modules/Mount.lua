@@ -10,12 +10,12 @@
 	* Mount and dismount together.
 ----------------------------------------------------------------------]]
 
-local _, core = ...
-local L = core.L
-local SOLO, PARTY, TRUSTED, LEADER = core.STATE_SOLO, core.STATE_PARTY, core.STATE_TRUSTED, core.STATE_LEADER
+local _, Hydra = ...
+local L = Hydra.L
+local SOLO, PARTY, TRUSTED, LEADER = Hydra.STATE_SOLO, Hydra.STATE_PARTY, Hydra.STATE_TRUSTED, Hydra.STATE_LEADER
 
-local module = core:NewModule("Mount")
-module.defaults = {
+local Mount = Hydra:NewModule("Mount")
+Mount.defaults = {
 	mount = true,
 	dismount = true,
 }
@@ -27,11 +27,11 @@ local isCasting, isMounted, responding
 
 ------------------------------------------------------------------------
 
-function module:ShouldEnable()
-	return core.state > SOLO and (self.db.mount or self.db.dismount)
+function Mount:ShouldEnable()
+	return Hydra.state > SOLO and (self.db.mount or self.db.dismount)
 end
 
-function module:OnEnable()
+function Mount:OnEnable()
 	self:RegisterEvent("PLAYER_REGEN_DISABLED")
 	self:RegisterEvent("PLAYER_REGEN_ENABLED")
 	if not UnitAffectingCombat("player") then
@@ -67,9 +67,9 @@ local mountTypeString = {
 	[269] = "WATER_WALKING", -- Azure/Crimson Water Strider
 }
 
-function module:OnAddonMessage(message, channel, sender)
+function Mount:OnAddonMessage(message, channel, sender)
 	local target = Ambiguate(sender, "none")
-	if not core:IsTrusted(sender) or not (UnitInParty(target) or UnitInRaid(target)) then return end
+	if not Hydra:IsTrusted(sender) or not (UnitInParty(target) or UnitInRaid(target)) then return end
 	self:Debug("OnAddonMessage", message, channel, sender)
 
 	local action, remoteID, remoteName = strsplit(" ", message, 3)
@@ -158,17 +158,17 @@ end
 
 ------------------------------------------------------------------------
 
-function module:PLAYER_REGEN_DISABLED()
+function Mount:PLAYER_REGEN_DISABLED()
 	--self:Debug("PLAYER_REGEN_DISABLED", UnitAffectingCombat("player"))
 	self:UnregisterEvent("UNIT_SPELLCAST_START")
 end
 
-function module:PLAYER_REGEN_ENABLED()
+function Mount:PLAYER_REGEN_ENABLED()
 	--self:Debug("PLAYER_REGEN_ENABLED", UnitAffectingCombat("player"))
 	self:RegisterUnitEvent("UNIT_SPELLCAST_START", "player")
 end
 
-function module:UNIT_SPELLCAST_START(unit, spellName, _, castID, spellID)
+function Mount:UNIT_SPELLCAST_START(unit, spellName, _, castID, spellID)
 	--self:Debug("UNIT_SPELLCAST_START", spellName)
 	for i = 1, C_MountJournal.GetNumMounts() do
 		local name, id = C_MountJournal.GetMountInfo(i)
@@ -184,7 +184,7 @@ function module:UNIT_SPELLCAST_START(unit, spellName, _, castID, spellID)
 	end
 end
 
-function module:UNIT_SPELLCAST_SUCCEEDED(unit, spellName, _, castID, spellID)
+function Mount:UNIT_SPELLCAST_SUCCEEDED(unit, spellName, _, castID, spellID)
 	--self:Debug("UNIT_SPELLCAST_SUCCEEDED", spellName)
 	if spellName == isCasting then
 		isMounted = spellName
@@ -193,13 +193,13 @@ function module:UNIT_SPELLCAST_SUCCEEDED(unit, spellName, _, castID, spellID)
 	end
 end
 
-function module:UNIT_SPELLCAST_STOP(unit, spellName, _, castID, spellID)
+function Mount:UNIT_SPELLCAST_STOP(unit, spellName, _, castID, spellID)
 	--self:Debug("UNIT_SPELLCAST_STOP", spellName)
 	self:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 	self:UnregisterEvent("UNIT_SPELLCAST_STOP")
 end
 
-function module:UNIT_AURA(unit)
+function Mount:UNIT_AURA(unit)
 	if not UnitBuff(unit, isMounted) then
 		if not responding then
 			self:Debug("Dismounted")
@@ -212,29 +212,29 @@ end
 
 ------------------------------------------------------------------------
 
-module.displayName = L.Mount
-function module:SetupOptions(panel)
+Mount.displayName = L.Mount
+function Mount:SetupOptions(panel)
 	local title, notes = panel:CreateHeader(L.Mount, L.Mount_Info)
 
 	local mount = panel:CreateCheckbox(L.MountTogether, L.MountTogether_Info)
 	mount:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
-	function mount.Callback(this, value)
-		self.db.mount = value
-		self:IsEnabled()
+	function mount:OnValueChanged(value)
+		Mount.db.mount = value
+		Mount:IsEnabled()
 	end
 
 	local mountRandom = panel:CreateCheckbox(L.MountRandom, L.MountRandom)
 	mountRandom:SetPoint("TOPLEFT", mount, "BOTTOMLEFT", 0, -8)
-	function mountRandom.Callback(this, value)
-		self.db.mountRandom = value
-		self:IsEnabled()
+	function mountRandom:OnValueChanged(value)
+		Mount.db.mountRandom = value
+		Mount:IsEnabled()
 	end
 
 	local dismount = panel:CreateCheckbox(L.Dismount, L.Dismount_Info)
 	dismount:SetPoint("TOPLEFT", mountRandom, "BOTTOMLEFT", 0, -8)
-	function dismount.Callback(this, value)
-		self.db.dismount = value
-		self:IsEnabled()
+	function dismount:OnValueChanged(value)
+		Mount.db.dismount = value
+		Mount:IsEnabled()
 	end
 
 	local help = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
@@ -246,9 +246,9 @@ function module:SetupOptions(panel)
 	help:SetText(L.MountHelpText)
 
 	panel.refresh = function()
-		mount:SetChecked(self.db.mount)
-		mountRandom:SetChecked(self.db.mountRandom)
-		dismount:SetChecked(self.db.dismount)
+		mount:SetChecked(Mount.db.mount)
+		mountRandom:SetChecked(Mount.db.mountRandom)
+		dismount:SetChecked(Mount.db.dismount)
 	end
 end
 
@@ -270,7 +270,7 @@ local mountPassengers = {
 	[75973]  = 1, -- X-53 Touring Rocket
 }
 
-function module:GetMountPassengers(id)
+function Mount:GetMountPassengers(id)
 	return self.mountSpecial.passengers[id]
 end
 ]]

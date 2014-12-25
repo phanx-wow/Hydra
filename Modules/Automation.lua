@@ -16,12 +16,12 @@
 	* Sells junk
 ----------------------------------------------------------------------]]
 
-local _, core = ...
-local L = core.L
+local _, Hydra = ...
+local L = Hydra.L
 
-local module = core:NewModule("Automation")
-module.debug = true
-module.defaults = {
+local Automation = Hydra:NewModule("Automation")
+Automation.debug = true
+Automation.defaults = {
 	acceptResurrections = false,
 	acceptResurrectionsInCombat = false,
 	acceptSummons = false,
@@ -34,7 +34,7 @@ module.defaults = {
 
 ------------------------------------------------------------------------
 
-function module:OnEnable()
+function Automation:OnEnable()
 	if self.db.declineArenaTeams then
 		self:RegisterEvent("ARENA_TEAM_INVITE_REQUEST")
 	end
@@ -55,15 +55,15 @@ function module:OnEnable()
 	end
 end
 
-function module:Print(...)
+function Automation:Print(...)
 	if self.db.verbose then
-		core.Print(self, ...)
+		Hydra.Print(self, ...)
 	end
 end
 
 ------------------------------------------------------------------------
 
-function module:PETITION_SHOW()
+function Automation:PETITION_SHOW()
 	local type, _, _, _, sender, mine = GetPetitionInfo()
 	if not mine then
 		if type == "arena" and self.db.declineArenaTeams then
@@ -76,13 +76,13 @@ function module:PETITION_SHOW()
 	end
 end
 
-function module:ARENA_TEAM_INVITE_REQUEST(sender)
+function Automation:ARENA_TEAM_INVITE_REQUEST(sender)
 	self:Print(L.DeclinedArena, sender)
 	DeclineArenaTeam()
 	StaticPopup_Hide("ARENA_TEAM_INVITE")
 end
 
-function module:DUEL_REQUESTED(sender)
+function Automation:DUEL_REQUESTED(sender)
 	self:Print(L.DeclinedDuel, sender)
 	CancelDuel()
 	StaticPopup_Hide("DUEL_REQUESTED")
@@ -90,7 +90,7 @@ end
 
 ------------------------------------------------------------------------
 
-function module:MERCHANT_SHOW()
+function Automation:MERCHANT_SHOW()
 	if IsShiftKeyDown() then return end
 	self:Debug("MERCHANT_SHOW")
 
@@ -143,7 +143,7 @@ end
 
 ------------------------------------------------------------------------
 
-function module:RESURRECT_REQUEST(sender) -- #TODO: Check if sender includes the server name for cross-realm players
+function Automation:RESURRECT_REQUEST(sender) -- #TODO: Check if sender includes the server name for cross-realm players
 	local _, class = UnitClass(sender)
 	if class and class ~= "DRUID" or self.db.acceptResurrectionsInCombat or not UnitAffectingCombat(sender) then
 		self:Print(L.AcceptedRes, sender)
@@ -154,14 +154,14 @@ end
 
 ------------------------------------------------------------------------
 
-function module:PLAYER_REGEN_ENABLED()
+function Automation:PLAYER_REGEN_ENABLED()
 	self:UnregisterEvent("PLAYER_REGEN_ENABLED")
 	self:CONFIRM_SUMMON()
 end
 
-function module:CONFIRM_SUMMON() -- #TODO: Check if sender includes the server name for cross-realm players
+function Automation:CONFIRM_SUMMON() -- #TODO: Check if sender includes the server name for cross-realm players
 	local sender, location = GetSummonConfirmSummoner(), GetSummonConfirmAreaName()
-	if sender and location and core:IsTrusted(sender) then
+	if sender and location and Hydra:IsTrusted(sender) then
 		if UnitAffectingCombat("player") or not PlayerCanTeleport() then
 			self:Print(L.AcceptedSummonCombat)
 			self:RegisterEvent("PLAYER_REGEN_ENABLED")
@@ -177,71 +177,71 @@ end
 
 ------------------------------------------------------------------------
 
-module.displayName = L.Automation
-function module:SetupOptions(panel)
+Automation.displayName = L.Automation
+function Automation:SetupOptions(panel)
 	local title, notes = panel:CreateHeader(L.Automation, L.Automation_Info)
 
-	local function Callback(this, value)
-		module.db[this.key] = value
+	local function OnValueChanged(this, value)
+		Automation.db[this.key] = value
 		if this.child then
 			this.child:SetEnabled(value)
 		end
 		if this.key ~= "verbose" then
-			module:Refresh()
+			Automation:Refresh()
 		end
 	end
 
 	local declineDuels = panel:CreateCheckbox(L.DeclineDuels, L.DeclineDuels_Info)
 	declineDuels:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
-	declineDuels.Callback = Callback
+	declineDuels.OnValueChanged = OnValueChanged
 	declineDuels.key = "declineDuels"
 
 	local declineGuilds = panel:CreateCheckbox(L.DeclineGuilds, L.DeclineGuilds_Info)
 	declineGuilds:SetPoint("TOPLEFT", declineDuels, "BOTTOMLEFT", 0, -8)
-	function declineGuilds:Callback(value)
+	function declineGuilds:OnValueChanged(value)
 		SetAutoDeclineGuildInvites(value and 1 or 0)
 	end
 
 	local declineArenaTeams = panel:CreateCheckbox(L.DeclineArenas, L.DeclineArenas_Info)
 	declineArenaTeams:SetPoint("TOPLEFT", declineGuilds, "BOTTOMLEFT", 0, -8)
-	declineArenaTeams.Callback = Callback
+	declineArenaTeams.OnValueChanged = OnValueChanged
 	declineArenaTeams.key = "declineArenaTeams"
 
 	local acceptSummons = panel:CreateCheckbox(L.AcceptSummons, L.AcceptSummons_Info)
 	acceptSummons:SetPoint("TOPLEFT", declineArenaTeams, "BOTTOMLEFT", 0, -8)
-	acceptSummons.Callback = Callback
+	acceptSummons.OnValueChanged = OnValueChanged
 	acceptSummons.key = "acceptSummons"
 
 	local acceptResurrections = panel:CreateCheckbox(L.AcceptRes, L.AcceptRes_Info)
 	acceptResurrections:SetPoint("TOPLEFT", acceptSummons, "BOTTOMLEFT", 0, -8)
-	acceptResurrections.Callback = Callback
+	acceptResurrections.OnValueChanged = OnValueChanged
 	acceptResurrections.key = "acceptResurrections"
 
 	local acceptResurrectionsInCombat = panel:CreateCheckbox(L.AcceptCombatRes, L.AcceptCombatRes_Info)
 	acceptResurrectionsInCombat:SetPoint("TOPLEFT", acceptResurrections, "BOTTOMLEFT", 0, -8)
-	acceptResurrectionsInCombat.Callback = Callback
+	acceptResurrectionsInCombat.OnValueChanged = OnValueChanged
 	acceptResurrectionsInCombat.key = "acceptResurrectionsInCombat"
 
 	local repairEquipment = panel:CreateCheckbox(L.Repair, L.Repair_Info)
 	repairEquipment:SetPoint("TOPLEFT", acceptResurrectionsInCombat, "BOTTOMLEFT", 0, -8)
-	repairEquipment.Callback = Callback
+	repairEquipment.OnValueChanged = OnValueChanged
 	repairEquipment.key = "repairEquipment"
 
 	local repairWithGuildFunds = panel:CreateCheckbox(L.RepairGuild, L.RepairGuild_Info)
 	repairWithGuildFunds:SetPoint("TOPLEFT", repairEquipment, "BOTTOMLEFT", 24, -8)
-	repairWithGuildFunds.Callback = Callback
+	repairWithGuildFunds.OnValueChanged = OnValueChanged
 	repairWithGuildFunds.key = "repairWithGuildFunds"
 
 	repairEquipment.child = repairWithGuildFunds
 
 	local sellJunk = panel:CreateCheckbox(L.SellJunk, L.SellJunk_Info)
 	sellJunk:SetPoint("TOPLEFT", repairWithGuildFunds, "BOTTOMLEFT", -24, -8)
-	sellJunk.Callback = Callback
+	sellJunk.OnValueChanged = OnValueChanged
 	sellJunk.key = "sellJunk"
 
 	local verbose = panel:CreateCheckbox(L.Verbose, L.Verbose_Info)
 	verbose:SetPoint("TOPLEFT", sellJunk, "BOTTOMLEFT", 0, -24)
-	verbose.Callback = Callback
+	verbose.OnValueChanged = OnValueChanged
 	verbose.key = "verbose"
 
 	local help = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")

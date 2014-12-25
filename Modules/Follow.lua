@@ -13,13 +13,13 @@
 	* /corpse a[ccept] causes all ghost party members to accept their corpse
 ----------------------------------------------------------------------]]
 
-local _, core = ...
-local L = core.L
-local SOLO, PARTY, TRUSTED, LEADER = core.STATE_SOLO, core.STATE_PARTY, core.STATE_TRUSTED, core.STATE_LEADER
-local PLAYER_FULLNAME = core.PLAYER_FULLNAME
+local _, Hydra = ...
+local L = Hydra.L
+local SOLO, PARTY, TRUSTED, LEADER = Hydra.STATE_SOLO, Hydra.STATE_PARTY, Hydra.STATE_TRUSTED, Hydra.STATE_LEADER
+local PLAYER_FULLNAME = Hydra.PLAYER_FULLNAME
 
-local module = core:NewModule("Follow")
-module.defaults = {
+local Follow = Hydra:NewModule("Follow")
+Follow.defaults = {
 	enable = true,
 	refollowAfterCombat = false,
 	verbose = true,
@@ -32,11 +32,11 @@ local ACTION_ACCEPT, ACTION_RELEASE, MESSAGE_CANTRES, MESSAGE_WAIT, MESSAGE_SOUL
 
 ------------------------------------------------------------------------
 
-function module:ShouldEnable()
-	return core.state > SOLO
+function Follow:ShouldEnable()
+	return Hydra.state > SOLO
 end
 
-function module:OnEnable()
+function Follow:OnEnable()
 	self:RegisterEvent("AUTOFOLLOW_BEGIN")
 	self:RegisterEvent("AUTOFOLLOW_END")
 	if self.db.refollowAfterCombat then
@@ -44,13 +44,13 @@ function module:OnEnable()
 	end
 end
 
-function module:OnDisable()
+function Follow:OnDisable()
 	followers, following = wipe(followers), nil
 end
 
 ------------------------------------------------------------------------
 
-function module:OnAddonMessage(message, channel, sender)
+function Follow:OnAddonMessage(message, channel, sender)
 	self:Debug("AddonMessage", channel, sender, message)
 
 	local message, detail = strsplit(" ", message, 2)
@@ -85,7 +85,7 @@ function module:OnAddonMessage(message, channel, sender)
 		end
 
 	elseif message == ACTION_FOLLOW then
-		if core:IsTrusted(sender) and self.db.enable then -- sender wants me to follow them
+		if Hydra:IsTrusted(sender) and self.db.enable then -- sender wants me to follow them
 			local target = Ambiguate(sender, "none")
 			if CheckInteractDistance(target, 4) then
 				self:Debug(sender, "has sent a follow request.")
@@ -143,22 +143,22 @@ function module:OnAddonMessage(message, channel, sender)
 	end
 end
 
-function module:AUTOFOLLOW_BEGIN(name)
-	name = core:ValidateName(UnitName(name)) -- arg doesn't include a realm name
+function Follow:AUTOFOLLOW_BEGIN(name)
+	name = Hydra:ValidateName(UnitName(name)) -- arg doesn't include a realm name
 	self:Debug("Now following", name)
 	self:SendAddonMessage(MESSAGE_START .. " " .. name)
 	following = name
 	lastFollowing = name
 end
 
-function module:AUTOFOLLOW_END()
+function Follow:AUTOFOLLOW_END()
 	if not following then return end -- we don't know who we were following!
 	self:Debug("No longer following", following)
 	self:SendAddonMessage(MESSAGE_STOP)
 	following = nil
 end
 
-function module:PLAYER_REGEN_ENABLED()
+function Follow:PLAYER_REGEN_ENABLED()
 	if not lastFollowing then
 		self:Debug("No target to re-follow")
 		return
@@ -183,18 +183,18 @@ SLASH_HYDRA_FOLLOWME2 = "/fme"
 SLASH_HYDRA_FOLLOWME3 = L.SlashFollowMe
 
 function SlashCmdList.HYDRA_FOLLOWME(command)
-	if not module.enabled then return end
+	if not Follow.enabled then return end
 	command = command and strlower(strtrim(command)) or ""
 
 	if strlen(command) > 0 then
 		local sent = 0
 		for name in gmatch(command, "%S+") do
-			local name, displayName = core:IsTrusted(name)
+			local name, displayName = Hydra:IsTrusted(name)
 			if name then
 				local target = name and Ambiguate(name, "none")
 				if UnitInParty(target) or UnitInRaid(target) then
-					module:Debug("Sending follow command to:", name)
-					module:SendAddonMessage(ACTION_FOLLOW, name)
+					Follow:Debug("Sending follow command to:", name)
+					Follow:SendAddonMessage(ACTION_FOLLOW, name)
 					sent = sent + 1
 				end
 			end
@@ -204,13 +204,13 @@ function SlashCmdList.HYDRA_FOLLOWME(command)
 		end
 	end
 
-	local name, displayName = core:IsTrusted(UnitName("target"))
-	if name and module.db.targetedFollowMe and not UnitIsUnit("target", "player") and ( UnitInParty("target") or UnitInRaid("target") ) then
-		module:Debug("Sending follow command to target:", name)
-		module:SendAddonMessage(ACTION_FOLLOW, name)
+	local name, displayName = Hydra:IsTrusted(UnitName("target"))
+	if name and Follow.db.targetedFollowMe and not UnitIsUnit("target", "player") and ( UnitInParty("target") or UnitInRaid("target") ) then
+		Follow:Debug("Sending follow command to target:", name)
+		Follow:SendAddonMessage(ACTION_FOLLOW, name)
 	else
-		module:Debug("Sending follow command to party")
-		module:SendAddonMessage(ACTION_FOLLOW)
+		Follow:Debug("Sending follow command to party")
+		Follow:SendAddonMessage(ACTION_FOLLOW)
 	end
 end
 
@@ -220,13 +220,13 @@ SLASH_HYDRA_CORPSE1 = "/corpse"
 SLASH_HYDRA_CORPSE2 = L.SlashCorpse
 
 function SlashCmdList.HYDRA_CORPSE(command)
-	if not module.enabled then return end
+	if not Follow.enabled then return end
 	command = command and strlower(strtrim(command)) or ""
 
 	if strmatch(command, L.CmdAccept) or strmatch(command, "^re?l?e?a?s?e?") then
-		module:SendAddonMessage(ACTION_RELEASE)
+		Follow:SendAddonMessage(ACTION_RELEASE)
 	elseif strmatch(command, L.CmdRelease) or strmatch(command, "^ac?c?e?p?t?") then
-		module:SendAddonMessage(ACTION_ACCEPT)
+		Follow:SendAddonMessage(ACTION_ACCEPT)
 	end
 end
 
@@ -239,38 +239,38 @@ BINDING_NAME_HYDRA_ACCEPT_CORPSE = L.AcceptCorpse
 
 ------------------------------------------------------------------------
 
-module.displayName = L.Follow
-function module:SetupOptions(panel)
+Follow.displayName = L.Follow
+function Follow:SetupOptions(panel)
 	local title, notes = panel:CreateHeader(L.Follow, L.Follow_Info)
 
 	local enable = panel:CreateCheckbox(L.Enable, L.Enable_Info)
 	enable:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
-	function enable.Callback(this, value)
-		self.db.enable = value
-		self:Refresh()
+	function enable:OnValueChanged(value)
+		Follow.db.enable = value
+		Follow:Refresh()
 	end
 
 	local refollow = panel:CreateCheckbox(L.RefollowAfterCombat, L.RefollowAfterCombat_Info)
 	refollow:SetPoint("TOPLEFT", enable, "BOTTOMLEFT", 0, -8)
-	function refollow.Callback(this, value)
-		self.db.refollowAfterCombat = value
-		if value and self.db.enable then
-			self:RegisterEvent("PLAYER_REGEN_ENABLED")
+	function refollow:OnValueChanged(value)
+		Follow.db.refollowAfterCombat = value
+		if value and Follow.db.enable then
+			Follow:RegisterEvent("PLAYER_REGEN_ENABLED")
 		else
-			self:UnregisterEvent("PLAYER_REGEN_ENABLED")
+			Follow:UnregisterEvent("PLAYER_REGEN_ENABLED")
 		end
 	end
 
 	local verbose = panel:CreateCheckbox(L.Verbose, L.Verbose_Info)
 	verbose:SetPoint("TOPLEFT", refollow, "BOTTOMLEFT", 0, -8)
-	function verbose.Callback(this, value)
-		self.db.verbose = value
+	function verbose:OnValueChanged(value)
+		Follow.db.verbose = value
 	end
 
 	local targeted = panel:CreateCheckbox(L.TargetedFollowMe, L.TargetedFollowMe_Info)
 	targeted:SetPoint("TOPLEFT", verbose, "BOTTOMLEFT", 0, -8)
-	function targeted.Callback(this, value)
-		self.db.targetedFollowMe = value
+	function targeted:OnValueChanged(value)
+		Follow.db.targetedFollowMe = value
 	end
 
 	local follow = panel:CreateKeyBinding(L.FollowTarget, L.FollowTarget_Info, "HYDRA_FOLLOW_TARGET")
@@ -298,10 +298,10 @@ function module:SetupOptions(panel)
 	help:SetText(L.FollowHelpText)
 
 	panel.refresh = function()
-		enable:SetChecked(self.db.enable)
-		refollow:SetChecked(self.db.refollowAfterCombat)
-		verbose:SetChecked(self.db.verbose)
-		targeted:SetChecked(self.db.targetedFollowMe)
+		enable:SetChecked(Follow.db.enable)
+		refollow:SetChecked(Follow.db.refollowAfterCombat)
+		verbose:SetChecked(Follow.db.verbose)
+		targeted:SetChecked(Follow.db.targetedFollowMe)
 		follow:RefreshValue()
 		followme:RefreshValue()
 		release:RefreshValue()

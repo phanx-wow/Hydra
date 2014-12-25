@@ -7,19 +7,19 @@
 	https://github.com/Phanx/Hydra
 ------------------------------------------------------------------------
 	Hydra Group
-	* Type "/inviteme" to command your target to invite you to a module
-	  and promote you to module leader. Supplying any parameter with this
+	* Type "/inviteme" to command your target to invite you to a Group
+	  and promote you to Group leader. Supplying any parameter with this
 	  command will stop the target from promoting you after inviting.
-	* Type "/promoteme" to command your target to promote you to module
+	* Type "/promoteme" to command your target to promote you to Group
 	  leader.
 ----------------------------------------------------------------------]]
 
-local _, core = ...
-local L = core.L
-local SOLO, PARTY, TRUSTED, LEADER = core.STATE_SOLO, core.STATE_PARTY, core.STATE_TRUSTED, core.STATE_LEADER
+local _, Hydra = ...
+local L = Hydra.L
+local SOLO, PARTY, TRUSTED, LEADER = Hydra.STATE_SOLO, Hydra.STATE_PARTY, Hydra.STATE_TRUSTED, Hydra.STATE_LEADER
 
-local module = core:NewModule("Group")
-module.defaults = { enable = true }
+local Group = Hydra:NewModule("Group")
+Group.defaults = { enable = true }
 
 local ACTION_INVITE, ACTION_PROMOTE = "INVITE", "PROMOTE"
 
@@ -27,11 +27,11 @@ local remote
 
 ------------------------------------------------------------------------
 
-function module:ShouldEnable()
+function Group:ShouldEnable()
 	return self.db.enable
 end
 
-function module:OnEnable()
+function Group:OnEnable()
 	self:RegisterEvent("PARTY_INVITE_REQUEST")
 end
 
@@ -54,11 +54,11 @@ end
 
 ------------------------------------------------------------------------
 
-function module:OnAddonMessage(message, channel, sender)
+function Group:OnAddonMessage(message, channel, sender)
 	self:Debug("OnAddonMessage", message, channel, sender)
 
 	if message == ACTION_INVITE then
-		if not core:IsTrusted(sender) then
+		if not Hydra:IsTrusted(sender) then
 			return self:SendChatMessage(L.CantInviteNotTrusted, sender)
 		end
 		if GetNumGroupMembers() > 0 and not UnitIsGroupLeader("player") then
@@ -67,7 +67,7 @@ function module:OnAddonMessage(message, channel, sender)
 		InviteUnit(Ambiguate(sender, "none"))
 
 	elseif message == ACTION_PROMOTE then
-		if not core:IsTrusted(sender) then
+		if not Hydra:IsTrusted(sender) then
 			return self:SendChatMessage(L.CantPromoteNotTrusted, sender)
 		end
 		if GetNumGroupMembers() == 0 then
@@ -83,7 +83,7 @@ function module:OnAddonMessage(message, channel, sender)
 	end
 end
 
-function module:PARTY_LEADER_CHANGED()
+function Group:PARTY_LEADER_CHANGED()
 	if remote and GetNumGroupMembers() > 0 and UnitIsGroupLeader("player") then
 		self:UnregisterEvent("PARTY_LEADER_CHANGED")
 		PromoteToLeader(Ambiguate(remote, "none"))
@@ -95,26 +95,26 @@ end
 
 do
 	local function checkInvite(which, sender)
-		if module.enabled and core:IsTrusted(sender) then
-			module:Debug("Sender", sender, "is trusted.")
+		if Group.enabled and Hydra:IsTrusted(sender) then
+			Group:Debug("Sender", sender, "is trusted.")
 			local dialog = StaticPopup_Visible(which)
 			if dialog then
-				module:Debug("Dialog found:", dialog)
+				Group:Debug("Dialog found:", dialog)
 				StaticPopup_OnClick(_G[dialog], 1)
 			else
-				module:Debug("Dialog not found.")
+				Group:Debug("Dialog not found.")
 			end
 		end
 	end
 
 	hooksecurefunc("StaticPopup_Show", function(which, sender)
 		if which == "PARTY_INVITE" or which == "PARTY_INVITE_XREALM" then
-			module:Debug("StaticPopup_Show", which, sender)
+			Group:Debug("StaticPopup_Show", which, sender)
 			checkInvite(which, sender)
 		end
 	end)
 
-	function module:PARTY_INVITE_REQUEST(sender, roleTankAvailable, roleHealerAvailable, roleDamagerAvailable, isCrossRealm)
+	function Group:PARTY_INVITE_REQUEST(sender, roleTankAvailable, roleHealerAvailable, roleDamagerAvailable, isCrossRealm)
 		if role1 or role2 or role3 then
 			-- LFG thingy
 			return
@@ -134,18 +134,18 @@ if L.SlashInviteMe ~= SLASH_HYDRA_INVITEME1 and L.SlashInviteMe ~= SLASH_HYDRA_I
 end
 
 SlashCmdList.HYDRA_INVITEME = function(name)
-	if not name or not module.enabled or GetNumGroupMembers() > 0 then return end
+	if not name or not Group.enabled or GetNumGroupMembers() > 0 then return end
 
 	name = name and strtrim(name) or ""
 	if strlen(name) == 0 and UnitCanCooperate("player", "target") then
-		name = core:IsTrusted(UnitName("target"))
+		name = Hydra:IsTrusted(UnitName("target"))
 	else
-		name = core:IsTrusted(name)
+		name = Hydra:IsTrusted(name)
 	end
 
 	if name then
-		module:Debug("Sending invite request to", name)
-		module:SendAddonMessage(ACTION_INVITE, name)
+		Group:Debug("Sending invite request to", name)
+		Group:SendAddonMessage(ACTION_INVITE, name)
 	end
 end
 
@@ -157,37 +157,37 @@ SLASH_HYDRA_PROMOTEME3 = L.SlashPromoteMe
 
 SlashCmdList.HYDRA_PROMOTEME = function(name)
 	if UnitIsGroupLeader("player") then
-		return module:Debug("You are already the leader")
+		return Group:Debug("You are already the leader")
 	elseif IsInGroup() then
 		name = GetUnitName(GetGroupLeader(), true)
-		module:Debug("Sending promote request to", name)
+		Group:Debug("Sending promote request to", name)
 	else
 		name = name and strtrim(name) or ""
 		if strlen(name) == 0 and UnitCanCooperate("player", "target") then
-			name = core:IsTrusted(UnitFullName("target"))
+			name = Hydra:IsTrusted(UnitFullName("target"))
 		else
-			name = core:IsTrusted(name)
+			name = Hydra:IsTrusted(name)
 		end
 		if not name then
-			return module:Debug("/promoteme - Not in group, no valid name specified.")
+			return Group:Debug("/promoteme - Not in group, no valid name specified.")
 		end
-		module:Debug("Sending invite+promote request to", name)
+		Group:Debug("Sending invite+promote request to", name)
 	end
 
-	module:SendAddonMessage(ACTION_PROMOTE, name)
+	Group:SendAddonMessage(ACTION_PROMOTE, name)
 end
 
 ------------------------------------------------------------------------
 
-module.displayName = L.Group
-function module:SetupOptions(panel)
+Group.displayName = L.Group
+function Group:SetupOptions(panel)
 	local title, notes = panel:CreateHeader(L.Group, L.Group_Info)
 
 	local enable = panel:CreateCheckbox(L.Enable, L.Enable_Info)
 	enable:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
-	function enable.Callback(this, value)
-		self.db.enable = value
-		self:Refresh()
+	function enable:OnValueChanged(value)
+		Mount.db.enable = value
+		Mount:Refresh()
 	end
 
 	local help = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
@@ -199,6 +199,6 @@ function module:SetupOptions(panel)
 	help:SetText(L.GroupHelpText)
 
 	panel.refresh = function()
-		enable:SetChecked(self.db.enable)
+		enable:SetChecked(Mount.db.enable)
 	end
 end

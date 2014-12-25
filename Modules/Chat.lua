@@ -19,16 +19,16 @@
 	  "name" is the target of the message
 ----------------------------------------------------------------------]]
 
-local _, core = ...
-local L = core.L
-local SOLO, PARTY, TRUSTED, LEADER = core.STATE_SOLO, core.STATE_PARTY, core.STATE_TRUSTED, core.STATE_LEADER
-local PLAYER, REALM, PLAYERREALM = core.PLAYER_NAME, core.PLAYER_REALM, core.PLAYER_FULLNAME
+local _, Hydra = ...
+local L = Hydra.L
+local SOLO, PARTY, TRUSTED, LEADER = Hydra.STATE_SOLO, Hydra.STATE_PARTY, Hydra.STATE_TRUSTED, Hydra.STATE_LEADER
+local PLAYER, REALM, PLAYERREALM = Hydra.PLAYER_NAME, Hydra.PLAYER_REALM, Hydra.PLAYER_FULLNAME
 
-local module = core:NewModule("Chat")
-module:SetScript("OnUpdate", function() frameTime = GetTime() end)
-module:Hide()
+local Chat = Hydra:NewModule("Chat")
+Chat:SetScript("OnUpdate", function() frameTime = GetTime() end)
+Chat:Hide()
 
-module.defaults = {
+Chat.defaults = {
 	enable = true,
 	mode = "LEADER", -- APPFOCUS | LEADER
 	timeout = 300,
@@ -42,14 +42,14 @@ L.WhisperFromGM = "\124TInterface\\ChatFrame\\UI-ChatIcon-Blizz.blp:0:2:0:-3\124
 
 ------------------------------------------------------------------------
 
-function module:ShouldEnable()
+function Chat:ShouldEnable()
 	-- #TEMP: fix old lowercase entry
 	self.db.mode = strupper(self.db.mode)
 
-	return self.db.enable and core.state >= TRUSTED
+	return self.db.enable and Hydra.state >= TRUSTED
 end
 
-function module:OnEnable()
+function Chat:OnEnable()
 	self:RegisterEvent("CHAT_MSG_GROUP")
 	self:RegisterEvent("CHAT_MSG_GROUP_LEADER")
 	self:RegisterEvent("CHAT_MSG_RAID")
@@ -61,7 +61,7 @@ function module:OnEnable()
 	self:SetShown(self.db.mode == "APPFOCUS")
 end
 
-function module:OnDisable()
+function Chat:OnDisable()
 	self:Hide()
 end
 
@@ -69,7 +69,7 @@ end
 
 local playerToken = "@" .. PLAYER .. "%-?%S*" -- allow but don't require a realm
 
-function module:CHAT_MSG_GROUP(message, sender) -- #TODO: check if player is "name" or "name-realm"
+function Chat:CHAT_MSG_GROUP(message, sender) -- #TODO: check if player is "name" or "name-realm"
 	if sender == PLAYER or sender == PLAYERREALM or strmatch(message, "^!") then return end -- command or error response
 
 	self:Debug("CHAT_MSG_GROUP", sender, message)
@@ -106,10 +106,10 @@ function module:CHAT_MSG_GROUP(message, sender) -- #TODO: check if player is "na
 	end
 end
 
-module.CHAT_MSG_GROUP_LEADER = module.CHAT_MSG_GROUP
-module.CHAT_MSG_INSTANCE_CHAT = module.CHAT_MSG_GROUP
-module.CHAT_MSG_RAID = module.CHAT_MSG_GROUP
-module.CHAT_MSG_RAID_LEADER = module.CHAT_MSG_GROUP
+Chat.CHAT_MSG_GROUP_LEADER = Chat.CHAT_MSG_GROUP
+Chat.CHAT_MSG_INSTANCE_CHAT = Chat.CHAT_MSG_GROUP
+Chat.CHAT_MSG_RAID = Chat.CHAT_MSG_GROUP
+Chat.CHAT_MSG_RAID_LEADER = Chat.CHAT_MSG_GROUP
 
 ------------------------------------------------------------------------
 
@@ -138,7 +138,7 @@ local ignorewords = {
 
 local lastForwardedTo, lastForwardedMessage
 
-function module:CHAT_MSG_WHISPER(message, sender, _, _, _, flag, _, _, _, _, _, guid)
+function Chat:CHAT_MSG_WHISPER(message, sender, _, _, _, flag, _, _, _, _, _, guid)
 	self:Debug("CHAT_MSG_WHISPER", flag, sender, message)
 	local senderNameOnly = Ambiguate(sender, "none")
 
@@ -165,7 +165,7 @@ function module:CHAT_MSG_WHISPER(message, sender, _, _, _, flag, _, _, _, _, _, 
 
 			elseif message ~= whisperForwardMessage then
 				-- whisper last forward target
-				self:Debug("...forwarding this whisper to the same target.")
+				self:Debug("...forwarding :OnValueChanged( whisper to the same target.")
 				whisperForwardTime = GetTime()
 				self:SendChatMessage(message, whisperForwardTo)
 
@@ -216,20 +216,20 @@ end
 
 ------------------------------------------------------------------------
 
-function module:CHAT_MSG_BN_WHISPER(message, sender, _, _, _, _, _, _, _, _, _, _, pID)
+function Chat:CHAT_MSG_BN_WHISPER(message, sender, _, _, _, _, _, _, _, _, _, _, pID)
 	self:Debug("CHAT_MSG_BN_WHISPER", sender, pID, message)
 	local _, _, battleTag = BNGetFriendInfoByID(pID)
 	self:SendAddonMessage(strjoin("§", "BW", battleTag, message))
 end
 
-function module:CHAT_MSG_BN_CONVERSATION(message, sender, _, channel, _, _, _, channelNumber, _, _, _, _, pID)
+function Chat:CHAT_MSG_BN_CONVERSATION(message, sender, _, channel, _, _, _, channelNumber, _, _, _, _, pID)
 	self:Debug("CHAT_MSG_BN_CONVERSATION", sender, message)
 	self:SendAddonMessage(strjoin("§", "BC", battleTag, message, channel, channelNumber))
 end
 
 ------------------------------------------------------------------------
 
-function module:CHAT_MSG_SYSTEM(message)
+function Chat:CHAT_MSG_SYSTEM(message)
 	if message == ERR_FRIEND_NOT_FOUND then
 		-- the whisper couldn't be forwarded
 	end
@@ -237,8 +237,8 @@ end
 
 ------------------------------------------------------------------------
 
-function module:OnAddonMessage(message, channel, sender)
-	if not core:IsTrusted(sender) or not UnitInParty(sender) or not UnitInRaid(sender) then return end
+function Chat:OnAddonMessage(message, channel, sender)
+	if not Hydra:IsTrusted(sender) or not UnitInParty(sender) or not UnitInRaid(sender) then return end
 
 	local fwdEvent, fwdSender, fwdMessage = strmatch(message, "^([^%s§]+)[%§]([^%s§]+)[%§]?(.*)$")
 	self:Debug("HydraChat", sender, fwdEvent, fwdSender, fwdMessage)
@@ -293,15 +293,15 @@ end
 
 ------------------------------------------------------------------------
 
-module.displayName = L.Chat
-function module:SetupOptions(panel)
+Chat.displayName = L.Chat
+function Chat:SetupOptions(panel)
 	local title, notes = panel:CreateHeader(L.Chat, L.Chat_Info)
 
 	local enable = panel:CreateCheckbox(L.Enable, L.Enable_Info)
 	enable:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
-	function enable.Callback(this, value)
-		self.db.enable = value
-		self:Refresh()
+	function enable:OnValueChanged(value)
+		Chat.db.enable = value
+		Chat:Refresh()
 	end
 
 	local modes = {
@@ -311,12 +311,12 @@ function module:SetupOptions(panel)
 
 	local mode
 	do
-		local checked = function(this)
-			return self.db.mode == this.value
+		local checked = function(self)
+			return Chat.db.mode == self.value
 		end
-		local func = function(this)
-			self.db.mode = this.value
-			self:Refresh()
+		local func = function(self)
+			Chat.db.mode = self.value
+			Chat:Refresh()
 		end
 		local menu = {
 			{ text = L.AppFocus, value = "APPFOCUS", checked = checked, func = func },
@@ -330,9 +330,9 @@ function module:SetupOptions(panel)
 	local timeout = panel:CreateSlider(L.Timeout, L.GroupTimeout_Info, 30, 600, 30)
 	timeout:SetPoint("TOPLEFT", mode, "BOTTOMLEFT", 0, -16)
 	timeout:SetPoint("TOPRIGHT", mode, "BOTTOMRIGHT", 0, -16)
-	timeout.Callback = function(this, value)
+	function timeout:OnValueChanged(value)
 		value = floor((value + 1) / 30) * 30
-		self.db.timeout = value
+		Chat.db.timeout = value
 		return value
 	end
 
@@ -345,8 +345,8 @@ function module:SetupOptions(panel)
 	help:SetText(L.ChatHelpText)
 
 	panel.refresh = function()
-		enable:SetValue(self.db.enable)
-		mode:SetValue(modes[self.db.mode])
-		timeout:SetValue(self.db.timeout)
+		enable:SetValue(Chat.db.enable)
+		mode:SetValue(modes[Chat.db.mode])
+		timeout:SetValue(Chat.db.timeout)
 	end
 end

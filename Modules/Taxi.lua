@@ -10,12 +10,12 @@
 	* Autoselect the last taxi node selected by anyone in the party
 ----------------------------------------------------------------------]]
 
-local _, core = ...
-local L = core.L
-local SOLO, PARTY, TRUSTED, LEADER = core.STATE_SOLO, core.STATE_PARTY, core.STATE_TRUSTED, core.STATE_LEADER
+local _, Hydra = ...
+local L = Hydra.L
+local SOLO, PARTY, TRUSTED, LEADER = Hydra.STATE_SOLO, Hydra.STATE_PARTY, Hydra.STATE_TRUSTED, Hydra.STATE_LEADER
 
-local module = core:NewModule("Taxi")
-module.defaults = {
+local Taxi = Hydra:NewModule("Taxi")
+Taxi.defaults = {
 	enable = true,
 	timeout = 60,
 }
@@ -25,30 +25,30 @@ local taxiTime, taxiName = 0
 
 ------------------------------------------------------------------------
 
-function module:ShouldEnable()
-	return core.state > SOLO and self.db.enable
+function Taxi:ShouldEnable()
+	return Hydra.state > SOLO and self.db.enable
 end
 
-function module:OnEnable()
+function Taxi:OnEnable()
 	self:RegisterEvent("TAXIMAP_OPENED")
 end
 
-function module:OnDisable()
+function Taxi:OnDisable()
 	taxiTime, taxiName = 0, nil
 end
 
 ------------------------------------------------------------------------
 
-function module:OnAddonMessage(message, channel, sender)
-	if not core:IsTrusted(sender) then return end
+function Taxi:OnAddonMessage(message, channel, sender)
+	if not Hydra:IsTrusted(sender) then return end
 	self:Debug("Comm received from", sender, "->", message)
 
 	if message == MESSAGE_TIMEOUT then
-		return core:Print("ERROR:", format(L.TaxiTimeoutError, sender))
+		return Hydra:Print("ERROR:", format(L.TaxiTimeoutError, sender))
 	elseif message == MESSAGE_UNKNOWN then
-		return core:Print("ERROR:", format(L.TaxiMismatchError, sender)) -- #TODO: update message text
+		return Hydra:Print("ERROR:", format(L.TaxiMismatchError, sender)) -- #TODO: update message text
 	else
-		core:Print(L.TaxiSet, sender, message)
+		Hydra:Print(L.TaxiSet, sender, message)
 		taxiName, taxiTime = message, GetTime()
 		if TaxiRouteMap:IsShown() then
 			self:TAXIMAP_OPENED()
@@ -56,7 +56,7 @@ function module:OnAddonMessage(message, channel, sender)
 	end
 end
 
-function module:TAXIMAP_OPENED()
+function Taxi:TAXIMAP_OPENED()
 	if not taxiName or taxiName == "INVALID" then return end -- we're picking the taxi
 	if IsShiftKeyDown() then return end -- we're doing something else
 	self:Debug("TAXIMAP_OPENED", taxiName)
@@ -85,8 +85,8 @@ hooksecurefunc("TakeTaxiNode", function(i)
 	if taxiName then return end -- we're following someone
 	if IsShiftKeyDown() then return end -- we're doing something else
 	local name = TaxiNodeName(i)
-	module:Debug("Broadcasting taxi node", i, name)
-	module:SendAddonMessage(name)
+	Taxi:Debug("Broadcasting taxi node", i, name)
+	Taxi:SendAddonMessage(name)
 end)
 
 ------------------------------------------------------------------------
@@ -100,30 +100,28 @@ end
 function SlashCmdList.HYDRA_CLEARTAXI()
 	if taxiName then
 		taxiTime, taxiName = 0, nil
-		module:Print(L.TaxiCleared)
+		Taxi:Print(L.TaxiCleared)
 	end
 end
 
 ------------------------------------------------------------------------
 
-module.displayName = L.Taxi
-function module:SetupOptions(panel)
+Taxi.displayName = L.Taxi
+function Taxi:SetupOptions(panel)
 	local title, notes = panel:CreateHeader(L.Taxi, L.Taxi_Info)
 
 	local enable = panel:CreateCheckbox(L.Enable, L.Enable_Info)
 	enable:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
-	function enable.Callback(this, value)
-		self.db.enable = value
-		self:Refresh()
+	function enable:OnValueChanged(value)
+		Taxi.db.enable = value
+		Taxi:Refresh()
 	end
 
 	local timeout = panel:CreateSlider(L.Timeout, L.TaxiTimeout_Info, 30, 600, 30)
 	timeout:SetPoint("TOPLEFT", enable, "BOTTOMLEFT", 0, -16)
 	timeout:SetPoint("TOPRIGHT", notes, "BOTTOM", -8, -28 - enable:GetHeight())
-	function timeout.Callback(this, value)
-		value = floor((value + 1) / 30) * 30
-		self.db.timeout = value
-		return value
+	function timeout:OnValueChanged(value)
+		Taxi.db.timeout = value
 	end
 
 	local help = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
@@ -135,7 +133,7 @@ function module:SetupOptions(panel)
 	help:SetText(L.TaxiHelpText)
 
 	panel.refresh = function()
-		enable:SetChecked(self.db.enable)
-		timeout:SetValue(self.db.timeout)
+		enable:SetChecked(Taxi.db.enable)
+		timeout:SetValue(Taxi.db.timeout)
 	end
 end
