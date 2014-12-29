@@ -122,8 +122,6 @@ local ignoredQuests = {
 	[GetQuestName(29475)] = true, [GetQuestName(29477)] = true,
 }
 
-HQIGNORE = ignoredQuests -- debugging
-
 function PopulateQuestNames() -- local at top of file
 	Quest:Debug("PopulateQuestNames")
 	local complete = true
