@@ -50,7 +50,7 @@ function Taxi:OnAddonMessage(message, channel, sender)
 	else
 		Hydra:Print(L.TaxiSet, sender, message)
 		taxiName, taxiTime = message, GetTime()
-		if TaxiRouteMap:IsShown() then
+		if TaxiRouteMap:IsVisible() then
 			self:TAXIMAP_OPENED()
 		end
 	end
