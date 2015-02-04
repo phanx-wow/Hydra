@@ -11,13 +11,7 @@ local HYDRA, Hydra = ...
 Hydra.name = HYDRA
 Hydra.modules = {}
 
-local L = setmetatable(Hydra.L or {}, { __index = function(t, k)
-	if k == nil then return "" end
-	local v = tostring(k)
-	rawset(t, k, v)
-	return v
-end })
-Hydra.L = L
+local L = Hydra.L
 
 BINDING_HEADER_HYDRA = GetAddOnMetadata(HYDRA, "Title")
 

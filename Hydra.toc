@@ -30,12 +30,7 @@ Libs\PhanxConfig-KeyBinding\PhanxConfig-KeyBinding.lua
 Libs\PhanxConfig-OptionsPanel\PhanxConfig-OptionsPanel.lua
 Libs\PhanxConfig-Slider\PhanxConfig-Slider.lua
 
-Locales\Locale-en.lua
-Locales\Locale-de.lua
-Locales\Locale-es.lua
-Locales\Locale-fr.lua
-Locales\Locale-ko.lua
-Locales\Locale-ru.lua
+Localization.lua
 
 Core.lua
 
