@@ -328,21 +328,6 @@ function f:CheckParty(unit)
 
 	Hydra:Debug("Party changed:", Hydra.state, "->", newstate)
 
-	if UnitIsGroupLeader("player") then
-		local loot = GetLootMethod()
-		if newstate >= SECURE then
-			if loot ~= "freeforall" then
-				Hydra:Debug("Setting loot method to Free For All.")
-				SetLootMethod("freeforall")
-			end
-		elseif newstate > SOLO then
-			if loot == "freeforall" then
-				Hydra:Debug("Setting loot method to Group.")
-				SetLootMethod("group")
-			end
-		end
-	end
-
 	if newstate ~= Hydra.state then
 		Hydra.state = newstate
 		for name, module in pairs(Hydra.modules) do
@@ -354,6 +339,8 @@ function f:CheckParty(unit)
 				else
 					module:Disable()
 				end
+			elseif module.OnStateChange then
+				module:OnStateChange(newstate)
 			end
 		end
 	end
