@@ -186,8 +186,8 @@ function Group:SetupOptions(panel)
 	local enable = panel:CreateCheckbox(L.Enable, L.Enable_Info)
 	enable:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
 	function enable:OnValueChanged(value)
-		Mount.db.enable = value
-		Mount:Refresh()
+		Group.db.enable = value
+		Group:Refresh()
 	end
 
 	local help = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
@@ -199,6 +199,6 @@ function Group:SetupOptions(panel)
 	help:SetText(L.GroupHelpText)
 
 	panel.refresh = function()
-		enable:SetChecked(Mount.db.enable)
+		enable:SetChecked(Group.db.enable)
 	end
 end
