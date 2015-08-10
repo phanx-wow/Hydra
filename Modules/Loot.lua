@@ -50,7 +50,7 @@ end
 
 Loot.displayName = L["Loot"]
 function Loot:SetupOptions(panel)
-	local title, notes = panel:CreateHeader(L["Loot"], L.Loot_Info)
+	local title, notes = panel:CreateHeader(L.Loot, L.Loot_Info)
 
 	local enable = panel:CreateCheckbox(L.Enable, L.Enable_Info)
 	enable:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
@@ -58,7 +58,7 @@ function Loot:SetupOptions(panel)
 		Loot.db.enable = value
 		Loot:Refresh()
 	end
-
+--[[
 	local help = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
 	help:SetPoint("BOTTOMLEFT", 16, 16)
 	help:SetPoint("BOTTOMRIGHT", -16, 16)
@@ -66,7 +66,7 @@ function Loot:SetupOptions(panel)
 	help:SetJustifyH("LEFT")
 	help:SetJustifyV("BOTTOM")
 	help:SetText(L.LootHelpText)
-
+]]
 	panel.refresh = function()
 		enable:SetChecked(Loot.db.enable)
 	end
