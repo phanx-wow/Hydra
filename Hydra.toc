@@ -1,4 +1,4 @@
-## Interface: 60000
+## Interface: 60200
 ## Version: @project-version@
 
 ## Title: Hydra
@@ -38,8 +38,9 @@ Core.lua
 Modules\Automation.lua
 Modules\Chat.lua
 Modules\Follow.lua
+Modules\Group.lua
+Modules\Loot.lua
 Modules\Mount.lua
-Modules\Party.lua
 Modules\Quest.lua
 Modules\Taxi.lua
 

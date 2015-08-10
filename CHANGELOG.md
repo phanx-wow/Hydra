@@ -1,3 +1,11 @@
+### Version 6.2.0.30
+
+* Updated for WoW 6.2
+* Added an option to disable automatic loot method switching
+* Fixed an issue with taxi destination sharing
+* Fixed some issues with option checkboxes
+* Renamed the "Party" module to "Group" since it also works for raids
+
 ### Version 6.0.2.206
 
 * Updated for WoW 6.0
