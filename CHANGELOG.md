@@ -1,3 +1,7 @@
+### Version 6.2.0.31
+
+* Fixed an error in localization
+
 ### Version 6.2.0.30
 
 * Updated for WoW 6.2
