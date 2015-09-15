@@ -16,7 +16,7 @@
 
 local _, Hydra = ...
 local L = Hydra.L
-local SOLO, PARTY, TRUSTED, LEADER = Hydra.STATE_SOLO, Hydra.STATE_PARTY, Hydra.STATE_TRUSTED, Hydra.STATE_LEADER
+local STATE_SOLO, STATE_INSECURE, STATE_SECURE, STATE_LEADER = Hydra.STATE_SOLO, Hydra.STATE_INSECURE, Hydra.STATE_SECURE, Hydra.STATE_LEADER
 
 local Group = Hydra:NewModule("Group")
 Group.defaults = { enable = true }

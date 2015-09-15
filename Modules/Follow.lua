@@ -15,7 +15,7 @@
 
 local _, Hydra = ...
 local L = Hydra.L
-local SOLO, PARTY, TRUSTED, LEADER = Hydra.STATE_SOLO, Hydra.STATE_PARTY, Hydra.STATE_TRUSTED, Hydra.STATE_LEADER
+local STATE_SOLO, STATE_INSECURE, STATE_SECURE, STATE_LEADER = Hydra.STATE_SOLO, Hydra.STATE_INSECURE, Hydra.STATE_SECURE, Hydra.STATE_LEADER
 local PLAYER_FULLNAME = Hydra.PLAYER_FULLNAME
 
 local Follow = Hydra:NewModule("Follow")
@@ -33,7 +33,7 @@ local ACTION_ACCEPT, ACTION_RELEASE, MESSAGE_CANTRES, MESSAGE_WAIT, MESSAGE_SOUL
 ------------------------------------------------------------------------
 
 function Follow:ShouldEnable()
-	return Hydra.state > SOLO
+	return Hydra.state > STATE_SOLO
 end
 
 function Follow:OnEnable()

@@ -21,7 +21,7 @@
 
 local _, Hydra = ...
 local L = Hydra.L
-local SOLO, PARTY, TRUSTED, LEADER = Hydra.STATE_SOLO, Hydra.STATE_PARTY, Hydra.STATE_TRUSTED, Hydra.STATE_LEADER
+local STATE_SOLO, STATE_INSECURE, STATE_SECURE, STATE_LEADER = Hydra.STATE_SOLO, Hydra.STATE_INSECURE, Hydra.STATE_SECURE, Hydra.STATE_LEADER
 local PLAYER, REALM, PLAYERREALM = Hydra.PLAYER_NAME, Hydra.PLAYER_REALM, Hydra.PLAYER_FULLNAME
 
 local Chat = Hydra:NewModule("Chat")
@@ -46,7 +46,7 @@ function Chat:ShouldEnable()
 	-- #TEMP: fix old lowercase entry
 	self.db.mode = strupper(self.db.mode)
 
-	return self.db.enable and Hydra.state >= TRUSTED
+	return self.db.enable and Hydra.state >= STATE_SECURE
 end
 
 function Chat:OnEnable()

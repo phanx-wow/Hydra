@@ -12,7 +12,7 @@
 
 local _, Hydra = ...
 local L = Hydra.L
-local SOLO, PARTY, TRUSTED, LEADER = Hydra.STATE_SOLO, Hydra.STATE_PARTY, Hydra.STATE_TRUSTED, Hydra.STATE_LEADER
+local STATE_SOLO, STATE_INSECURE, STATE_SECURE, STATE_LEADER = Hydra.STATE_SOLO, Hydra.STATE_INSECURE, Hydra.STATE_SECURE, Hydra.STATE_LEADER
 
 local Mount = Hydra:NewModule("Mount")
 Mount.defaults = {
@@ -28,7 +28,7 @@ local isCasting, isMounted, responding
 ------------------------------------------------------------------------
 
 function Mount:ShouldEnable()
-	return Hydra.state > SOLO and (self.db.mount or self.db.dismount)
+	return Hydra.state > STATE_SOLO and (self.db.mount or self.db.dismount)
 end
 
 function Mount:OnEnable()

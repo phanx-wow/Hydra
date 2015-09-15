@@ -18,6 +18,7 @@
 
 local _, Hydra = ...
 local L = Hydra.L
+local STATE_SOLO, STATE_INSECURE, STATE_SECURE, STATE_LEADER = Hydra.STATE_SOLO, Hydra.STATE_INSECURE, Hydra.STATE_SECURE, Hydra.STATE_LEADER
 
 local Automation = Hydra:NewModule("Automation")
 Automation.debug = true

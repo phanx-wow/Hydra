@@ -13,7 +13,7 @@
 
 local _, Hydra = ...
 local L = Hydra.L
-local SOLO, PARTY, TRUSTED, LEADER = Hydra.STATE_SOLO, Hydra.STATE_PARTY, Hydra.STATE_TRUSTED, Hydra.STATE_LEADER
+local STATE_SOLO, STATE_INSECURE, STATE_SECURE, STATE_LEADER = Hydra.STATE_SOLO, Hydra.STATE_INSECURE, Hydra.STATE_SECURE, Hydra.STATE_LEADER
 
 local Loot = Hydra:NewModule("Loot")
 Loot.defaults = { enable = true }
@@ -32,12 +32,12 @@ end
 function Loot:OnStateChange(newstate)
 	if UnitIsGroupLeader("player") then
 		local loot = GetLootMethod()
-		if newstate >= SECURE then
+		if newstate >= STATE_SECURE then
 			if loot ~= "freeforall" then
 				self:Debug("Setting loot method to FFA.")
 				SetLootMethod("freeforall")
 			end
-		elseif newstate > SOLO then
+		elseif newstate > STATE_SOLO then
 			if loot == "freeforall" then
 				self:Debug("Setting loot method to Group.")
 				SetLootMethod("group")

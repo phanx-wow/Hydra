@@ -26,7 +26,7 @@
 
 local _, Hydra = ...
 local L = Hydra.L
-local SOLO, PARTY, TRUSTED, LEADER = Hydra.STATE_SOLO, Hydra.STATE_PARTY, Hydra.STATE_TRUSTED, Hydra.STATE_LEADER
+local STATE_SOLO, STATE_INSECURE, STATE_SECURE, STATE_LEADER = Hydra.STATE_SOLO, Hydra.STATE_INSECURE, Hydra.STATE_SECURE, Hydra.STATE_LEADER
 local PLAYER_FULLNAME, PLAYER_NAME, PLAYER_REALM = Hydra.PLAYER_FULLNAME, Hydra.PLAYER_NAME, Hydra.PLAYER_REALM
 
 local Quest = Hydra:NewModule("Quest")
@@ -66,7 +66,7 @@ function Quest:OnEnable()
 	self:RegisterEvent("QUEST_FINISHED")
 	self:RegisterEvent("QUEST_AUTOCOMPLETE")
 
-	if Hydra.state > SOLO then
+	if Hydra.state > STATE_SOLO then
 		self:RegisterEvent("QUEST_ACCEPT_CONFIRM")
 		self:RegisterEvent("QUEST_LOG_UPDATE")
 	end

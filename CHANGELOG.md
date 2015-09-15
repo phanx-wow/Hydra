@@ -1,3 +1,7 @@
+### Version 6.2.2.32
+
+* Fixed an error in the Loot module
+
 ### Version 6.2.0.31
 
 * Fixed an error in localization

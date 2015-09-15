@@ -18,11 +18,7 @@ BINDING_HEADER_HYDRA = GetAddOnMetadata(HYDRA, "Title")
 ------------------------------------------------------------------------
 
 local SOLO, INSECURE, SECURE, LEADER = 0, 1, 2, 3
-Hydra.STATE_SOLO, Hydra.STATE_PARTY, Hydra.STATE_TRUSTED, Hydra.STATE_LEADER = SOLO, INSECURE, SECURE, LEADER
-
-function Hydra:GetStateFlags()
-	return SOLO, INSECURE, SECURE, LEADER
-end
+Hydra.STATE_SOLO, Hydra.STATE_INSECURE, Hydra.STATE_SECURE, Hydra.STATE_LEADER = SOLO, INSECURE, SECURE, LEADER
 
 ------------------------------------------------------------------------
 
@@ -308,8 +304,9 @@ function f:CheckParty(unit)
 	if unit and not groupUnits[unit] then return end -- irrelevant UNIT_NAME_UPDATE
 
 	local newstate = SOLO
-	if IsInGroup() then
-		local u, n = "party", GetNumGroupMembers()
+	local n = GetNumGroupMembers()
+	if n > 1 then
+		local u = "party"
 		if IsInRaid() then
 			u = "raid"
 		else
