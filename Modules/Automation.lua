@@ -18,7 +18,6 @@
 
 local _, Hydra = ...
 local L = Hydra.L
-local STATE_SOLO, STATE_INSECURE, STATE_SECURE, STATE_LEADER = Hydra.STATE_SOLO, Hydra.STATE_INSECURE, Hydra.STATE_SECURE, Hydra.STATE_LEADER
 
 local Automation = Hydra:NewModule("Automation")
 Automation.debug = true
@@ -103,7 +102,7 @@ function Automation:MERCHANT_SHOW()
 				local link = GetContainerItemLink(bag, slot)
 				if link then
 					local _, _, q, _, _, _, _, _, _, _, v = GetItemInfo(link)
-					if q and q < 1 then -- no idea how q can be nil!
+					if q == LE_ITEM_QUALITY_POOR then
 						local _, n = GetContainerItemInfo(bag, slot)
 						num = num + n
 						value = value + (v * n)
