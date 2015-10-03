@@ -41,6 +41,7 @@ Modules\Follow.lua
 Modules\Group.lua
 Modules\Loot.lua
 Modules\Mount.lua
+Modules\QuestData.lua
 Modules\Quest.lua
 Modules\Taxi.lua
 

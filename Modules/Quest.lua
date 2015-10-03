@@ -41,7 +41,9 @@ Quest.defaults = {
 
 local ACTION_ABANDON, ACTION_ACCEPT, ACTION_TURNIN = "ABANDON", "ACCEPT", "TURNIN"
 local accept, accepted = {}, {}
-local PopulateQuestNames
+
+local RepeatableQuestRequirements = Hydra.RepeatableQuestRequirements
+local QuestsToIgnore = Hydra.QuestsToIgnore
 
 ------------------------------------------------------------------------
 
@@ -50,11 +52,6 @@ function Quest:ShouldEnable()
 end
 
 function Quest:OnEnable()
-	-- Fill in quest names that the client was too slow to get in the main chunk:
-	if PopulateQuestNames and PopulateQuestNames() then
-		PopulateQuestNames = nil
-	end
-
 	self:RegisterEvent("GOSSIP_SHOW")
 	self:RegisterEvent("QUEST_GREETING")
 	self:RegisterEvent("QUEST_DETAIL")
@@ -70,86 +67,6 @@ function Quest:OnEnable()
 		self:RegisterEvent("QUEST_ACCEPT_CONFIRM")
 		self:RegisterEvent("QUEST_LOG_UPDATE")
 	end
-end
-
-------------------------------------------------------------------------
-
-local function GetQuestName(id)
-	GameTooltip:SetOwner(UIParent, "ANCHOR_NONE")
-	GameTooltip:SetHyperlink("quest:" .. id)
-	local name = GameTooltipTextLeft1:GetText()
-	GameTooltip:Hide()
-	return name or id
-end
-
-local function CleanLink(link)
-	link = gsub("|c%x%x%x%x%x%x%x%x", "")
-	link = gsub("|r", "")
-	return link
-end
-
---	No API to see if a repeatable quest can be completed.
-local repeatableQuestComplete = {
-	-- Replenishing the Pantry
-	[GetQuestName(31535)] = function() return GetItemCount(87557) >= 1 end, -- Bundle of Groceries
-	-- Seeds of Fear
-	[GetQuestName(31603)] = function() return GetItemCount(87903) >= 6 end, -- Dread Amber Shards
-}
-
-local ignoredQuests = {
-	-- Manual
-	[GetQuestName(32296)] = true, -- Treasures of the Thunder King
-	-- Suboptimal rewards: Blue Feather, Jade Cat, Lovely Apple, Marsh Lily, Ruby Shard
-	[GetQuestName(30382)] = true, [GetQuestName(30419)] = true, [GetQuestName(30425)] = true, [GetQuestName(30388)] = true, [GetQuestName(30412)] = true, [GetQuestName(30437)] = true, [GetQuestName(30406)] = true, [GetQuestName(30431)] = true,
-	[GetQuestName(30399)] = true, [GetQuestName(30418)] = true, [GetQuestName(30387)] = true, [GetQuestName(30411)] = true, [GetQuestName(30436)] = true, [GetQuestName(30393)] = true, [GetQuestName(30405)] = true, [GetQuestName(30430)] = true,
-	[GetQuestName(30398)] = true, [GetQuestName(30189)] = true, [GetQuestName(30417)] = true, [GetQuestName(30423)] = true, [GetQuestName(30380)] = true, [GetQuestName(30410)] = true, [GetQuestName(30392)] = true, [GetQuestName(30429)] = true,
-	[GetQuestName(30401)] = true, [GetQuestName(30383)] = true, [GetQuestName(30426)] = true, [GetQuestName(30413)] = true, [GetQuestName(30438)] = true, [GetQuestName(30395)] = true, [GetQuestName(30407)] = true, [GetQuestName(30432)] = true,
-	[GetQuestName(30397)] = true, [GetQuestName(30160)] = true, [GetQuestName(30416)] = true, [GetQuestName(30422)] = true, [GetQuestName(30379)] = true, [GetQuestName(30434)] = true, [GetQuestName(30391)] = true, [GetQuestName(30403)] = true,
-	-- Mutually exclusive: Work Order
-	[GetQuestName(32642)] = true, [GetQuestName(32647)] = true, [GetQuestName(32645)] = true, [GetQuestName(32649)] = true, [GetQuestName(32653)] = true, [GetQuestName(32658)] = true,
-	-- Mutually exclusive: Fiona's Caravan
-	[GetQuestName(27560)] = true, [GetQuestName(27562)] = true, [GetQuestName(27555)] = true, [GetQuestName(27556)] = true, [GetQuestName(27558)] = true, [GetQuestName(27561)] = true, [GetQuestName(27557)] = true, [GetQuestName(27559)] = true,
-	-- Mutually exclusive: Allegiance to the Aldor/Scryers
-	[GetQuestName(10551)] = true, [GetQuestName(10552)] = true,
-	-- Mutually exclusive: Little Orphan Kekek/Roo of the Wolvar/Oracles
-	[GetQuestName(13927)] = true, [GetQuestName(13926)] = true,
-	-- No reward: Return to the Abyssal Shelf (Alliance/Horde)
-	[GetQuestName(10346)] = true, [GetQuestName(10347)] = true,
-	-- Stuck on 5-minute flight: To Venomspite!
-	[GetQuestName(12182)] = true,
-	-- Profession specializations: Elixir/Potion/Transmutation Master, Goblin/Gnomish Engineering
-	[GetQuestName(29481)] = true, [GetQuestName(29067)] = true, [GetQuestName(29482)] = true,
-	[GetQuestName(29475)] = true, [GetQuestName(29477)] = true,
-}
-
-function PopulateQuestNames() -- local at top of file
-	Quest:Debug("PopulateQuestNames")
-	local complete = true
-	for id, func in pairs(repeatableQuestComplete) do
-		if type(id) == "number" then
-			local name = GetQuestName(id)
-			if name then
-				repeatableQuestComplete[name] = func
-				repeatableQuestComplete[id] = nil
-			else
-				Quest:Debug("Repeatable quest name not found: |Hquest:"..id.."|h[quest:"..id.."]|h")
-				complete = false
-			end
-		end
-	end
-	for id in pairs(ignoredQuests) do
-		if type(id) == "number" then
-			local name = GetQuestName(id)
-			if name then
-				ignoredQuests[name] = true
-				ignoredQuests[id] = nil
-			else
-				Quest:Debug("Ignored quest name not found: |Hquest:"..id.."|h[quest:"..id.."]|h")
-				complete = false
-			end
-		end
-	end
-	return complete
 end
 
 ------------------------------------------------------------------------
@@ -230,7 +147,7 @@ function Quest:GOSSIP_SHOW()
 	if self.db.turnin then
 		for i = 1, GetNumGossipActiveQuests() do
 			local title, level, isLowLevel, isComplete, isLegendary = select(i * 5 - 4, GetGossipActiveQuests())
-			if isComplete and not ignoredQuests[title] then
+			if isComplete and not QuestsToIgnore[title] then
 				return SelectGossipActiveQuest(i)
 			end
 		end
@@ -240,10 +157,15 @@ function Quest:GOSSIP_SHOW()
 	for i = 1, GetNumGossipAvailableQuests() do
 		local title, level, isLowLevel, isDaily, isRepeatable, isLegendary = select(i * 6 - 5, GetGossipAvailableQuests())
 		self:Debug(i, '"'..title..'"', isLowLevel, isRepeatable)
-		if not ignoredQuests[title] then
+		if not QuestsToIgnore[title] then
 			local go
-			if isRepeatable and repeatableQuestComplete[title] then
-				go = repeatableQuestComplete[title]()
+			local requires = isRepeatable and RepeatableQuestRequirements[title]
+			if requires then
+				if type(requires) == "table" then
+					go = GetItemCount(requires[1]) >= requires[2]
+				else
+					go = GetItemCount(requires[1]) >= 1
+				end
 				self:Debug("Repeatable", go)
 			elseif self.db.acceptOnlyShared then
 				go = accept[strlower(title)]
@@ -270,7 +192,7 @@ function Quest:QUEST_GREETING()
 			local title, complete = GetActiveTitle(i)
 			title = StripTitle(title)
 			self:Debug("Checking active quest:", title)
-			if complete and not ignoredQuests[title] then
+			if complete and not QuestsToIgnore[title] then
 				self:Debug("Selecting complete quest", title)
 				SelectActiveQuest(i)
 			end
@@ -282,7 +204,7 @@ function Quest:QUEST_GREETING()
 		for i = 1, GetNumAvailableQuests() do
 			local title = StripTitle(GetAvailableTitle(i))
 			self:Debug("Checking available quest:", title)
-			if not ignoredQuests[title] then
+			if not QuestsToIgnore[title] then
 				local go
 				if self.db.acceptOnlyShared then
 					go = accept[strlower(title)]
