@@ -40,7 +40,7 @@ function Mount:OnEnable()
 
 	if IsMounted() then
 		for i = 1, C_MountJournal.GetNumMounts() do
-			local _, id, _, active = C_MountJournal.GetMountInfo(i)
+			local _, id, _, active = C_MountJournal.GetMountInfoByID(i)
 			if active then
 				local name = GetSpellInfo(id)
 				self:Debug("Already mounted:", name)
@@ -100,10 +100,10 @@ function Mount:OnAddonMessage(message, channel, sender)
 	-- 1. Look for same mount
 	if not self.db.mountRandom then
 		for i = 1, C_MountJournal.GetNumMounts() do
-			local name, id = C_MountJournal.GetMountInfo(i)
+			local name, id = C_MountJournal.GetMountInfoByID(i)
 			if id == remoteID then
 				self:Debug("Found same mount", name)
-				C_MountJournal.Summon(i)
+				C_MountJournal.SummonByID(i)
 				responding = nil
 				return
 			end
@@ -114,9 +114,9 @@ function Mount:OnAddonMessage(message, channel, sender)
 	local mountType, equivalent
 	local numMounts = C_MountJournal.GetNumMounts()
 	for i = 1, numMounts do
-		local _, id = C_MountJournal.GetMountInfo(i)
+		local _, id = C_MountJournal.GetMountInfoByID(i)
 		if id == remoteID then
-			local _, _, _, _, mountTypeID = C_MountJournal.GetMountInfoExtra(i)
+			local _, _, _, _, mountTypeID = C_MountJournal.GetMountInfoByIDExtra(i)
 			mountType = mountTypeString[mountTypeID]
 			break
 		end
@@ -125,9 +125,9 @@ function Mount:OnAddonMessage(message, channel, sender)
 		return self:Debug("Mount type not recognized")
 	end
 	for i = 1, numMounts do
-		local _, id, _, _, usable = C_MountJournal.GetMountInfo(i)
+		local _, id, _, _, usable = C_MountJournal.GetMountInfoByID(i)
 		if usable then
-			local _, _, _, _, mountTypeID = C_MountJournal.GetMountInfoExtra(i)
+			local _, _, _, _, mountTypeID = C_MountJournal.GetMountInfoByIDExtra(i)
 			if mountTypeString[mountTypeID] == mountType then
 				if not equivalent then
 					equivalent = i
@@ -144,9 +144,9 @@ function Mount:OnAddonMessage(message, channel, sender)
 	end
 	local i = type(equivalent) == "table" and equivalent[random(#equivalent)] or equivalent
 	if i then
-		local name = C_MountJournal.GetMountInfo(i)
+		local name = C_MountJournal.GetMountInfoByID(i)
 		self:Debug("Found equivalent mount", name)
-		C_MountJournal.Summon(i)
+		C_MountJournal.SummonByID(i)
 		responding = nil
 		return
 	end
@@ -171,7 +171,7 @@ end
 function Mount:UNIT_SPELLCAST_START(unit, spellName, _, castID, spellID)
 	--self:Debug("UNIT_SPELLCAST_START", spellName)
 	for i = 1, C_MountJournal.GetNumMounts() do
-		local name, id = C_MountJournal.GetMountInfo(i)
+		local name, id = C_MountJournal.GetMountInfoByID(i)
 		if id == spellID then
 			if not responding then
 				self:Debug("Summoning mount", name, id)
