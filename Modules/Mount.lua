@@ -1,10 +1,10 @@
 --[[--------------------------------------------------------------------
 	Hydra
 	Multibox leveling helper.
-	Copyright (c) 2010-2015 Phanx <addons@phanx.net>. All rights reserved.
-	http://www.wowinterface.com/downloads/info17572-Hydra.html
-	http://www.curse.com/addons/wow/hydra
+	Copyright (c) 2010-2016 Phanx <addons@phanx.net>. All rights reserved.
 	https://github.com/Phanx/Hydra
+	https://mods.curse.com/addons/wow/hydra
+	https://www.wowinterface.com/downloads/info17572-Hydra.html
 ------------------------------------------------------------------------
 	Hydra Mount
 	* Mount and dismount together.
@@ -25,6 +25,8 @@ local MESSAGE_ERROR = "ERROR"
 
 local isCasting, isMounted, responding
 
+local MountIDs
+
 ------------------------------------------------------------------------
 
 function Mount:ShouldEnable()
@@ -38,9 +40,11 @@ function Mount:OnEnable()
 		self:PLAYER_REGEN_ENABLED()
 	end
 
+	MountIDs = C_MountJournal.GetMountIDs()
+
 	if IsMounted() then
-		for i = 1, C_MountJournal.GetNumMounts() do
-			local _, id, _, active = C_MountJournal.GetMountInfo(i)
+		for i = 1, #MountIDs do
+			local _, id, _, active = C_MountJournal.GetMountInfoByID(MountIDs[i])
 			if active then
 				local name = GetSpellInfo(id)
 				self:Debug("Already mounted:", name)
@@ -99,54 +103,48 @@ function Mount:OnAddonMessage(message, channel, sender)
 
 	-- 1. Look for same mount
 	if not self.db.mountRandom then
-		for i = 1, C_MountJournal.GetNumMounts() do
-			local name, id = C_MountJournal.GetMountInfo(i)
-			if id == remoteID then
-				self:Debug("Found same mount", name)
-				C_MountJournal.Summon(i)
-				responding = nil
-				return
-			end
+		local name, spellID = C_MountJournal.GetMountInfoByID(remoteID)
+		if name then
+			self:Debug("Found same mount", name)
+			C_MountJournal.SummonByID(remoteID)
+			responding = nil
+			return
 		end
 	end
 
 	-- 2. Look for equivalent mount
 	local mountType, equivalent
-	local numMounts = C_MountJournal.GetNumMounts()
-	for i = 1, numMounts do
-		local _, id = C_MountJournal.GetMountInfo(i)
-		if id == remoteID then
-			local _, _, _, _, mountTypeID = C_MountJournal.GetMountInfoExtra(i)
-			mountType = mountTypeString[mountTypeID]
-			break
-		end
-	end
-	if not mountType then
+	local _, _, _, _, mountTypeID = C_MountJournal.GetMountInfoExtraByID(remoteID)
+	if mountTypeID then
+		mountType = mountTypeString[mountTypeID]
+	else
 		return self:Debug("Mount type not recognized")
 	end
-	for i = 1, numMounts do
-		local _, id, _, _, usable = C_MountJournal.GetMountInfo(i)
+	for i = 1, #MountIDs do
+		local mountID = MountIDs[i]
+		local _, _, _, _, usable = C_MountJournal.GetMountInfoByID(mountID)
 		if usable then
-			local _, _, _, _, mountTypeID = C_MountJournal.GetMountInfoExtra(i)
+			local _, _, _, _, mountTypeID = C_MountJournal.GetMountInfoExtraByID(mountID)
 			if mountTypeString[mountTypeID] == mountType then
+				self:Debug("Found equivalent mount", name)
 				if not equivalent then
-					equivalent = i
+					equivalent = mountID
 					if not self.db.mountRandom then
 						break
 					end
 				elseif type(equivalent) == "table" then
-					tinsert(equivalent, i)
+					tinsert(equivalent, mountID)
 				else
-					equivalent = { equivalent, i }
+					equivalent = { equivalent, mountID }
 				end
 			end
 		end
 	end
-	local i = type(equivalent) == "table" and equivalent[random(#equivalent)] or equivalent
-	if i then
-		local name = C_MountJournal.GetMountInfo(i)
-		self:Debug("Found equivalent mount", name)
-		C_MountJournal.Summon(i)
+	local mountID = type(equivalent) == "table" and equivalent[random(#equivalent)] or equivalent
+	if mountID then
+		local name = C_MountJournal.GetMountInfoByID(mountID)
+		self:Debug("Using equivalent mount", name)
+		C_MountJournal.SummonByID(mountID)
 		responding = nil
 		return
 	end
@@ -170,12 +168,13 @@ end
 
 function Mount:UNIT_SPELLCAST_START(unit, spellName, _, castID, spellID)
 	--self:Debug("UNIT_SPELLCAST_START", spellName)
-	for i = 1, C_MountJournal.GetNumMounts() do
-		local name, id = C_MountJournal.GetMountInfo(i)
-		if id == spellID then
+	for i = 1, #MountIDs do
+		local mountID = MountIDs[i]
+		local mountName, mountSpellID = C_MountJournal.GetMountInfoByID(mountID)
+		if mountSpellID == spellID then
 			if not responding then
-				self:Debug("Summoning mount", name, id)
-				self:SendAddonMessage(ACTION_MOUNT .. " " .. id .. " " .. name)
+				self:Debug("Summoning mount", mountName, mountID, mountSpellID)
+				self:SendAddonMessage(ACTION_MOUNT .. " " .. mountID .. " " .. mountName)
 				isCasting = spellName
 			end
 			self:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player")
