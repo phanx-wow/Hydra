@@ -1,10 +1,10 @@
 --[[--------------------------------------------------------------------
 	Hydra
 	Multibox leveling helper.
-	Copyright (c) 2010-2015 Phanx <addons@phanx.net>. All rights reserved.
-	http://www.wowinterface.com/downloads/info17572-Hydra.html
-	http://www.curse.com/addons/wow/hydra
+	Copyright (c) 2010-2016 Phanx <addons@phanx.net>. All rights reserved.
 	https://github.com/Phanx/Hydra
+	https://mods.curse.com/addons/wow/hydra
+	https://www.wowinterface.com/downloads/info17572-Hydra.html
 ------------------------------------------------------------------------
 	Hydra Quest
 	* Shares quests accepted from NPCs with party members
@@ -133,7 +133,7 @@ end
 local function IsTrackingTrivial()
 	for i = 1, GetNumTrackingTypes() do
 		local name, _, active = GetTrackingInfo(i)
-		if name == MINIMAP_TRACKING_TRIVIAL_QUESTS then
+		if name == MINIMAP_TRACKING_HIDDEN_QUESTS then
 			return active
 		end
 	end
@@ -146,7 +146,7 @@ function Quest:GOSSIP_SHOW()
 	-- Turn in complete quests:
 	if self.db.turnin then
 		for i = 1, GetNumGossipActiveQuests() do
-			local title, level, isLowLevel, isComplete, isLegendary = select(i * 5 - 4, GetGossipActiveQuests())
+			local title, level, isLowLevel, isComplete, isLegendary, isIgnored = select(i * 6 - 5, GetGossipActiveQuests())
 			if isComplete and not QuestsToIgnore[title] then
 				return SelectGossipActiveQuest(i)
 			end
@@ -155,7 +155,7 @@ function Quest:GOSSIP_SHOW()
 
 	-- Pick up available quests:
 	for i = 1, GetNumGossipAvailableQuests() do
-		local title, level, isLowLevel, isDaily, isRepeatable, isLegendary = select(i * 6 - 5, GetGossipAvailableQuests())
+		local title, level, isLowLevel, isDaily, isRepeatable, isLegendary, isIgnored = select(i * 7 - 6, GetGossipAvailableQuests())
 		self:Debug(i, '"'..title..'"', isLowLevel, isRepeatable)
 		if not QuestsToIgnore[title] then
 			local go
