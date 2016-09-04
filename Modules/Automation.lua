@@ -1,10 +1,10 @@
 --[[--------------------------------------------------------------------
 	Hydra
 	Multibox leveling helper.
-	Copyright (c) 2010-2015 Phanx <addons@phanx.net>. All rights reserved.
-	http://www.wowinterface.com/downloads/info17572-Hydra.html
-	http://www.curse.com/addons/wow/hydra
+	Copyright (c) 2010-2016 Phanx <addons@phanx.net>. All rights reserved.
 	https://github.com/Phanx/Hydra
+	https://mods.curse.com/addons/wow/hydra
+	https://www.wowinterface.com/downloads/info17572-Hydra.html
 ------------------------------------------------------------------------
 	Hydra Automation
 	* Declines arena team invitations and charters
