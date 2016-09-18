@@ -1,5 +1,7 @@
-### Version 6.2.2.32
+### Version 7.0.3.0
 
+* Updated for WoW 7.0
+* Fixed the Follow module not actually deactivating when un-checking its "Enable" option
 * Fixed an error in the Loot module
 
 ### Version 6.2.0.31

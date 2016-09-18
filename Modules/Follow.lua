@@ -33,7 +33,7 @@ local ACTION_ACCEPT, ACTION_RELEASE, MESSAGE_CANTRES, MESSAGE_WAIT, MESSAGE_SOUL
 ------------------------------------------------------------------------
 
 function Follow:ShouldEnable()
-	return Hydra.state > STATE_SOLO
+	return self.db.enable and Hydra.state > STATE_SOLO
 end
 
 function Follow:OnEnable()
