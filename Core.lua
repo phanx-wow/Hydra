@@ -274,7 +274,7 @@ function f:PLAYER_LOGIN()
 		end
 	end
 
-	RegisterAddonMessagePrefix("Hydra")
+	C_ChatInfo.RegisterAddonMessagePrefix("Hydra")
 	f:RegisterEvent("CHAT_MSG_ADDON")
 	f:RegisterEvent("GROUP_ROSTER_UPDATE")
 	f:RegisterEvent("PARTY_LEADER_CHANGED")
