@@ -50,8 +50,8 @@ function Chat:ShouldEnable()
 end
 
 function Chat:OnEnable()
-	self:RegisterEvent("CHAT_MSG_GROUP")
-	self:RegisterEvent("CHAT_MSG_GROUP_LEADER")
+--	self:RegisterEvent("CHAT_MSG_GROUP")
+--	self:RegisterEvent("CHAT_MSG_GROUP_LEADER")
 	self:RegisterEvent("CHAT_MSG_RAID")
 	self:RegisterEvent("CHAT_MSG_RAID_LEADER")
 	self:RegisterEvent("CHAT_MSG_SYSTEM")
